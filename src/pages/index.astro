@@ -4,11 +4,32 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout>
   <main style="padding: 2rem; max-width: 760px; margin: 0 auto;">
-    <h1>Benjamin Weberink's Written Archive Thread</h1>
+    <header>
+      <h1>Benjamin Weberink's Written Archive Thread</h1>
+    </header>
     <p>Personal writings and other written works</p>
 
     <p>
-      <a href="/blog/">View Archive →</a>
+      <a href="/archive">View Archive</a>
+    </p>
+    <p class="rss-link">
+      <a href="/rss.xml">RSS Feed</a>
     </p>
   </main>
 </Layout>
+
+<style>
+  .rss-link {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .rss-link a {
+    color: #888;
+    text-decoration: none;
+  }
+
+  .rss-link a:hover {
+    color: #666;
+  }
+</style>
