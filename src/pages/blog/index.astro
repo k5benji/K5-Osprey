@@ -1,15 +1,40 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 
-const rawBlogFiles = import.meta.glob('../../content/blog/*.md', { as: 'raw' });
+const rawAstroFiles = import.meta.glob('./*.astro', { query: '?raw', import: 'default', eager: true });
+const rawMdFiles = import.meta.glob('../../content/blog/*.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
 const blogContents = {};
 
-for (const [filePath, resolver] of Object.entries(rawBlogFiles)) {
-  const raw = await resolver();
-  const slug = filePath.split('/').pop().replace(/\.md$/, '');
-  const body = raw.replace(/^---[\s\S]*?---/, '').trim();
+for (const [filePath, raw] of Object.entries(rawAstroFiles)) {
+  if (filePath.endsWith('index.astro')) continue;
+  const slug = filePath.split('/').pop().replace(/\.astro$/, '');
+
+  const importMatch = raw.match(/import\s+\w+\s+from\s+['"](.+?\.md)['"]/);
+  let mdBody = '';
+  if (importMatch) {
+    const mdPath = importMatch[1];
+    mdBody = rawMdFiles[mdPath] ?? rawMdFiles[`../../content/blog/${slug}.md`] ?? '';
+  }
+  if (!mdBody) {
+    const candidate = Object.keys(rawMdFiles).find((key) => key.endsWith(`${slug}.md`));
+    mdBody = candidate ? rawMdFiles[candidate] : '';
+  }
+
+  const body = mdBody
+    .replace(/^---[\s\S]*?---/, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+    .replace(/[*_`~]/g, '')
+    .trim();
+
   blogContents[slug] = body;
 }
+const blogContentsJson = JSON.stringify(blogContents);
 ---
 
 <Layout>
@@ -97,7 +122,7 @@ for (const [filePath, resolver] of Object.entries(rawBlogFiles)) {
 </style>
 
 <script type="application/json" id="blog-contents">
-  {JSON.stringify(blogContents)}
+  {blogContentsJson}
 </script>
 
 <script type="module">
