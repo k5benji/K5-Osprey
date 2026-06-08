@@ -1,11 +1,26 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+
+const searchData = await Promise.all(
+  posts.map(async (post) => {
+    const body = post.body ?? '';
+
+    return {
+      title: post.data.title,
+      description: post.data.description,
+      url: `/blog/${post.id}/`,
+      body,
+    };
+  })
+);
 ---
 
 <Layout>
 	<main style="padding: 2rem; max-width: 760px; margin: 0 auto;">
 		<h1>Osprey Thread Kastle Five</h1>
-		<p>Recent written work.</p>
 
 		<input
 			id="search"
@@ -13,6 +28,8 @@ import Layout from '../../layouts/Layout.astro';
 			placeholder="Search..."
 			class="search-box"
 		/>
+
+		<ul id="results"></ul>
 
 		<ul style="list-style: none; padding: 0; margin: 2rem 0;">
 			<li style="margin-bottom: 1.5rem;">
@@ -50,14 +67,11 @@ import Layout from '../../layouts/Layout.astro';
 .search-box {
   border: none;
   background: none;
-
   padding: 0;
   margin: 2rem 0;
-
   font-family: inherit;
   font-size: inherit;
   color: #888;
-
   width: 100%;
 }
 
@@ -68,19 +82,72 @@ import Layout from '../../layouts/Layout.astro';
 .search-box:focus {
   outline: none;
 }
+
+#results {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0;
+}
+
+.search-result {
+  margin-bottom: 1.5rem;
+}
+
+.search-result a {
+  color: #555;
+  text-decoration: none;
+}
+
+.search-result p {
+  color: #aaa;
+  font-size: 0.85rem;
+  margin-top: 0.35rem;
+}
 </style>
 
-<script>
+<script define:vars={{ searchData }}>
   const input = document.getElementById("search");
-  const posts = document.querySelectorAll("li");
+  const results = document.getElementById("results");
+
+  function makeSnippet(text, query) {
+    const lower = text.toLowerCase();
+    const index = lower.indexOf(query);
+
+    if (index === -1) return "";
+
+    const start = Math.max(0, index - 45);
+    const end = Math.min(text.length, index + query.length + 75);
+
+    return "..." + text.slice(start, end).trim() + "...";
+  }
 
   input?.addEventListener("input", () => {
-    const query = input.value.toLowerCase();
+    const query = input.value.toLowerCase().trim();
+    results.innerHTML = "";
 
-    posts.forEach((post) => {
-      const text = post.textContent.toLowerCase();
-      post.style.display = text.includes(query) ? "" : "none";
+    if (!query) return;
+
+    const matches = searchData.filter((post) => {
+      const haystack = `${post.title} ${post.description} ${post.body}`.toLowerCase();
+      return haystack.includes(query);
     });
+
+    for (const post of matches) {
+      const snippet =
+        makeSnippet(post.body, query) ||
+        makeSnippet(post.description, query) ||
+        post.description;
+
+      const li = document.createElement("li");
+      li.className = "search-result";
+
+      li.innerHTML = `
+        <a href="${post.url}">${post.title}</a>
+        <p>${snippet}</p>
+      `;
+
+      results.appendChild(li);
+    }
   });
 </script>
 </Layout>
