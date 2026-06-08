@@ -125,41 +125,21 @@ const blogContentsJson = JSON.stringify(blogContents);
   {blogContentsJson}
 </script>
 
-<script type="module">
-  const searchInput = document.querySelector("#search");
+<script>
+  const searchInput = document.getElementById("search");
   const archivePosts = document.querySelectorAll(".archive-post");
-  const blogContents = JSON.parse(document.getElementById("blog-contents").textContent);
 
-  function makeSnippet(text, query) {
-    const lower = text.toLowerCase();
-    const index = lower.indexOf(query);
-    if (index === -1) return "";
-    const start = Math.max(0, index - 50);
-    const end = Math.min(text.length, index + query.length + 75);
-    return "..." + text.slice(start, end).trim() + "...";
-  }
-
-  searchInput?.addEventListener("input", () => {
-    const query = searchInput.value.toLowerCase().trim();
+  searchInput?.addEventListener("input", function () {
+    const query = this.value.toLowerCase().trim();
 
     archivePosts.forEach((post) => {
-      const slug = post.dataset.slug;
-      const title = post.querySelector("a")?.textContent || "";
-      const date = post.querySelector("p")?.textContent || "";
-      const content = blogContents[slug] || "";
-      const haystack = `${title} ${date} ${content}`.toLowerCase();
-      const match = query && haystack.includes(query);
+      const text = post.innerText.toLowerCase();
 
-      post.hidden = !match && Boolean(query);
-      const snippetEl = post.querySelector(".search-snippet");
-      if (!snippetEl) return;
-
-      if (!query || !match) {
-        snippetEl.textContent = "";
-        return;
+      if (!query || text.includes(query)) {
+        post.style.display = "";
+      } else {
+        post.style.display = "none";
       }
-
-      snippetEl.textContent = makeSnippet(`${title}. ${date}. ${content}`, query);
     });
   });
 </script>
