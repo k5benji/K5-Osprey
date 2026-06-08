@@ -29,8 +29,6 @@ const searchData = await Promise.all(
 			class="search-box"
 		/>
 
-		<ul id="results"></ul>
-
 		<ul style="list-style: none; padding: 0; margin: 2rem 0;">
 			<li style="margin-bottom: 1.5rem;">
 				<a href="/blog/doghood" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Doghood</a>
@@ -82,72 +80,19 @@ const searchData = await Promise.all(
 .search-box:focus {
   outline: none;
 }
-
-#results {
-  list-style: none;
-  padding: 0;
-  margin: 2rem 0;
-}
-
-.search-result {
-  margin-bottom: 1.5rem;
-}
-
-.search-result a {
-  color: #555;
-  text-decoration: none;
-}
-
-.search-result p {
-  color: #aaa;
-  font-size: 0.85rem;
-  margin-top: 0.35rem;
-}
 </style>
 
-<script define:vars={{ searchData }}>
+<script>
   const input = document.getElementById("search");
-  const results = document.getElementById("results");
-
-  function makeSnippet(text, query) {
-    const lower = text.toLowerCase();
-    const index = lower.indexOf(query);
-
-    if (index === -1) return "";
-
-    const start = Math.max(0, index - 45);
-    const end = Math.min(text.length, index + query.length + 75);
-
-    return "..." + text.slice(start, end).trim() + "...";
-  }
+  const posts = document.querySelectorAll("main li");
 
   input?.addEventListener("input", () => {
     const query = input.value.toLowerCase().trim();
-    results.innerHTML = "";
 
-    if (!query) return;
-
-    const matches = searchData.filter((post) => {
-      const haystack = `${post.title} ${post.description} ${post.body}`.toLowerCase();
-      return haystack.includes(query);
+    posts.forEach((post) => {
+      const text = post.textContent.toLowerCase();
+      post.style.display = text.includes(query) ? "" : "none";
     });
-
-    for (const post of matches) {
-      const snippet =
-        makeSnippet(post.body, query) ||
-        makeSnippet(post.description, query) ||
-        post.description;
-
-      const li = document.createElement("li");
-      li.className = "search-result";
-
-      li.innerHTML = `
-        <a href="${post.url}">${post.title}</a>
-        <p>${snippet}</p>
-      `;
-
-      results.appendChild(li);
-    }
   });
 </script>
 </Layout>
