@@ -1,21 +1,5 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
-
-const posts = await getCollection('blog');
-
-const searchData = await Promise.all(
-  posts.map(async (post) => {
-    const body = post.body ?? '';
-
-    return {
-      title: post.data.title,
-      description: post.data.description,
-      url: `/blog/${post.id}/`,
-      body,
-    };
-  })
-);
 ---
 
 <Layout>
@@ -30,21 +14,40 @@ const searchData = await Promise.all(
 		/>
 
 		<ul style="list-style: none; padding: 0; margin: 2rem 0;">
-			{posts.map((post) => (
-				<li
-					class="archive-post"
-					data-content={post.body}
-					style="margin-bottom: 1.5rem;"
-				>
-					<a href={`/blog/${post.id}/`} style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">
-						{post.data.title}
-					</a>
-					<p style="margin: 0.5rem 0 0; color: #555;">
-						{post.data.pubDate}
-					</p>
-					<p class="search-snippet"></p>
-				</li>
-			))}
+			<li class="archive-post" style="margin-bottom: 1.5rem;">
+				<a href="/blog/doghood/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Doghood</a>
+				<p style="margin: 0.5rem 0 0; color: #555;">December 19, 2025</p>
+			</li>
+
+			<li class="archive-post" style="margin-bottom: 1.5rem;">
+				<a href="/blog/shepherds-work/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Shepherd’s Work</a>
+				<p style="margin: 0.5rem 0 0; color: #555;">January 1</p>
+			</li>
+
+			<li class="archive-post" style="margin-bottom: 1.5rem;">
+				<a href="/blog/pale-blue-november/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Pale Blue November</a>
+				<p style="margin: 0.5rem 0 0; color: #555;">January 30, 2026</p>
+			</li>
+
+			<li class="archive-post" style="margin-bottom: 1.5rem;">
+				<a href="/blog/a-little-boys-prayer/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">A Little Boy's Prayer</a>
+				<p style="margin: 0.5rem 0 0; color: #555;">February 5, 2026</p>
+			</li>
+
+			<li class="archive-post" style="margin-bottom: 1.5rem;">
+				<a href="/blog/be-well-tomahawk/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Be Well, Tomahawk</a>
+				<p style="margin: 0.5rem 0 0; color: #555;">March 17, 2026</p>
+			</li>
+
+			<li class="archive-post" style="margin-bottom: 1.5rem;">
+				<a href="/blog/war-angel/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">War Angel</a>
+				<p style="margin: 0.5rem 0 0; color: #555;">April 30, 2026</p>
+			</li>
+
+			<li class="archive-post" style="margin-bottom: 1.5rem;">
+				<a href="/blog/architecture-of-a-mechanical-body/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Architecture of a Mechanical Body</a>
+				<p style="margin: 0.5rem 0 0; color: #555;">May 25, 2026</p>
+			</li>
 		</ul>
 	</main>
 
@@ -77,8 +80,8 @@ const searchData = await Promise.all(
     const query = searchInput.value.toLowerCase().trim();
 
     archivePosts.forEach((post) => {
-      const content = post.dataset.content || "";
-      post.hidden = query && !content.toLowerCase().includes(query);
+      const text = post.textContent.toLowerCase();
+      post.hidden = query && !text.includes(query);
     });
   });
 </script>
