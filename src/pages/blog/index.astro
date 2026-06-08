@@ -1,5 +1,15 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+
+const rawBlogFiles = import.meta.glob('../../content/blog/*.md', { as: 'raw' });
+const blogContents = {};
+
+for (const [filePath, resolver] of Object.entries(rawBlogFiles)) {
+  const raw = await resolver();
+  const slug = filePath.split('/').pop().replace(/\.md$/, '');
+  const body = raw.replace(/^---[\s\S]*?---/, '').trim();
+  blogContents[slug] = body;
+}
 ---
 
 <Layout>
@@ -14,39 +24,46 @@ import Layout from '../../layouts/Layout.astro';
 		/>
 
 		<ul style="list-style: none; padding: 0; margin: 2rem 0;">
-			<li class="archive-post" style="margin-bottom: 1.5rem;">
+			<li class="archive-post" data-slug="doghood" style="margin-bottom: 1.5rem;">
 				<a href="/blog/doghood/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Doghood</a>
 				<p style="margin: 0.5rem 0 0; color: #555;">December 19, 2025</p>
+				<p class="search-snippet"></p>
 			</li>
 
-			<li class="archive-post" style="margin-bottom: 1.5rem;">
+			<li class="archive-post" data-slug="shepherds-work" style="margin-bottom: 1.5rem;">
 				<a href="/blog/shepherds-work/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Shepherd’s Work</a>
 				<p style="margin: 0.5rem 0 0; color: #555;">January 1</p>
+				<p class="search-snippet"></p>
 			</li>
 
-			<li class="archive-post" style="margin-bottom: 1.5rem;">
+			<li class="archive-post" data-slug="pale-blue-november" style="margin-bottom: 1.5rem;">
 				<a href="/blog/pale-blue-november/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Pale Blue November</a>
 				<p style="margin: 0.5rem 0 0; color: #555;">January 30, 2026</p>
+				<p class="search-snippet"></p>
 			</li>
 
-			<li class="archive-post" style="margin-bottom: 1.5rem;">
+			<li class="archive-post" data-slug="a-little-boys-prayer" style="margin-bottom: 1.5rem;">
 				<a href="/blog/a-little-boys-prayer/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">A Little Boy's Prayer</a>
 				<p style="margin: 0.5rem 0 0; color: #555;">February 5, 2026</p>
+				<p class="search-snippet"></p>
 			</li>
 
-			<li class="archive-post" style="margin-bottom: 1.5rem;">
+			<li class="archive-post" data-slug="be-well-tomahawk" style="margin-bottom: 1.5rem;">
 				<a href="/blog/be-well-tomahawk/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Be Well, Tomahawk</a>
 				<p style="margin: 0.5rem 0 0; color: #555;">March 17, 2026</p>
+				<p class="search-snippet"></p>
 			</li>
 
-			<li class="archive-post" style="margin-bottom: 1.5rem;">
+			<li class="archive-post" data-slug="war-angel" style="margin-bottom: 1.5rem;">
 				<a href="/blog/war-angel/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">War Angel</a>
 				<p style="margin: 0.5rem 0 0; color: #555;">April 30, 2026</p>
+				<p class="search-snippet"></p>
 			</li>
 
-			<li class="archive-post" style="margin-bottom: 1.5rem;">
+			<li class="archive-post" data-slug="architecture-of-a-mechanical-body" style="margin-bottom: 1.5rem;">
 				<a href="/blog/architecture-of-a-mechanical-body/" style="font-size: 1.25rem; font-weight: 700; color: #111; text-decoration: none;">Architecture of a Mechanical Body</a>
 				<p style="margin: 0.5rem 0 0; color: #555;">May 25, 2026</p>
+				<p class="search-snippet"></p>
 			</li>
 		</ul>
 	</main>
@@ -70,18 +87,54 @@ import Layout from '../../layouts/Layout.astro';
 .search-box:focus {
   outline: none;
 }
+
+.search-snippet {
+  color: #999;
+  font-size: 0.9rem;
+  margin-top: 0.35rem;
+  max-width: 40rem;
+}
 </style>
 
-<script>
+<script type="application/json" id="blog-contents">
+  {JSON.stringify(blogContents)}
+</script>
+
+<script type="module">
   const searchInput = document.querySelector("#search");
   const archivePosts = document.querySelectorAll(".archive-post");
+  const blogContents = JSON.parse(document.getElementById("blog-contents").textContent);
+
+  function makeSnippet(text, query) {
+    const lower = text.toLowerCase();
+    const index = lower.indexOf(query);
+    if (index === -1) return "";
+    const start = Math.max(0, index - 50);
+    const end = Math.min(text.length, index + query.length + 75);
+    return "..." + text.slice(start, end).trim() + "...";
+  }
 
   searchInput?.addEventListener("input", () => {
     const query = searchInput.value.toLowerCase().trim();
 
     archivePosts.forEach((post) => {
-      const text = post.textContent.toLowerCase();
-      post.hidden = query && !text.includes(query);
+      const slug = post.dataset.slug;
+      const title = post.querySelector("a")?.textContent || "";
+      const date = post.querySelector("p")?.textContent || "";
+      const content = blogContents[slug] || "";
+      const haystack = `${title} ${date} ${content}`.toLowerCase();
+      const match = query && haystack.includes(query);
+
+      post.hidden = !match && Boolean(query);
+      const snippetEl = post.querySelector(".search-snippet");
+      if (!snippetEl) return;
+
+      if (!query || !match) {
+        snippetEl.textContent = "";
+        return;
+      }
+
+      snippetEl.textContent = makeSnippet(`${title}. ${date}. ${content}`, query);
     });
   });
 </script>
