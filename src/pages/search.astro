@@ -1,0 +1,57 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+
+const searchData = posts.map((post) => ({
+  title: post.data.title,
+  description: post.data.description,
+  url: `/blog/${post.id}/`,
+}));
+---
+
+<Layout>
+  <main style="padding: 2rem; max-width: 760px; margin: 0 auto;">
+    <h1>Search</h1>
+
+    <input
+      id="search"
+      type="search"
+      placeholder="Search the archive..."
+      style="width: 100%; padding: 0.75rem; font-size: 1rem;"
+    />
+
+    <ul id="results" style="margin-top: 2rem;"></ul>
+  </main>
+</Layout>
+
+<script define:vars={{ searchData }}>
+  const input = document.getElementById('search');
+  const results = document.getElementById('results');
+
+  input.addEventListener('input', () => {
+    const query = input.value.toLowerCase().trim();
+
+    results.innerHTML = '';
+
+    if (!query) return;
+
+    const matches = searchData.filter((post) =>
+      post.title.toLowerCase().includes(query) ||
+      post.description.toLowerCase().includes(query)
+    );
+
+    for (const post of matches) {
+      const li = document.createElement('li');
+      li.style.marginBottom = '1rem';
+
+      li.innerHTML = `
+        <a href="${post.url}">${post.title}</a>
+        <p>${post.description}</p>
+      `;
+
+      results.appendChild(li);
+    }
+  });
+</script>
