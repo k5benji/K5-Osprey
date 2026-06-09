@@ -11,13 +11,13 @@ import Layout from '../layouts/Layout.astro';
     <p>Engineer of Kastle Five.</p>
 
     <p class="rss-link">
-      <a href="/rss.xml">RSS Feed</a>
+      <a href="/rss.xml" class="muted-link">RSS Feed</a>
     </p>
     <p>
-      <a href="/blog/" style="color: #888;">View Archive</a>
+      <a href="/blog/" class="muted-link" style="color: #888;">View Archive</a>
     </p>
     <p>
-      <a href="/kastlefive/" style="color: #888;">Architecture of Kastle Five</a>
+      <a href="/kastlefive/" class="muted-link" style="color: #888;">Architecture of Kastle Five</a>
     </p>
   </main>
 </Layout>
@@ -34,6 +34,15 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .rss-link a:hover {
+    color: #666;
+  }
+
+  .muted-link {
+    color: #888;
+    text-decoration: none;
+  }
+
+  .muted-link:hover {
     color: #666;
   }
 </style>
