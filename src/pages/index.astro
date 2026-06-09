@@ -22,7 +22,7 @@ import Layout from '../layouts/Layout.astro';
       <a href="/kastlefive/" class="muted-link">Architecture of Kastle Five</a>
     </p>
     <div class="build-info">
-      <p class="build-number">Site Status: Active</p>
+      <p class="build-number"><span class="status-dot" aria-hidden="true"></span>Site Status: Active</p>
       <p class="build-number">Osprey Kastle Five Build 0.8.1</p>
       <p class="build-number">Published: Jan 5, 2026</p>
       <p class="build-number">Updated: Jun 9, 2026</p>
@@ -70,5 +70,15 @@ import Layout from '../layouts/Layout.astro';
     color: #ffce1c;
     font-size: 0.75rem;
     opacity: 0.8;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background-color: #4ade80;
+    margin-right: 0.4em;
+    vertical-align: middle;
   }
 </style>
