@@ -37,12 +37,15 @@ import Layout from '../layouts/Layout.astro';
     color: #666;
   }
 
-  .muted-link {
+  a.muted-link,
+  a.muted-link:visited {
     color: #888;
     text-decoration: none;
   }
 
-  .muted-link:hover {
-    color: #666;
+  a.muted-link:hover,
+  a.muted-link:visited:hover {
+    color: #444;
+    text-decoration: none;
   }
 </style>
