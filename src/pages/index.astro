@@ -19,9 +19,11 @@ import Layout from '../layouts/Layout.astro';
     <p>
       <a href="/kastlefive/" class="muted-link">Architecture of Kastle Five</a>
     </p>
-    <p class="build-number">Osprey Kastle Five Build 0.7.0</p>
-    <p class="build-number">Published: Jan 5, 2026</p>
-    <p class="build-number">Updated: Jun 9, 2026</p>
+    <div class="build-info">
+      <p class="build-number">Osprey Kastle Five Build 0.7.0</p>
+      <p class="build-number">Published: Jan 5, 2026</p>
+      <p class="build-number">Updated: Jun 9, 2026</p>
+    </div>
   </main>
 </Layout>
 
@@ -52,8 +54,12 @@ import Layout from '../layouts/Layout.astro';
     text-decoration: none;
   }
 
-  .build-number {
+  .build-info {
     margin-top: 3rem;
+  }
+
+  .build-number {
+    margin: 0;
     color: #ffce1c;
     font-size: 0.75rem;
     opacity: 0.8;
