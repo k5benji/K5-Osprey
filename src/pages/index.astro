@@ -22,12 +22,10 @@ import Layout from '../layouts/Layout.astro';
       <a href="/kastlefive/" class="muted-link">Architecture of Kastle Five</a>
     </p>
     <div class="build-info">
-      <p class="build-number">
-        Site Status:
-        <span class="status-label">
-          <span class="status-dot" aria-hidden="true"></span>
-          Active
-        </span>
+      <p class="build-number status-row">
+        <span>Site Status:</span>
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>Active</span>
       </p>
       <p class="build-number">Osprey Kastle Five Build 0.8.1</p>
       <p class="build-number">Published: Jan 5, 2026</p>
@@ -78,11 +76,10 @@ import Layout from '../layouts/Layout.astro';
     opacity: 0.8;
   }
 
-  .status-label {
-    display: inline-flex;
+  .status-row {
+    display: flex;
     align-items: center;
     gap: 4px;
-    vertical-align: middle;
   }
 
   .status-dot {
@@ -95,6 +92,7 @@ import Layout from '../layouts/Layout.astro';
     box-shadow: 0 0 4px 1px rgba(255, 206, 28, 0.6);
     animation: status-blink 2.5s ease-in-out infinite;
     flex-shrink: 0;
+    margin-right: 0;
   }
 
   @keyframes status-blink {
