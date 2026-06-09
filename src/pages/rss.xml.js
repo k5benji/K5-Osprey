@@ -3,12 +3,13 @@ import { getCollection } from 'astro:content';
 
 export async function GET(context) {
   const posts = await getCollection('blog');
+  const sorted = posts.sort((a, b) => b.data.pubDate - a.data.pubDate);
 
   return rss({
-    title: "# Benjamin Weberink's Written Archive Thread",
-    description: 'Personal writings and other written works',
+    title: "Osprey Thread Kastle Five",
+    description: 'An ongoing body of written work. In partnership with Red Bull.',
     site: context.site,
-    items: posts.map((post) => ({
+    items: sorted.map((post) => ({
       title: post.data.title,
       description: post.data.description,
       pubDate: post.data.pubDate,
