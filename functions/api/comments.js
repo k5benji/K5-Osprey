@@ -14,5 +14,5 @@ export async function onRequestPost({ request, env }) {
     .bind(name, comment)
     .run();
 
-  return Response.redirect(new URL('/notebook/', request.url), 303);
+  return Response.redirect(new URL('/', request.url), 303);
 }
