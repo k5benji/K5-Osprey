@@ -24,7 +24,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="build-info">
       <p class="build-number">
         Site Status:
-        <span>
+        <span class="status-label">
           Active
           <span class="status-dot" aria-hidden="true"></span>
         </span>
@@ -78,6 +78,12 @@ import Layout from '../layouts/Layout.astro';
     opacity: 0.8;
   }
 
+  .status-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
   .status-dot {
     display: inline-block;
     width: 5px;
@@ -86,7 +92,7 @@ import Layout from '../layouts/Layout.astro';
     border-radius: 50%;
     background: #eab308;
     animation: status-blink 2.5s ease-in-out infinite;
-    vertical-align: middle;
+    flex-shrink: 0;
   }
 
   @keyframes status-blink {
