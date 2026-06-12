@@ -72,8 +72,10 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .byline {
-    margin: 0;
-    font-size: 1.4rem;
+    /* negative top pulls it against the title; bottom offsets the
+       size reduction so everything below stays in place */
+    margin: -0.45rem 0 0.93rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #111;
   }
