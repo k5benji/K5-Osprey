@@ -4,7 +4,11 @@ export interface OutpostVideo {
   title: string;
   /** Source organization or channel the footage comes from */
   source: string;
-  description: string;
-  /** Full embed URL (e.g. https://www.youtube.com/embed/VIDEO_ID) */
+  /** Optional thematic category, e.g. "aerospace", "naval operations" */
+  category?: string;
+  /** Optional viewer advisory shown above the description */
+  contentWarning?: string;
+  description?: string;
+  /** Full embed URL (e.g. https://www.youtube-nocookie.com/embed/VIDEO_ID) */
   embedUrl: string;
 }

@@ -18,6 +18,8 @@ const videosJson = JSON.stringify(videos);
     <p class="video-id" id="outpost-id"></p>
     <h2 class="video-title" id="outpost-title"></h2>
     <p class="video-source" id="outpost-source"></p>
+    <p class="video-category" id="outpost-category"></p>
+    <p class="video-warning" id="outpost-warning" hidden></p>
     <p class="video-description" id="outpost-description"></p>
   </div>
 
@@ -31,7 +33,9 @@ const videosJson = JSON.stringify(videos);
     id: string;
     title: string;
     source: string;
-    description: string;
+    category?: string;
+    contentWarning?: string;
+    description?: string;
     embedUrl: string;
   }
 
@@ -43,6 +47,8 @@ const videosJson = JSON.stringify(videos);
   const idEl = document.getElementById('outpost-id');
   const titleEl = document.getElementById('outpost-title');
   const sourceEl = document.getElementById('outpost-source');
+  const categoryEl = document.getElementById('outpost-category');
+  const warningEl = document.getElementById('outpost-warning');
   const descriptionEl = document.getElementById('outpost-description');
   const loadButton = document.getElementById('outpost-load');
 
@@ -63,7 +69,17 @@ const videosJson = JSON.stringify(videos);
     idEl.textContent = `Video ID: ${video.id}`;
     titleEl.textContent = video.title;
     sourceEl.textContent = `Source: ${video.source}`;
-    descriptionEl.textContent = video.description;
+
+    if (categoryEl) {
+      categoryEl.textContent = video.category ? `Category: ${video.category}` : '';
+      categoryEl.toggleAttribute('hidden', !video.category);
+    }
+    if (warningEl) {
+      warningEl.textContent = video.contentWarning ? `⚠ ${video.contentWarning}` : '';
+      warningEl.toggleAttribute('hidden', !video.contentWarning);
+    }
+    descriptionEl.textContent = video.description ?? '';
+    descriptionEl.toggleAttribute('hidden', !video.description);
   }
 
   function loadRandom() {
@@ -139,6 +155,19 @@ const videosJson = JSON.stringify(videos);
     margin: 0.25rem 0 0;
     color: #888;
     font-size: 0.85rem;
+  }
+
+  .video-category {
+    margin: 0.15rem 0 0;
+    color: #888;
+    font-size: 0.85rem;
+  }
+
+  .video-warning {
+    margin: 0.75rem 0 0;
+    color: #ffce1c;
+    font-size: 0.8rem;
+    opacity: 0.9;
   }
 
   .video-description {
