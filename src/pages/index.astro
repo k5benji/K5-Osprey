@@ -58,6 +58,20 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 </Layout>
 
 <script>
+  // align the radar's right edge with the title's last character
+  const headerEl = document.querySelector('header');
+  const radomeEl = document.getElementById('radome');
+
+  function alignRadar() {
+    if (!headerEl || !radomeEl) return;
+    const headerRect = headerEl.getBoundingClientRect();
+    const rowRect = radomeEl.parentElement!.getBoundingClientRect();
+    radomeEl.style.marginRight = `${Math.max(0, rowRect.right - headerRect.right)}px`;
+  }
+  alignRadar();
+  window.addEventListener('resize', alignRadar);
+  document.fonts?.ready.then(alignRadar);
+
   const form = document.getElementById('oracle-form') as HTMLFormElement | null;
   const input = document.getElementById('oracle-input') as HTMLInputElement | null;
   const answerEl = document.getElementById('oracle-answer');
