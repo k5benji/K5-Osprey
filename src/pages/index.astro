@@ -55,12 +55,27 @@ import Layout from '../layouts/Layout.astro';
   a.muted-link:visited {
     color: #888;
     text-decoration: none;
+    position: relative;
+  }
+
+  a.muted-link::before {
+    content: '>';
+    position: absolute;
+    left: -0.9em;
+    font-size: 0.75em;
+    color: #ffce1c;
+    opacity: 0;
+    transition: opacity 0.15s ease;
   }
 
   a.muted-link:hover,
   a.muted-link:visited:hover {
     color: #ffce1c;
     text-decoration: none;
+  }
+
+  a.muted-link:hover::before {
+    opacity: 1;
   }
 
   header {
