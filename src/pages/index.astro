@@ -25,6 +25,21 @@ import Layout from '../layouts/Layout.astro';
     <p>
       <a href="/notebook/" class="muted-link">Notebook</a>
     </p>
+    <section class="oracle">
+      <p class="oracle-label">Ask the Oracle</p>
+      <form id="oracle-form">
+        <span class="oracle-prompt" aria-hidden="true">&gt;</span>
+        <input
+          id="oracle-input"
+          type="text"
+          maxlength="500"
+          autocomplete="off"
+          placeholder="Ask something."
+        />
+      </form>
+      <p class="oracle-answer" id="oracle-answer" hidden></p>
+    </section>
+
     <div class="build-info">
       <p class="build-number status-row">
         <span>Site Status:</span>
@@ -37,6 +52,42 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </main>
 </Layout>
+
+<script>
+  const form = document.getElementById('oracle-form') as HTMLFormElement | null;
+  const input = document.getElementById('oracle-input') as HTMLInputElement | null;
+  const answerEl = document.getElementById('oracle-answer');
+
+  let busy = false;
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (busy || !input || !answerEl) return;
+
+    const question = input.value.trim();
+    if (!question) return;
+
+    busy = true;
+    answerEl.textContent = '…';
+    answerEl.removeAttribute('hidden');
+
+    try {
+      const response = await fetch('/api/oracle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      const data = await response.json();
+      answerEl.textContent = response.ok && data.answer
+        ? data.answer
+        : (data.error ?? 'The Oracle is silent. Try again.');
+    } catch {
+      answerEl.textContent = 'The Oracle is silent. Try again.';
+    } finally {
+      busy = false;
+    }
+  });
+</script>
 
 <style>
   .rss-link {
@@ -111,10 +162,56 @@ import Layout from '../layouts/Layout.astro';
     color: #ffce1c;
   }
 
-  .build-info {
-    /* 3rem + 1.6rem to absorb the removed description line so this
-       block stays exactly where it was */
+  .oracle {
     margin-top: 4.6rem;
+    max-width: 42rem;
+  }
+
+  .oracle-label {
+    margin: 0 0 0.5rem;
+    color: #888;
+    font-size: 0.85rem;
+  }
+
+  #oracle-form {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .oracle-prompt {
+    color: #ffce1c;
+    font-weight: 700;
+  }
+
+  #oracle-input {
+    flex: 1;
+    font-family: inherit;
+    font-size: 1rem;
+    color: #f5f7fa;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #333;
+    padding: 0.25rem 0;
+  }
+
+  #oracle-input:focus {
+    outline: none;
+    border-bottom-color: #ffce1c;
+  }
+
+  #oracle-input::placeholder {
+    color: #555;
+  }
+
+  .oracle-answer {
+    margin: 1rem 0 0;
+    color: #bbb;
+    white-space: pre-wrap;
+  }
+
+  .build-info {
+    margin-top: 3rem;
   }
 
   .build-number {
