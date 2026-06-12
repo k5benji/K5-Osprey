@@ -1,0 +1,61 @@
+---
+import Layout from '../layouts/Layout.astro';
+import OutpostPlayer from '../components/OutpostPlayer.astro';
+---
+
+<Layout>
+  <div class="outpost">
+    <main>
+      <header>
+        <h1>OUTPOST</h1>
+        <p class="tagline">A rotating archive of life.</p>
+      </header>
+
+      <OutpostPlayer />
+
+      <p class="back-link">
+        <a href="/">Return Home</a>
+      </p>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  .outpost {
+    min-height: 100vh;
+    background: #111;
+  }
+
+  .outpost main {
+    padding: 2rem;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .outpost h1 {
+    margin: 0;
+    color: #f5f5f5;
+    letter-spacing: 0.25em;
+  }
+
+  .tagline {
+    margin: 0 0 3rem;
+    color: #888;
+  }
+
+  .back-link {
+    margin-top: 3rem;
+  }
+
+  .back-link a,
+  .back-link a:visited {
+    color: #888;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  .back-link a:hover,
+  .back-link a:visited:hover {
+    color: #ffce1c;
+  }
+</style>
