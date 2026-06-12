@@ -168,9 +168,9 @@ import Layout from '../layouts/Layout.astro';
   textarea {
     font-family: inherit;
     font-size: 1rem;
-    color: #111;
-    background: #fff;
-    border: 1px solid #ccc;
+    color: #f5f7fa;
+    background: #000;
+    border: 1px solid #444;
     padding: 0.6rem;
     resize: vertical;
   }
@@ -186,15 +186,16 @@ import Layout from '../layouts/Layout.astro';
     padding: 0.6rem 1.2rem;
     font-family: inherit;
     font-size: 0.85rem;
-    color: #111;
+    color: #ffce1c;
     background: transparent;
     border: 1px solid #ffce1c;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   button:hover {
     background: #ffce1c;
+    color: #111;
   }
 
   button:disabled {
@@ -204,7 +205,7 @@ import Layout from '../layouts/Layout.astro';
 
   .form-status {
     margin: 0;
-    color: #b00;
+    color: #ff6b6b;
     font-size: 0.85rem;
   }
 
@@ -227,7 +228,7 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .entry-name {
-    color: #111;
+    color: #f5f7fa;
     font-weight: 700;
   }
 
