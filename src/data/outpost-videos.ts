@@ -139,6 +139,7 @@ export const videos: OutpostVideo[] = [
     title: 'Anti-Aircraft Materiel, 1918–1930',
     source: 'US National Archives',
     category: 'historical military engineering',
+    contentWarning: 'Weapons systems / archival footage',
     embedUrl: 'https://www.youtube-nocookie.com/embed/YvcIy9kDV6g',
   },
   {
@@ -167,6 +168,7 @@ export const videos: OutpostVideo[] = [
     title: 'Aviation Training in the United States, 1917–1918',
     source: 'US National Archives',
     category: 'aviation history',
+    contentWarning: 'Historical military aviation',
     embedUrl: 'https://www.youtube-nocookie.com/embed/Z2rT4EAzJVk',
   },
   {
@@ -333,78 +335,6 @@ export const videos: OutpostVideo[] = [
     embedUrl: 'https://www.youtube-nocookie.com/embed/DRkAkeTK_AM',
   },
 
-  // --- Open Yale Courses: Hebrew Bible ---
-  {
-    id: 'OP-051',
-    title: 'The Parts of the Whole',
-    source: 'Open Yale Courses',
-    category: 'Hebrew Bible / theology',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/mo-YL-lv3RY',
-  },
-  {
-    id: 'OP-052',
-    title: 'The Hebrew Bible in Its Ancient Near Eastern Setting',
-    source: 'Open Yale Courses',
-    category: 'Hebrew Bible / history',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/wRPqtGywkCw',
-  },
-  {
-    id: 'OP-053',
-    title: 'Ancient Near Eastern Setting Continued',
-    source: 'Open Yale Courses',
-    category: 'Hebrew Bible / history',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/ANUD8IK12ms',
-  },
-  {
-    id: 'OP-054',
-    title: 'Biblical Narrative: The Stories of the Patriarchs',
-    source: 'Open Yale Courses',
-    category: 'Hebrew Bible / theology',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/O89-OaWMkP0',
-  },
-  {
-    id: 'OP-055',
-    title: 'Critical Approaches to the Bible',
-    source: 'Open Yale Courses',
-    category: 'Bible scholarship',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/KBSOn0MSrk8',
-  },
-  {
-    id: 'OP-056',
-    title: 'Exodus: From Egypt to Sinai',
-    source: 'Open Yale Courses',
-    category: 'Hebrew Bible / wilderness',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/kS17dLuTPd0',
-  },
-  {
-    id: 'OP-057',
-    title: 'Priestly Legacy: Cult, Sacrifice, Purity, Holiness',
-    source: 'Open Yale Courses',
-    category: 'religion / ritual',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/URMs-17otFE',
-  },
-  {
-    id: 'OP-058',
-    title: 'The Deuteronomistic History',
-    source: 'Open Yale Courses',
-    category: 'Hebrew Bible / history',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/v07NFEstPjc',
-  },
-  {
-    id: 'OP-059',
-    title: 'Literary Prophecy: Amos',
-    source: 'Open Yale Courses',
-    category: 'prophets / theology',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/YJd0Swp7d9Y',
-  },
-  {
-    id: 'OP-060',
-    title: 'Responses to Suffering and Evil: Lamentations',
-    source: 'Open Yale Courses',
-    category: 'spiritual / theology',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/RxENRH-v0Xk',
-  },
-
   // --- Military combat documentation (official releases) ---
   {
     id: 'OP-061',
@@ -429,5 +359,153 @@ export const videos: OutpostVideo[] = [
     category: 'combat footage / historical Iraq War',
     contentWarning: 'Combat footage / violence / weapons',
     embedUrl: 'https://www.youtube-nocookie.com/embed/HVBaDvqxn0A',
+  },
+  // --- Aerospace / aircraft ---
+  {
+    id: 'OP-064',
+    title: 'This Blue Angels Cockpit Video is Terrifying and Amazing',
+    source: 'YouTube',
+    category: 'aerospace / fighter jets',
+    contentWarning: 'High-speed aircraft footage',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/Ynvoriv09Ks',
+  },
+  {
+    id: 'OP-065',
+    title: 'How NASA Is 3D Printing Wind Tunnel Tools to Speed Up Research',
+    source: 'NASA',
+    category: 'engineering / manufacturing',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/gPLM_C5dA88',
+  },
+  {
+    id: 'OP-066',
+    title: "Growing STEM: Inside NASA Glenn's Supersonic Wind Tunnel",
+    source: 'NASA',
+    category: 'aerospace engineering',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/G2hiUhLZUtQ',
+  },
+  {
+    id: 'OP-067',
+    title: 'Go Inside NASA Ames High-Speed Wind Tunnel',
+    source: 'NASA',
+    category: 'aerospace engineering',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/dcGci4WZraA',
+  },
+  {
+    id: 'OP-068',
+    title: 'Wind Tunnel Tests Dream Chaser Design',
+    source: 'NASA',
+    category: 'spacecraft engineering',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/kPj-g4DI-NY',
+  },
+  {
+    id: 'OP-069',
+    title: 'AMELIA Tests in NASA Wind Tunnel',
+    source: 'NASA',
+    category: 'experimental aircraft',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/3XdKMEFMigA',
+  },
+
+  // --- Naval aviation ---
+  {
+    id: 'OP-070',
+    title: 'Flight Operations: USS Gerald R. Ford (CVN 78)',
+    source: 'U.S. Navy',
+    category: 'naval aviation',
+    contentWarning: 'Military operations / aircraft',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/-3ETjguV7Xw',
+  },
+  {
+    id: 'OP-071',
+    title: "B-Roll: World's 1st Carrier Based Unmanned System Testing",
+    source: 'U.S. Navy',
+    category: 'naval aviation / unmanned systems',
+    contentWarning: 'Military operations / aircraft',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/vHwAsfs1crc',
+  },
+  {
+    id: 'OP-072',
+    title: 'Celebrating 100 Years of Carrier Aviation',
+    source: 'U.S. Navy',
+    category: 'naval aviation history',
+    contentWarning: 'Military aircraft / archival footage',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/ti4bRYAsuR8',
+  },
+
+  // --- Historical / industrial archive ---
+  {
+    id: 'OP-073',
+    title: 'Combat Engineers in WWII: Archival War Department Film',
+    source: 'U.S. National Archives',
+    category: 'historical engineering / military',
+    contentWarning: 'Historical military footage',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/PX-cYU9Cn0E',
+  },
+  {
+    id: 'OP-074',
+    title: 'Manufacture of Military Aeroplanes, 1917–1918',
+    source: 'U.S. National Archives',
+    category: 'industrial / aviation history',
+    contentWarning: 'Historical military production',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/zVgua3PlEQQ',
+  },
+
+  // --- Ocean / deep sea ---
+  {
+    id: 'OP-075',
+    title: 'NOAA Ocean Exploration: Going Deep in Search of Discovery',
+    source: 'NOAA',
+    category: 'ocean exploration',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/JB1kYcJLr6o',
+  },
+  {
+    id: 'OP-076',
+    title: 'NOAA Ocean Exploration: 2022 Year in Review',
+    source: 'NOAA',
+    category: 'ocean exploration',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/6ueME1DqPpc',
+  },
+  {
+    id: 'OP-077',
+    title: 'Deep Dive: Exploring the Gulf',
+    source: 'NOAA Ocean Exploration',
+    category: 'deep sea / exploration',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/sK8uBH17csw',
+  },
+  {
+    id: 'OP-078',
+    title: 'Deep Dive: Voices of Exploration',
+    source: 'NOAA',
+    category: 'ocean exploration',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/fFlXTx2uM50',
+  },
+  {
+    id: 'OP-079',
+    title: 'Cliffside Corals in Marshall Islands Deep Sea',
+    source: 'Nautilus Live',
+    category: 'deep sea / marine life',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/1tnGwvmvHXs',
+  },
+  {
+    id: 'OP-080',
+    title: "Now That's Deep...And CLOSE!",
+    source: 'NOAA Ocean Exploration',
+    category: 'deep sea / marine life',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/yuLDm3mXvas',
+  },
+
+  // --- Theology / Hebrew Bible ---
+  {
+    id: 'OP-081',
+    title: 'The Hebrew Bible in Its Ancient Near Eastern Setting',
+    source: 'Open Yale Courses',
+    category: 'theology / Hebrew Bible',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/wRPqtGywkCw',
+  },
+  {
+    id: 'OP-082',
+    title: 'Exodus: From Egypt to Sinai',
+    source: 'Open Yale Courses',
+    category: 'theology / wilderness',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/kS17dLuTPd0',
   },
 ];
