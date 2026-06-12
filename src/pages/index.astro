@@ -8,10 +8,6 @@ import Layout from '../layouts/Layout.astro';
       <h1>Osprey, engineered by Kastle Five systems.</h1>
       <p class="byline">Built by @K5binya</p>
     </header>
-    <div class="description">
-      <p>An ongoing body of written work. In partnership with Red Bull.</p>
-    </div>
-
     <p class="rss-link">
       <a href="/rss.xml" class="muted-link">RSS Feed</a>
     </p>
@@ -86,12 +82,10 @@ import Layout from '../layouts/Layout.astro';
     text-align: right;
   }
 
-  .description p {
-    margin: 0;
-  }
-
   .build-info {
-    margin-top: 3rem;
+    /* 3rem + 1.6rem to absorb the removed description line so this
+       block stays exactly where it was */
+    margin-top: 4.6rem;
   }
 
   .build-number {
