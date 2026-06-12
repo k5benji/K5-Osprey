@@ -7,7 +7,7 @@ const posts = await getCollection('blog');
 const searchData = posts.map((post) => ({
   title: post.data.title,
   description: post.data.description,
-  url: `/blog/${post.id}/`,
+  url: `/writtenwork/${post.id}/`,
 }));
 ---
 

@@ -1,0 +1,2 @@
+/blog/* /writtenwork/:splat 301
+/blog /writtenwork/ 301
