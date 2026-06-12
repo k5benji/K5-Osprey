@@ -41,9 +41,8 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       <p class="oracle-answer" id="oracle-answer" hidden></p>
     </section>
 
-    <RadomeRadar />
-
-    <div class="build-info">
+    <div class="status-row-wrap">
+      <div class="build-info">
       <p class="build-number status-row">
         <span>Site Status:</span>
         <span class="status-dot" aria-hidden="true"></span>
@@ -52,6 +51,8 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       <p class="build-number">Osprey Kastle Five Build 0.8.1</p>
       <p class="build-number">Published: Sept 5, 2025</p>
       <p class="build-number">Updated: Jun 9, 2026</p>
+      </div>
+      <RadomeRadar />
     </div>
   </main>
 </Layout>
@@ -213,8 +214,11 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     white-space: pre-wrap;
   }
 
-  .build-info {
+  .status-row-wrap {
     margin-top: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
   }
 
   .build-number {
