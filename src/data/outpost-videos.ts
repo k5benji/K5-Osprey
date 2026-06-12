@@ -139,7 +139,7 @@ export const videos: OutpostVideo[] = [
     title: 'Anti-Aircraft Materiel, 1918–1930',
     source: 'US National Archives',
     category: 'historical military engineering',
-    contentWarning: 'Weapons systems / archival footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/YvcIy9kDV6g',
   },
   {
@@ -168,7 +168,7 @@ export const videos: OutpostVideo[] = [
     title: 'Aviation Training in the United States, 1917–1918',
     source: 'US National Archives',
     category: 'aviation history',
-    contentWarning: 'Historical military aviation',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/Z2rT4EAzJVk',
   },
   {
@@ -227,7 +227,7 @@ export const videos: OutpostVideo[] = [
     title: 'Ships Sail in Formation During Valiant Shield',
     source: 'DVIDS / U.S. Navy',
     category: 'naval operations',
-    contentWarning: 'Military operations / weapons systems may appear',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/JVrYuXGVA8Q',
   },
   {
@@ -235,7 +235,7 @@ export const videos: OutpostVideo[] = [
     title: 'Welcome to USS Makin Island',
     source: 'U.S. Navy',
     category: 'naval vessel / amphibious assault ship',
-    contentWarning: 'Military vessel / weapons systems may appear',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/43uIy71dMFE',
   },
   {
@@ -257,7 +257,7 @@ export const videos: OutpostVideo[] = [
     title: 'USS Asheville',
     source: 'U.S. Navy',
     category: 'submarine / naval operations',
-    contentWarning: 'Military vessel / weapons systems may appear',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/XMLrSbfM0-E',
   },
   {
@@ -265,7 +265,7 @@ export const videos: OutpostVideo[] = [
     title: 'USS Iwo Jima Transit Timelapse',
     source: 'U.S. Navy',
     category: 'naval transit',
-    contentWarning: 'Military vessel / operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/tJDte54ZDlg',
   },
   {
@@ -273,7 +273,7 @@ export const videos: OutpostVideo[] = [
     title: 'USS Bataan Transiting the Suez Canal',
     source: 'U.S. Navy',
     category: 'naval transit',
-    contentWarning: 'Military vessel / operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/NFUv8JvxeEo',
   },
   {
@@ -341,7 +341,7 @@ export const videos: OutpostVideo[] = [
     title: 'Marines Repel Taliban Attack on New Patrol Base',
     source: 'DVIDS / U.S. Marine Corps Combat Camera',
     category: 'combat footage',
-    contentWarning: 'Combat footage / violence / weapons',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/EC9FOZkzQRo',
   },
   {
@@ -349,7 +349,7 @@ export const videos: OutpostVideo[] = [
     title: 'Combat Logistics Battalion 2 Builds Patrol Base Demazong',
     source: 'DVIDS / U.S. Marine Corps',
     category: 'military engineering / Afghanistan',
-    contentWarning: 'Military operations / weapons may appear',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/792VFZuPvfk',
   },
   {
@@ -357,7 +357,7 @@ export const videos: OutpostVideo[] = [
     title: 'RAW Combat Footage — Ramadi, Iraq, 2006',
     source: 'U.S. Navy Combat Camera / archive upload',
     category: 'combat footage / historical Iraq War',
-    contentWarning: 'Combat footage / violence / weapons',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/HVBaDvqxn0A',
   },
   // --- Aerospace / aircraft ---
@@ -366,7 +366,7 @@ export const videos: OutpostVideo[] = [
     title: 'This Blue Angels Cockpit Video is Terrifying and Amazing',
     source: 'YouTube',
     category: 'aerospace / fighter jets',
-    contentWarning: 'High-speed aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/Ynvoriv09Ks',
   },
   {
@@ -411,7 +411,7 @@ export const videos: OutpostVideo[] = [
     title: 'Flight Operations: USS Gerald R. Ford (CVN 78)',
     source: 'U.S. Navy',
     category: 'naval aviation',
-    contentWarning: 'Military operations / aircraft',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/-3ETjguV7Xw',
   },
   {
@@ -419,7 +419,7 @@ export const videos: OutpostVideo[] = [
     title: "B-Roll: World's 1st Carrier Based Unmanned System Testing",
     source: 'U.S. Navy',
     category: 'naval aviation / unmanned systems',
-    contentWarning: 'Military operations / aircraft',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/vHwAsfs1crc',
   },
   {
@@ -427,7 +427,7 @@ export const videos: OutpostVideo[] = [
     title: 'Celebrating 100 Years of Carrier Aviation',
     source: 'U.S. Navy',
     category: 'naval aviation history',
-    contentWarning: 'Military aircraft / archival footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/ti4bRYAsuR8',
   },
 
@@ -437,7 +437,7 @@ export const videos: OutpostVideo[] = [
     title: 'Combat Engineers in WWII: Archival War Department Film',
     source: 'U.S. National Archives',
     category: 'historical engineering / military',
-    contentWarning: 'Historical military footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/PX-cYU9Cn0E',
   },
   {
@@ -445,7 +445,7 @@ export const videos: OutpostVideo[] = [
     title: 'Manufacture of Military Aeroplanes, 1917–1918',
     source: 'U.S. National Archives',
     category: 'industrial / aviation history',
-    contentWarning: 'Historical military production',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/zVgua3PlEQQ',
   },
 
@@ -515,7 +515,7 @@ export const videos: OutpostVideo[] = [
     title: '10 Minutes of Aircraft Carrier Operations - USS Ronald Reagan',
     source: 'YouTube',
     category: 'raw naval aviation',
-    contentWarning: 'Military aircraft / flight deck operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/2UTbWAW1a2w',
   },
   {
@@ -523,7 +523,7 @@ export const videos: OutpostVideo[] = [
     title: 'On Deck Operations Onboard the USS Ronald Reagan - RAW Footage',
     source: 'YouTube',
     category: 'raw naval aviation',
-    contentWarning: 'Military aircraft / flight deck operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/VZ8oe1zGCUU',
   },
   {
@@ -531,7 +531,7 @@ export const videos: OutpostVideo[] = [
     title: 'Flight Deck Ops USS Ronald Reagan',
     source: 'YouTube',
     category: 'raw naval aviation',
-    contentWarning: 'Military aircraft / flight deck operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/T1xggU_-hvQ',
   },
   {
@@ -539,7 +539,7 @@ export const videos: OutpostVideo[] = [
     title: 'RAW: Blue Angels Flight',
     source: 'YouTube',
     category: 'cockpit / raw aviation',
-    contentWarning: 'High-G aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/GGEFXcf6i8Q',
   },
   {
@@ -547,7 +547,7 @@ export const videos: OutpostVideo[] = [
     title: 'U.S. Navy Blue Angels Ride Along - RAW Footage',
     source: 'YouTube',
     category: 'cockpit / raw aviation',
-    contentWarning: 'High-G aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/77Wo81K4C0Q',
   },
   {
@@ -555,7 +555,7 @@ export const videos: OutpostVideo[] = [
     title: 'Ride Along with the U.S. Navy Blue Angels',
     source: 'YouTube',
     category: 'cockpit / raw aviation',
-    contentWarning: 'High-G aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/5qIxvS9YAZI',
   },
   {
@@ -563,7 +563,7 @@ export const videos: OutpostVideo[] = [
     title: 'Blue Angels F/A-18 Cockpit Video',
     source: 'YouTube',
     category: 'cockpit / raw aviation',
-    contentWarning: 'High-G aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/2GhhyUtXbjA',
   },
   {
@@ -571,7 +571,7 @@ export const videos: OutpostVideo[] = [
     title: 'Flying Onboard the A-10 Warthog - Cockpit GoPro Footage',
     source: 'YouTube',
     category: 'cockpit / military aviation',
-    contentWarning: 'Military aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/19h105aiVWA',
   },
   {
@@ -579,7 +579,7 @@ export const videos: OutpostVideo[] = [
     title: 'A-10 Takeoffs & Cockpit Video',
     source: 'YouTube',
     category: 'cockpit / military aviation',
-    contentWarning: 'Military aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/UeyJFe0B34w',
   },
 
@@ -589,7 +589,7 @@ export const videos: OutpostVideo[] = [
     title: 'Afghanistan Helmet Cam Combat - Heavy Firefight',
     source: 'YouTube',
     category: 'combat footage / helmet cam',
-    contentWarning: 'Graphic combat footage / weapons / violence',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/XtipG6yC6h0',
   },
   {
@@ -597,7 +597,7 @@ export const videos: OutpostVideo[] = [
     title: 'US Marines Ambushed by Taliban at Close Range',
     source: 'YouTube',
     category: 'combat footage / helmet cam',
-    contentWarning: 'Graphic combat footage / weapons / violence',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/cNdXW8j7TKs',
   },
   {
@@ -605,7 +605,7 @@ export const videos: OutpostVideo[] = [
     title: 'Taliban Ambush Recon Marines - 2 Helmet Cams',
     source: 'YouTube',
     category: 'combat footage / helmet cam',
-    contentWarning: 'Graphic combat footage / weapons / violence',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/RFmtn670RqU',
   },
   {
@@ -613,7 +613,7 @@ export const videos: OutpostVideo[] = [
     title: 'Firefight From a Dog Handler\'s Helmet Cam in Afghanistan',
     source: 'YouTube',
     category: 'combat footage / helmet cam',
-    contentWarning: 'Graphic combat footage / weapons / violence',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/eru-k3SCesw',
   },
   {
@@ -621,7 +621,7 @@ export const videos: OutpostVideo[] = [
     title: 'Rare Helmet Cam Firefight From Australian Army',
     source: 'YouTube',
     category: 'combat footage / helmet cam',
-    contentWarning: 'Graphic combat footage / weapons / violence',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/ANNE6LTjPp4',
   },
   {
@@ -629,7 +629,7 @@ export const videos: OutpostVideo[] = [
     title: 'Special Operations Helmet Cam Firefight in Afghanistan',
     source: 'YouTube',
     category: 'combat footage / helmet cam',
-    contentWarning: 'Graphic combat footage / weapons / violence',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/lPxue9WezPI',
   },
   {
@@ -637,7 +637,7 @@ export const videos: OutpostVideo[] = [
     title: 'US Soldier Helmet Cam Heavy Firefight Afghanistan',
     source: 'YouTube',
     category: 'combat footage / helmet cam',
-    contentWarning: 'Graphic combat footage / weapons / violence',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/DzsQo27UQAw',
   },
   {
@@ -645,7 +645,7 @@ export const videos: OutpostVideo[] = [
     title: 'Minesweeper Helmet Cam Firefight With Taliban',
     source: 'YouTube',
     category: 'combat footage / helmet cam',
-    contentWarning: 'Graphic combat footage / weapons / violence',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/tdYvQiZPQ38',
   },
 
@@ -655,7 +655,7 @@ export const videos: OutpostVideo[] = [
     title: 'Southeast Area OIS 4/23/2025',
     source: 'LAPD / YouTube',
     category: 'police bodycam / critical incident',
-    contentWarning: 'Graphic law-enforcement incident / violence / weapons',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/l51tsdY1rvA',
   },
   {
@@ -663,7 +663,7 @@ export const videos: OutpostVideo[] = [
     title: 'Harbor Area OIS 12/31/25',
     source: 'LAPD / YouTube',
     category: 'police bodycam / critical incident',
-    contentWarning: 'Graphic law-enforcement incident / violence / weapons',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/oZgYn4aojQc',
   },
   {
@@ -671,7 +671,7 @@ export const videos: OutpostVideo[] = [
     title: 'Hollenbeck Area OIS 8/22/2025',
     source: 'LAPD / YouTube',
     category: 'police bodycam / critical incident',
-    contentWarning: 'Graphic law-enforcement incident / violence / weapons',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/vqkH2QiYG3E',
   },
   {
@@ -679,7 +679,7 @@ export const videos: OutpostVideo[] = [
     title: 'Wilshire Area OIS 3/10/2026',
     source: 'LAPD / YouTube',
     category: 'police bodycam / critical incident',
-    contentWarning: 'Graphic law-enforcement incident / violence / weapons',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/vnONXekrNbw',
   },
   {
@@ -687,7 +687,7 @@ export const videos: OutpostVideo[] = [
     title: 'Central Area OIS 7/13/25',
     source: 'LAPD / YouTube',
     category: 'police bodycam / critical incident',
-    contentWarning: 'Graphic law-enforcement incident / violence / weapons',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/kJlULR9BEDI',
   },
 
@@ -697,7 +697,7 @@ export const videos: OutpostVideo[] = [
     title: 'Ship Caught in Monster Waves',
     source: 'YouTube',
     category: 'rough sea / raw ship footage',
-    contentWarning: 'Dangerous sea conditions',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/y5ibxe1UyaQ',
   },
   {
@@ -705,7 +705,7 @@ export const videos: OutpostVideo[] = [
     title: 'Caught in Rough Seas - Fishing Vessel Battles the Storm',
     source: 'YouTube',
     category: 'commercial fishing / rough sea',
-    contentWarning: 'Dangerous sea conditions',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/wdzc8-7xy08',
   },
   {
@@ -713,7 +713,7 @@ export const videos: OutpostVideo[] = [
     title: 'Medical Evacuation on Rough Seas',
     source: 'YouTube',
     category: 'sea rescue / raw footage',
-    contentWarning: 'Emergency situation / dangerous sea conditions',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/sk7BDQ79NIk',
   },
 
@@ -723,7 +723,7 @@ export const videos: OutpostVideo[] = [
     title: 'Incredible Manufacturing Process of Huge Machine for Steel Mill',
     source: 'YouTube',
     category: 'industrial machinery',
-    contentWarning: 'Heavy machinery / industrial operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/bxyE3LfohsY',
   },
   {
@@ -731,7 +731,7 @@ export const videos: OutpostVideo[] = [
     title: 'How We Made Incredible Huge Machine for Steel Mill',
     source: 'YouTube',
     category: 'industrial machinery',
-    contentWarning: 'Heavy machinery / industrial operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/0z8r5ngLa5E',
   },
   {
@@ -739,7 +739,7 @@ export const videos: OutpostVideo[] = [
     title: 'Massive Factory Machinery',
     source: 'YouTube',
     category: 'industrial machinery',
-    contentWarning: 'Heavy machinery / industrial operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/N7PfLfpfsFc',
   },
 
@@ -749,7 +749,7 @@ export const videos: OutpostVideo[] = [
     title: 'Wrapping up the F-35 First of Class Flight Trials on HMS Queen Elizabeth',
     source: 'Royal Navy / YouTube',
     category: 'europe / royal navy / f-35b',
-    contentWarning: 'Military aircraft / carrier operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/J6wGN8PK9u4',
   },
   {
@@ -757,7 +757,7 @@ export const videos: OutpostVideo[] = [
     title: 'F-35 Fury: HMS Prince of Wales Makes Record Return to Europe',
     source: 'Royal Navy / YouTube',
     category: 'europe / royal navy / f-35b',
-    contentWarning: 'Military aircraft / carrier operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/eLR3lAWgFkM',
   },
   {
@@ -765,7 +765,7 @@ export const videos: OutpostVideo[] = [
     title: 'U.S. Navy and Royal Navy F-35B Operations on HMS Queen Elizabeth',
     source: 'Royal Navy / YouTube',
     category: 'europe / royal navy / carrier aviation',
-    contentWarning: 'Military aircraft / carrier operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/JS5t5hFdOEw',
   },
   {
@@ -773,7 +773,7 @@ export const videos: OutpostVideo[] = [
     title: 'HMS Queen Elizabeth Welcomes F-35s',
     source: 'Royal Navy / YouTube',
     category: 'europe / royal navy / f-35b',
-    contentWarning: 'Military aircraft / carrier operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/_eE_ahJlvtI',
   },
   {
@@ -781,7 +781,7 @@ export const videos: OutpostVideo[] = [
     title: 'Royal Marines | Forging the Arctic Commando',
     source: 'Royal Marines / YouTube',
     category: 'europe / royal marines / arctic',
-    contentWarning: 'Military training / cold-weather warfare',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/-c8jPcP5NHM',
   },
   {
@@ -789,7 +789,7 @@ export const videos: OutpostVideo[] = [
     title: 'Arctic Commandos',
     source: 'Royal Marines / YouTube',
     category: 'europe / royal marines / arctic',
-    contentWarning: 'Military training / cold-weather warfare',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/4-YP3LWs1Cc',
   },
   {
@@ -797,7 +797,7 @@ export const videos: OutpostVideo[] = [
     title: 'Typhoon Display from the Cockpit',
     source: 'Royal Air Force / YouTube',
     category: 'europe / raf / cockpit',
-    contentWarning: 'High-speed aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/o3Y9Hkr5k3s',
   },
   {
@@ -805,7 +805,7 @@ export const videos: OutpostVideo[] = [
     title: 'RAF No. 11 Squadron Eurofighter Typhoon Low-Level Flying',
     source: 'YouTube',
     category: 'europe / raf / low-level flight',
-    contentWarning: 'High-speed military aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/fRBT52AoUdc',
   },
   {
@@ -813,7 +813,7 @@ export const videos: OutpostVideo[] = [
     title: 'Eurofighter Typhoon Flying Low Level Through the Lake District',
     source: 'YouTube',
     category: 'europe / raf / low-level flight',
-    contentWarning: 'High-speed military aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/2BxwfrpPgqQ',
   },
 
@@ -823,7 +823,7 @@ export const videos: OutpostVideo[] = [
     title: 'Training on the Leopard 2 at Exercise Strong Cohesion',
     source: 'Bundeswehr / YouTube',
     category: 'europe / bundeswehr / armor',
-    contentWarning: 'Military training / tanks',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/W5Qaz7rgcBg',
   },
   {
@@ -831,7 +831,7 @@ export const videos: OutpostVideo[] = [
     title: 'Leopard 2A7V Water Crossing — Wettiner Schwert 2024',
     source: 'YouTube',
     category: 'europe / bundeswehr / armor',
-    contentWarning: 'Military training / tanks',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/UKltZBFB2fc',
   },
   {
@@ -839,7 +839,7 @@ export const videos: OutpostVideo[] = [
     title: 'German Leopard 2 Tanks Practise Live-Firing at Sennelager',
     source: 'Forces TV / YouTube',
     category: 'europe / armor / live fire',
-    contentWarning: 'Tank live-fire training / weapons',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/y3B3ARZmP8E',
   },
   {
@@ -847,7 +847,7 @@ export const videos: OutpostVideo[] = [
     title: 'German PzH 2000 Fire Mission During NATO Exercise',
     source: 'YouTube',
     category: 'europe / artillery / nato',
-    contentWarning: 'Artillery live-fire training / weapons',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/IOTeAsJLjZY',
   },
 
@@ -857,7 +857,7 @@ export const videos: OutpostVideo[] = [
     title: 'Catapultage de nuit d\'un Rafale Marine à bord du Charles de Gaulle',
     source: 'Marine Nationale / YouTube',
     category: 'europe / french navy / rafale',
-    contentWarning: 'Military aircraft / night carrier launch',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/_2gQMmtFELw',
   },
   {
@@ -865,7 +865,7 @@ export const videos: OutpostVideo[] = [
     title: 'Les Rafale Marine traversent l\'Atlantique',
     source: 'Marine Nationale / YouTube',
     category: 'europe / french navy / rafale',
-    contentWarning: 'Military aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/grKqDc00jnY',
   },
   {
@@ -873,7 +873,7 @@ export const videos: OutpostVideo[] = [
     title: 'Pilotes de Rafale: qualification à l\'appontage',
     source: 'Marine Nationale / YouTube',
     category: 'europe / french navy / carrier landing',
-    contentWarning: 'Military aircraft / carrier landing',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/qWefALVDW8E',
   },
   {
@@ -881,7 +881,7 @@ export const videos: OutpostVideo[] = [
     title: 'Dans les entrailles du porte-avions Charles-de-Gaulle',
     source: 'Marine Nationale / YouTube',
     category: 'europe / french navy / carrier systems',
-    contentWarning: 'Military vessel / carrier operations',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/si-HjL_MsWs',
   },
   {
@@ -889,7 +889,7 @@ export const videos: OutpostVideo[] = [
     title: 'L\'appontage de A à Z',
     source: 'Marine Nationale / YouTube',
     category: 'europe / french navy / carrier landing',
-    contentWarning: 'Military aircraft / carrier landing',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/5EzCT7GBJwk',
   },
   {
@@ -897,7 +897,7 @@ export const videos: OutpostVideo[] = [
     title: 'Inside the Cockpit of the A400M Tactical Display Pilots',
     source: 'Armée de l\'Air et de l\'Espace / YouTube',
     category: 'europe / french air force / cockpit',
-    contentWarning: 'Military aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/ltfmoUn-Vww',
   },
   {
@@ -905,7 +905,7 @@ export const videos: OutpostVideo[] = [
     title: 'Rafale F4.1: Ramstein Flag',
     source: 'Armée de l\'Air et de l\'Espace / YouTube',
     category: 'europe / french air force / rafale',
-    contentWarning: 'Military aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/AyzenQtaIDU',
   },
 
@@ -915,7 +915,7 @@ export const videos: OutpostVideo[] = [
     title: 'Gripen Update: First Delivery of Upgraded Engine to Swedish Armed Forces',
     source: 'YouTube',
     category: 'europe / sweden / gripen / engineering',
-    contentWarning: 'Military aircraft / engineering',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/4YDhEVxhWso',
   },
   {
@@ -923,7 +923,7 @@ export const videos: OutpostVideo[] = [
     title: 'The Gripen E Fighter Jet Officially Joins the Swedish Air Force',
     source: 'YouTube',
     category: 'europe / sweden / gripen',
-    contentWarning: 'Military aircraft footage',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/F0cc_awuweE',
   },
   {
@@ -931,7 +931,7 @@ export const videos: OutpostVideo[] = [
     title: 'Swedish Armed Forces Airshow | Combat Practice | SAAB Gripen',
     source: 'YouTube',
     category: 'europe / sweden / gripen / airshow',
-    contentWarning: 'Military aircraft / demonstration',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/uWpalmZ9DPo',
   },
 
@@ -992,7 +992,7 @@ export const videos: OutpostVideo[] = [
     title: 'Body-Worn Camera Footage Shows Assault on Met Police Officer',
     source: 'Metropolitan Police / YouTube',
     category: 'europe / police bodycam / uk',
-    contentWarning: 'Police body-worn footage / violence',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/nrbnMP2vepE',
   },
   {
@@ -1000,7 +1000,7 @@ export const videos: OutpostVideo[] = [
     title: 'Met Police Release Video Footage of Armed Arrest',
     source: 'Metropolitan Police / YouTube',
     category: 'europe / police bodycam / uk',
-    contentWarning: 'Police body-worn footage / weapons / arrest',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/D40vdwlPWYM',
   },
   {
@@ -1008,7 +1008,7 @@ export const videos: OutpostVideo[] = [
     title: 'Body-Worn Video Footage Shows Police Officers Respond to Incident',
     source: 'Metropolitan Police / YouTube',
     category: 'europe / police bodycam / uk',
-    contentWarning: 'Police body-worn footage / possible violence',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/7ma98FFVzCk',
   },
   {
@@ -1016,7 +1016,7 @@ export const videos: OutpostVideo[] = [
     title: 'Police Bodycam Footage Shows Moment of Golders Green Incident',
     source: 'YouTube',
     category: 'europe / police bodycam / uk',
-    contentWarning: 'Police body-worn footage / violent incident',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/rLBcfJulsVE',
   },
 
@@ -1026,7 +1026,7 @@ export const videos: OutpostVideo[] = [
     title: 'Iveco Manticore Prototype for Dutch Military',
     source: 'YouTube',
     category: 'europe / dutch military / vehicle engineering',
-    contentWarning: 'Military vehicle / defense industry',
+    contentWarning: 'Graphic warning',
     embedUrl: 'https://www.youtube-nocookie.com/embed/ECaeva_947U',
   },
 ];
