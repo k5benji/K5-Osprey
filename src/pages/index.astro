@@ -6,7 +6,9 @@ import Layout from '../layouts/Layout.astro';
   <main style="padding: 2rem; max-width: 760px; margin: 0 auto;">
     <header>
       <h1>Osprey, engineered by Kastle Five systems.</h1>
-      <p class="byline">Built by @K5binya</p>
+      <p class="byline">
+        <a href="https://x.com/k5binya" target="_blank" rel="noopener">Built by @k5binya</a>
+      </p>
     </header>
     <p class="rss-link">
       <a href="/rss.xml" class="muted-link">RSS Feed</a>
@@ -93,8 +95,18 @@ import Layout from '../layouts/Layout.astro';
        size reduction so everything below stays in place */
     margin: -0.45rem 0 1.33rem;
     font-size: 0.85rem;
-    color: #f5f7fa;
     text-align: right;
+  }
+
+  .byline a,
+  .byline a:visited {
+    color: #f5f7fa;
+    text-decoration: none;
+  }
+
+  .byline a:hover,
+  .byline a:visited:hover {
+    color: #ffce1c;
   }
 
   .build-info {
