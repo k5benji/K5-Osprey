@@ -52,7 +52,10 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       <p class="build-number">Published: Sept 5, 2025</p>
       <p class="build-number">Updated: Jun 9, 2026</p>
       </div>
-      <RadomeRadar />
+      <div class="radar-side">
+        <p class="current-time">Current time: <span id="local-time"></span></p>
+        <RadomeRadar />
+      </div>
     </div>
   </main>
 </Layout>
@@ -71,6 +74,19 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   alignRadar();
   window.addEventListener('resize', alignRadar);
   document.fonts?.ready.then(alignRadar);
+
+  // local clock
+  const timeEl = document.getElementById('local-time');
+  function tick() {
+    if (!timeEl) return;
+    timeEl.textContent = new Date().toLocaleTimeString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  }
+  tick();
+  setInterval(tick, 1000);
 
   const form = document.getElementById('oracle-form') as HTMLFormElement | null;
   const input = document.getElementById('oracle-input') as HTMLInputElement | null;
@@ -233,6 +249,19 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  .radar-side {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .current-time {
+    margin: 0;
+    color: #ffce1c;
+    font-size: 0.75rem;
+    opacity: 0.8;
   }
 
   .build-number {
