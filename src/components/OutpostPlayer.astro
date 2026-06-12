@@ -20,6 +20,7 @@ const videosJson = JSON.stringify(videos);
     <p class="video-source" id="outpost-source"></p>
     <p class="video-warning" id="outpost-warning" hidden></p>
     <p class="video-description" id="outpost-description"></p>
+    <p class="video-runtime" id="outpost-runtime" hidden></p>
   </div>
 
   <button class="load-button" id="outpost-load" type="button">Load Another Video</button>
@@ -35,6 +36,7 @@ const videosJson = JSON.stringify(videos);
     category?: string;
     contentWarning?: string;
     description?: string;
+    runtime?: string;
     embedUrl: string;
   }
 
@@ -48,6 +50,7 @@ const videosJson = JSON.stringify(videos);
   const sourceEl = document.getElementById('outpost-source');
   const warningEl = document.getElementById('outpost-warning');
   const descriptionEl = document.getElementById('outpost-description');
+  const runtimeEl = document.getElementById('outpost-runtime');
   const loadButton = document.getElementById('outpost-load');
 
   let currentIndex = -1;
@@ -74,6 +77,11 @@ const videosJson = JSON.stringify(videos);
     }
     descriptionEl.textContent = video.description ?? '';
     descriptionEl.toggleAttribute('hidden', !video.description);
+
+    if (runtimeEl) {
+      runtimeEl.textContent = video.runtime ? `Runtime: ${video.runtime}` : '';
+      runtimeEl.toggleAttribute('hidden', !video.runtime);
+    }
   }
 
   function loadRandom() {
@@ -162,6 +170,13 @@ const videosJson = JSON.stringify(videos);
     margin: 0.75rem 0 0;
     color: #bbb;
     max-width: 48rem;
+  }
+
+  .video-runtime {
+    margin: 0.5rem 0 0;
+    color: #ffce1c;
+    font-size: 0.8rem;
+    opacity: 0.8;
   }
 
   .load-button {
