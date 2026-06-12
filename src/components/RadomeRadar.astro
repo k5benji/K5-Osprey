@@ -31,8 +31,9 @@
     // --- 3D projection ---
     const TILT = 0.35;
     const FOCAL = 4;
+    const CRUISE_SPIN = 0.0012;
     let spin = 0;
-    let spinVelocity = 0.004;
+    let spinVelocity = CRUISE_SPIN;
 
     function project(theta: number, phi: number, spinAngle: number) {
       // point on unit sphere
@@ -110,7 +111,7 @@
 
       if (!dragging) {
         // ease back toward cruise speed
-        spinVelocity += (0.004 - spinVelocity) * 0.02;
+        spinVelocity += (CRUISE_SPIN - spinVelocity) * 0.02;
       }
       spin += spinVelocity;
 
@@ -147,7 +148,7 @@
       }
 
       // radar sweep: bright leading edge + fading trail on the equator
-      const sweepAngle = t * 0.0012;
+      const sweepAngle = t * 0.0004;
       const TRAIL = 28;
       for (let i = 0; i < TRAIL; i++) {
         const a = sweepAngle - i * 0.035;
