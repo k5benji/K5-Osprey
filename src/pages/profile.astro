@@ -40,8 +40,8 @@ import Layout from '../layouts/Layout.astro';
     root.innerHTML = `
       <div class="card">
         ${avatarBlock(user)}
-        <h1 class="display-name">${esc(user.displayName || user.username)}</h1>
-        <p class="handle">@${esc(user.username)}${badge(user)}</p>
+        <h1 class="display-name">${esc(user.displayName || user.username)}${badge(user)}</h1>
+        <p class="handle">@${esc(user.username)}</p>
         ${user.bio ? `<p class="bio">${esc(user.bio)}</p>` : ''}
         ${
           isMe
