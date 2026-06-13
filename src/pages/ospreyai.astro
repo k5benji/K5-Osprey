@@ -111,7 +111,7 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
-  function messageEl(role: 'user' | 'assistant', text: string): HTMLElement {
+  function messageEl(role: 'user' | 'assistant', text: string, withSave = true): HTMLElement {
     const wrap = document.createElement('div');
     wrap.className = `msg ${role === 'user' ? 'user' : 'osprey'}`;
 
@@ -127,18 +127,18 @@ import Layout from '../layouts/Layout.astro';
     textEl.textContent = text;
     body.appendChild(textEl);
 
-    if (role === 'assistant') {
-      const save = document.createElement('button');
-      save.className = 'save-btn';
-      save.textContent = 'Save text';
-      save.addEventListener('click', () => {
-        saveText(textEl.textContent ?? '', save);
-      });
-      body.appendChild(save);
-    }
+    if (role === 'assistant' && withSave) attachSave(body, textEl);
 
     wrap.append(who, body);
     return wrap;
+  }
+
+  function attachSave(body: HTMLElement, textEl: HTMLElement) {
+    const save = document.createElement('button');
+    save.className = 'save-btn';
+    save.textContent = 'Save text';
+    save.addEventListener('click', () => saveText(textEl.textContent ?? '', save));
+    body.appendChild(save);
   }
 
   function renderThread() {
@@ -307,10 +307,12 @@ import Layout from '../layouts/Layout.astro';
     persist();
     renderSidebar();
 
-    const pending = messageEl('assistant', '…');
+    // no save button while the answer is still loading
+    const pending = messageEl('assistant', '…', false);
     thread.appendChild(pending);
     thread.scrollTop = thread.scrollHeight;
     const pendingBody = pending.querySelector('.body-text') as HTMLElement;
+    const pendingP = pending.querySelector('.body') as HTMLElement;
 
     try {
       const res = await fetch('/api/oracle', {
@@ -324,6 +326,7 @@ import Layout from '../layouts/Layout.astro';
       pendingBody.textContent = answer;
 
       if (res.ok && data.answer) {
+        attachSave(pendingP, pendingBody);
         chat.messages.push({ role: 'assistant', content: data.answer });
         persist();
         if (isFirst) generateTitle(chat, question);
@@ -602,13 +605,17 @@ import Layout from '../layouts/Layout.astro';
 
   .save-btn {
     position: absolute;
-    top: 0;
+    bottom: 0;
     right: 0;
+    -webkit-appearance: none;
+    appearance: none;
     font-family: inherit;
     font-size: 0.75rem;
+    line-height: 1.6;
     color: #777;
     background: transparent;
     border: none;
+    box-shadow: none;
     padding: 0;
     cursor: pointer;
     opacity: 0;
