@@ -1,2 +1,5 @@
 /blog/* /writtenwork/:splat 301
 /blog /writtenwork/ 301
+
+# pretty public profile URLs — serve the profile page, keep the /u/<name> path
+/u/* /profile 200

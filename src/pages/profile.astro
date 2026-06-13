@@ -28,7 +28,12 @@ import Layout from '../layouts/Layout.astro';
   }
 
   function badge(user) {
-    return user.verified ? ' <span class="verified" title="Verified">✓</span>' : '';
+    if (!user.verified) return '';
+    return (
+      ' <svg class="verified-badge" viewBox="0 0 22 22" title="Verified" aria-label="Verified">' +
+      '<path fill="#ffce1c" fill-rule="evenodd" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44C11.866 1.07 11.235.876 10.59.86c-.646.017-1.273.213-1.813.568-.54.355-.969.854-1.24 1.44-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245C1.61 9.726 1.412 10.355 1.394 11c.018.646.215 1.275.57 1.816.354.54.852.972 1.438 1.246-.223.607-.27 1.264-.14 1.897.131.634.437 1.218.882 1.687.47.445 1.053.75 1.687.882.633.13 1.29.083 1.897-.14.273.587.704 1.086 1.245 1.44.541.354 1.172.548 1.817.564.646-.017 1.273-.213 1.813-.568.54-.355.969-.854 1.24-1.44.608.223 1.267.272 1.902.14.635-.13 1.22-.436 1.69-.882.445-.47.749-1.055.878-1.688.13-.633.08-1.29-.144-1.896.587-.274 1.087-.705 1.443-1.245.356-.54.554-1.169.573-1.814zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246-5.683 6.206z"/>' +
+      '</svg>'
+    );
   }
 
   function renderView(user, isMe) {
@@ -148,8 +153,10 @@ import Layout from '../layouts/Layout.astro';
   }
 
   async function init() {
-    const params = new URLSearchParams(location.search);
-    const viewing = params.get('u');
+    const pathMatch = location.pathname.match(/^\/u\/([^/?#]+)/);
+    const viewing = pathMatch
+      ? decodeURIComponent(pathMatch[1])
+      : new URLSearchParams(location.search).get('u');
 
     let me = null;
     try {
@@ -235,9 +242,12 @@ import Layout from '../layouts/Layout.astro';
     color: #888;
   }
 
-  .verified {
-    color: #ffce1c;
-    font-weight: 700;
+  .verified-badge {
+    display: inline-block;
+    width: 1.05em;
+    height: 1.05em;
+    vertical-align: -0.18em;
+    margin-left: 0.1em;
   }
 
   .bio {
