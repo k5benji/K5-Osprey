@@ -9,102 +9,81 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     <span class="boot-skip">click anywhere to skip</span>
   </div>
   <script is:inline>
-    // returning visitors this session: remove the overlay before paint
     if (sessionStorage.getItem('k5-booted')) {
       var b = document.getElementById('boot');
       if (b) b.remove();
     }
   </script>
 
+  <!-- shared chrome gradient for engineer badges -->
+  <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#8a9098"></stop>
+        <stop offset="35%" stop-color="#f3f6f9"></stop>
+        <stop offset="50%" stop-color="#ffffff"></stop>
+        <stop offset="66%" stop-color="#b9bfc5"></stop>
+        <stop offset="100%" stop-color="#5f656b"></stop>
+        <animateTransform
+          attributeName="gradientTransform"
+          type="translate"
+          values="-1 -1; 1 1; -1 -1"
+          dur="3.5s"
+          repeatCount="indefinite"></animateTransform>
+      </linearGradient>
+    </defs>
+  </svg>
+
   <main style="padding: 2rem; max-width: 760px; margin: 0 auto; position: relative;">
+    <nav class="topnav">
+      <a href="/rss.xml" class="topnav-link">RSS Feed</a>
+      <a href="/kastlefive/" class="topnav-link">Architecture of Kastle Five</a>
+      <a href="/outpost/" class="topnav-link">Outpost</a>
+    </nav>
+
     <header>
       <h1>Osprey, engineered by Kastle Five systems.</h1>
     </header>
-    <p class="rss-link">
-      <a href="/rss.xml" class="muted-link">RSS Feed</a>
-    </p>
-    <p>
-      <a href="/kastlefive/" class="muted-link">Architecture of Kastle Five</a>
-    </p>
-    <p>
-      <a href="/outpost/" class="muted-link">Outpost</a>
-    </p>
-    <p>
-      <a href="/notebook/" class="muted-link">Notebook</a>
-    </p>
-    <p>
-      <a href="/profile/" class="muted-link">Profile</a>
-    </p>
-    <section class="oracle">
+
+    <section id="composer" class="composer"></section>
+
+    <div id="feed" class="feed"><p class="feed-note">Loading the feed…</p></div>
+
+    <footer class="home-footer">
       <p class="oracle-link">
         <a href="/ospreyai"><span class="oracle-prompt" aria-hidden="true">&gt;</span> Chat with Osprey AI</a>
       </p>
-    </section>
 
-    <div class="status-row-wrap">
-      <div class="build-info">
-      <p class="build-number status-row">
-        <span>Site Status:</span>
-        <span class="status-dot" aria-hidden="true"></span>
-        <span>Active</span>
-      </p>
-      <p class="build-number">Osprey Kastle Five Build 0.8.1</p>
-      <p class="build-number">Published: Sept 5, 2025</p>
-      <p class="build-number">Updated: Jun 9, 2026</p>
+      <div class="status-row-wrap">
+        <div class="build-info">
+          <p class="build-number status-row">
+            <span>Site Status:</span>
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>Active</span>
+          </p>
+          <p class="build-number">Osprey Kastle Five Build 0.8.1</p>
+          <p class="build-number">Published: Sept 5, 2025</p>
+          <p class="build-number">Updated: Jun 9, 2026</p>
+        </div>
+        <div class="radar-side">
+          <RadomeRadar />
+          <p class="current-time">Current time: <span id="local-time"></span></p>
+          <p class="current-time">
+            <a class="built-by-link" href="https://x.com/k5binya" target="_blank" rel="noopener">Built by @k5binya</a>
+          </p>
+        </div>
       </div>
-      <div class="radar-side">
-        <RadomeRadar />
-        <p class="current-time">Current time: <span id="local-time"></span></p>
-        <p class="current-time">
-          <a class="built-by-link" href="https://x.com/k5binya" target="_blank" rel="noopener">Built by @k5binya</a>
-        </p>
-      </div>
-    </div>
+    </footer>
   </main>
 </Layout>
 
 <script>
-  // align the radar / current-time column's right edge with the title's last character
-  const headerEl = document.querySelector('header');
-  const sideEl = document.querySelector('.radar-side') as HTMLElement | null;
-
-  function alignRadar() {
-    if (!headerEl || !sideEl) return;
-    sideEl.style.marginRight = '0';
-    const headerRight = headerEl.getBoundingClientRect().right;
-    const sideRight = sideEl.getBoundingClientRect().right;
-    sideEl.style.marginRight = `${Math.max(0, sideRight - headerRight)}px`;
-  }
-  alignRadar();
-  window.addEventListener('resize', alignRadar);
-  document.fonts?.ready.then(alignRadar);
-
-  // local clock
-  const timeEl = document.getElementById('local-time');
-  function tick() {
-    if (!timeEl) return;
-    timeEl.textContent = new Date().toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-  }
-  tick();
-  setInterval(tick, 1000);
-
   // ---------- boot sequence ----------
   const boot = document.getElementById('boot');
   const bootText = document.getElementById('boot-text');
-
   if (boot && bootText && !sessionStorage.getItem('k5-booted')) {
-    const lines = [
-      'KASTLE FIVE SYSTEMS',
-      '> OSPREY ONLINE',
-      '> RADAR ONLINE',
-      '> SIGNAL CONNECTED',
-    ];
+    const lines = ['KASTLE FIVE SYSTEMS', '> OSPREY ONLINE', '> RADAR ONLINE', '> SIGNAL CONNECTED'];
     let done = false;
-
     const finish = () => {
       if (done) return;
       done = true;
@@ -112,11 +91,8 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       boot.classList.add('boot-out');
       setTimeout(() => boot.remove(), 600);
     };
-
-    // skip on any click or key
     boot.addEventListener('click', finish);
     window.addEventListener('keydown', finish, { once: true });
-
     let li = 0;
     let ci = 0;
     const type = () => {
@@ -142,9 +118,515 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   } else if (boot) {
     boot.remove();
   }
+
+  // ---------- clock ----------
+  const timeEl = document.getElementById('local-time');
+  function tick() {
+    if (!timeEl) return;
+    timeEl.textContent = new Date().toLocaleTimeString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // ---------- radar alignment ----------
+  const headerEl = document.querySelector('header');
+  const sideEl = document.querySelector('.radar-side') as HTMLElement | null;
+  function alignRadar() {
+    if (!headerEl || !sideEl) return;
+    sideEl.style.marginRight = '0';
+    const headerRight = headerEl.getBoundingClientRect().right;
+    const sideRight = sideEl.getBoundingClientRect().right;
+    sideEl.style.marginRight = `${Math.max(0, sideRight - headerRight)}px`;
+  }
+  alignRadar();
+  window.addEventListener('resize', alignRadar);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(alignRadar);
+
+  // ---------- live feed ----------
+  const SEAL =
+    'M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44C11.866 1.07 11.235.876 10.59.86c-.646.017-1.273.213-1.813.568-.54.355-.969.854-1.24 1.44-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245C1.61 9.726 1.412 10.355 1.394 11c.018.646.215 1.275.57 1.816.354.54.852.972 1.438 1.246-.223.607-.27 1.264-.14 1.897.131.634.437 1.218.882 1.687.47.445 1.053.75 1.687.882.633.13 1.29.083 1.897-.14.273.587.704 1.086 1.245 1.44.541.354 1.172.548 1.817.564.646-.017 1.273-.213 1.813-.568.54-.355.969-.854 1.24-1.44.608.223 1.267.272 1.902.14.635-.13 1.22-.436 1.69-.882.445-.47.749-1.055.878-1.688.13-.633.08-1.29-.144-1.896.587-.274 1.087-.705 1.443-1.245.356-.54.554-1.169.573-1.814zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246-5.683 6.206z';
+  const IC = {
+    reply:
+      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/></svg>',
+    repost:
+      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>',
+    like:
+      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M16.697 5.5c-1.222 0-2.337.566-3.054 1.512l-1.643 2.16-1.643-2.16C9.64 6.066 8.525 5.5 7.303 5.5c-2.243 0-3.95 1.866-3.95 4.05 0 2.99 2.66 5.45 6.97 9.32l1.677 1.5 1.677-1.5c4.31-3.87 6.97-6.33 6.97-9.32 0-2.184-1.707-4.05-3.95-4.05z"/></svg>',
+    share:
+      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"/></svg>',
+  };
+
+  const feedEl = document.getElementById('feed')!;
+  const composerEl = document.getElementById('composer')!;
+  let signedIn = false;
+
+  function esc(s) {
+    return (s ?? '').replace(
+      /[&<>"]/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]
+    );
+  }
+
+  function badges(a) {
+    let h = '';
+    if (a.verified)
+      h += ` <svg class="badge-svg" viewBox="0 0 22 22" aria-label="Verified User"><title>Verified User</title><path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/></svg>`;
+    if (a.engineer)
+      h += `<svg class="badge-svg" viewBox="0 0 22 22" aria-label="Engineer of Kastle Five"><title>Engineer of Kastle Five</title><path fill="url(#chrome)" fill-rule="evenodd" d="${SEAL}"/></svg>`;
+    return h;
+  }
+
+  function relTime(iso) {
+    const d = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T') + 'Z');
+    const s = (Date.now() - d.getTime()) / 1000;
+    if (s < 60) return Math.max(1, Math.floor(s)) + 's';
+    if (s < 3600) return Math.floor(s / 60) + 'm';
+    if (s < 86400) return Math.floor(s / 3600) + 'h';
+    const days = Math.floor(s / 86400);
+    if (days < 7) return days + 'd';
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  function avatarHtml(a) {
+    if (a.avatar) return `<img class="post-avatar-img" src="${esc(a.avatar)}" alt="" />`;
+    const initial = (a.displayName || a.username || '?').charAt(0).toUpperCase();
+    return `<span class="post-avatar-img fallback">${esc(initial)}</span>`;
+  }
+
+  function fmtCount(n) {
+    if (!n) return '';
+    if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'K';
+    return String(n);
+  }
+
+  function postHtml(p) {
+    const a = p.author;
+    return `
+      <article class="post" data-id="${esc(p.id)}">
+        <a class="post-avatar" href="/u/${esc(a.username)}">${avatarHtml(a)}</a>
+        <div class="post-main">
+          <div class="post-head">
+            <a class="post-name" href="/u/${esc(a.username)}">${esc(a.displayName || a.username)}</a>${badges(a)}
+            <span class="post-meta">@${esc(a.username)} · ${relTime(p.createdAt)}</span>
+          </div>
+          <div class="post-body">${esc(p.content)}</div>
+          <div class="post-actions">
+            <span class="post-action" data-act="reply">${IC.reply}</span>
+            <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${IC.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
+            <button class="post-action act like${p.liked ? ' on' : ''}" data-act="like">${IC.like}<span class="cnt">${fmtCount(p.likeCount)}</span></button>
+            <span class="post-action" data-act="share">${IC.share}</span>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  function renderComposer() {
+    if (signedIn) {
+      composerEl.innerHTML = `
+        <textarea id="post-input" maxlength="500" rows="2" placeholder="What's the signal?"></textarea>
+        <div class="composer-row">
+          <span class="composer-status" id="composer-status"></span>
+          <button id="post-btn" class="post-btn">Post</button>
+        </div>`;
+      const input = document.getElementById('post-input') as HTMLTextAreaElement;
+      const btn = document.getElementById('post-btn') as HTMLButtonElement;
+      const grow = () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 240) + 'px';
+      };
+      input.addEventListener('input', grow);
+      btn.addEventListener('click', submitPost);
+    } else {
+      composerEl.innerHTML = `<a class="post-btn" href="/api/auth/github">Sign in to post</a>`;
+    }
+  }
+
+  async function submitPost() {
+    const input = document.getElementById('post-input') as HTMLTextAreaElement;
+    const btn = document.getElementById('post-btn') as HTMLButtonElement;
+    const status = document.getElementById('composer-status');
+    const content = input.value.trim();
+    if (!content) return;
+    btn.disabled = true;
+    if (status) status.textContent = '';
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not post.');
+      input.value = '';
+      input.style.height = 'auto';
+      const note = feedEl.querySelector('.feed-note');
+      if (note) note.remove();
+      feedEl.insertAdjacentHTML('afterbegin', postHtml(data.post));
+    } catch (e) {
+      if (status) status.textContent = e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function toggle(kind, postId, article) {
+    try {
+      const res = await fetch('/api/posts/' + kind, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId }),
+      });
+      const data = await res.json();
+      if (res.status === 401) {
+        location.href = '/api/auth/github';
+        return;
+      }
+      if (!res.ok) return;
+      const btn = article.querySelector('.act.' + kind);
+      const cnt = btn.querySelector('.cnt');
+      if (kind === 'like') {
+        btn.classList.toggle('on', data.liked);
+        cnt.textContent = fmtCount(data.likeCount);
+      } else {
+        btn.classList.toggle('on', data.reposted);
+        cnt.textContent = fmtCount(data.repostCount);
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  feedEl.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const actionEl = target.closest('.post-action');
+    const article = target.closest('.post') as HTMLElement | null;
+    if (actionEl && article) {
+      const act = actionEl.getAttribute('data-act');
+      const id = article.getAttribute('data-id');
+      if (act === 'like' || act === 'repost') {
+        toggle(act, id, article);
+      } else if (act === 'share') {
+        navigator.clipboard?.writeText(location.origin).catch(() => {});
+      }
+      return;
+    }
+  });
+
+  async function loadFeed() {
+    try {
+      const res = await fetch('/api/posts');
+      const data = await res.json();
+      signedIn = !!data.me;
+      renderComposer();
+      if (!data.posts || data.posts.length === 0) {
+        feedEl.innerHTML = `<p class="feed-note">No transmissions yet. Be the first.</p>`;
+        return;
+      }
+      feedEl.innerHTML = data.posts.map(postHtml).join('');
+    } catch {
+      feedEl.innerHTML = `<p class="feed-note">Could not load the feed.</p>`;
+    }
+  }
+
+  loadFeed();
 </script>
 
 <style>
+  .topnav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    font-size: 0.8rem;
+  }
+
+  .topnav-link,
+  .topnav-link:visited {
+    color: #888;
+    text-decoration: none;
+  }
+
+  .topnav-link:hover {
+    color: #ffce1c;
+  }
+
+  header h1 {
+    margin: 0 0 1.5rem;
+  }
+</style>
+
+<style is:global>
+  .composer {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #222;
+    padding-bottom: 1.5rem;
+  }
+
+  #post-input {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #f5f7fa;
+    background: transparent;
+    border: none;
+    resize: none;
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  #post-input:focus {
+    outline: none;
+  }
+
+  #post-input::placeholder {
+    color: #555;
+  }
+
+  .composer-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .composer-status {
+    color: #ff6b6b;
+    font-size: 0.8rem;
+  }
+
+  .post-btn {
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #111;
+    background: #ffce1c;
+    border: 1px solid #ffce1c;
+    border-radius: 999px;
+    padding: 0.45rem 1.3rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .post-btn:hover {
+    background: transparent;
+    color: #ffce1c;
+  }
+
+  .post-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .feed-note {
+    color: #888;
+    font-size: 0.9rem;
+  }
+
+  .post {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid #222;
+  }
+
+  .post-avatar {
+    flex-shrink: 0;
+  }
+
+  .post-avatar-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #333;
+    background: #111;
+    color: #ffce1c;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .post-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .post-head {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+
+  .post-name,
+  .post-name:visited {
+    font-weight: 700;
+    color: #f5f7fa;
+    text-decoration: none;
+  }
+
+  .post-name:hover {
+    text-decoration: underline;
+  }
+
+  .post-head .badge-svg {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+  }
+
+  .post-meta {
+    color: #888;
+    font-size: 0.9rem;
+  }
+
+  .post-body {
+    margin-top: 0.15rem;
+    color: #f5f7fa;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .post-actions {
+    display: flex;
+    justify-content: space-between;
+    max-width: 20rem;
+    margin-top: 0.6rem;
+    color: #888;
+  }
+
+  .post-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+    transition: color 0.15s ease;
+  }
+
+  .post-action:hover {
+    color: #ffce1c;
+  }
+
+  .post-action.like.on {
+    color: #ff6b6b;
+  }
+
+  .post-action.repost.on {
+    color: #4ade80;
+  }
+
+  .post-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .home-footer {
+    margin-top: 4rem;
+  }
+</style>
+
+<style>
+  .oracle-link {
+    margin: 0 0 3rem;
+    font-size: 1rem;
+  }
+
+  .oracle-link a,
+  .oracle-link a:visited {
+    color: #f5f7fa;
+    text-decoration: none;
+  }
+
+  .oracle-link a:hover,
+  .oracle-link a:visited:hover {
+    color: #ffce1c;
+  }
+
+  .oracle-prompt {
+    color: #ffce1c;
+    font-weight: 700;
+  }
+
+  .status-row-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .radar-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+  }
+
+  .current-time {
+    margin: 0;
+    color: #ffce1c;
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+
+  .built-by-link,
+  .built-by-link:visited {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .built-by-link:hover {
+    text-decoration: underline;
+  }
+
+  .build-number {
+    margin: 0;
+    color: #ffce1c;
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ffce1c;
+    box-shadow: 0 0 4px 1px rgba(255, 206, 28, 0.6);
+    animation: status-blink 2.5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes status-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+
   #boot {
     position: fixed;
     inset: 0;
@@ -193,150 +675,5 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #555;
-  }
-
-  .rss-link {
-    margin-top: 3rem;
-    font-size: 1rem;
-  }
-
-  .rss-link a {
-    color: #888;
-    text-decoration: none;
-  }
-
-  .rss-link a:hover {
-    color: #666;
-  }
-
-  a.muted-link,
-  a.muted-link:visited {
-    color: #888;
-    text-decoration: none;
-    position: relative;
-  }
-
-  a.muted-link::before {
-    content: '>';
-    position: absolute;
-    left: -0.9em;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.75em;
-    color: #ffce1c;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-  }
-
-  a.muted-link:hover,
-  a.muted-link:visited:hover {
-    color: #ffce1c;
-    text-decoration: none;
-  }
-
-  a.muted-link:hover::before {
-    opacity: 1;
-  }
-
-  header {
-    /* shrink-wrap to the title so the byline's right edge
-       lands on the title's last character */
-    width: fit-content;
-  }
-
-  header h1 {
-    margin-bottom: 0;
-  }
-
-  .oracle {
-    margin-top: 4.6rem;
-    max-width: 42rem;
-  }
-
-  .oracle-link {
-    margin: 0;
-    font-size: 1rem;
-  }
-
-  .oracle-link a,
-  .oracle-link a:visited {
-    color: #f5f7fa;
-    text-decoration: none;
-  }
-
-  .oracle-link a:hover,
-  .oracle-link a:visited:hover {
-    color: #ffce1c;
-  }
-
-  .oracle-prompt {
-    color: #ffce1c;
-    font-weight: 700;
-  }
-
-  .status-row-wrap {
-    margin-top: 3rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-
-  .radar-side {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.4rem;
-  }
-
-  .current-time {
-    margin: 0;
-    color: #ffce1c;
-    font-size: 0.75rem;
-    opacity: 0.8;
-  }
-
-  .built-by-link,
-  .built-by-link:visited {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .built-by-link:hover {
-    text-decoration: underline;
-  }
-
-  .build-number {
-    margin: 0;
-    color: #ffce1c;
-    font-size: 0.75rem;
-    opacity: 0.8;
-  }
-
-  .status-row {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .status-dot {
-    display: inline-block;
-    width: 5px;
-    height: 5px;
-    margin-right: 4px;
-    border-radius: 50%;
-    background: #ffce1c;
-    box-shadow: 0 0 4px 1px rgba(255, 206, 28, 0.6);
-    animation: status-blink 2.5s ease-in-out infinite;
-    flex-shrink: 0;
-    margin-right: 0;
-  }
-
-  @keyframes status-blink {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.4;
-    }
   }
 </style>
