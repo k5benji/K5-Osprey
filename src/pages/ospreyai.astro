@@ -137,9 +137,38 @@ import Layout from '../layouts/Layout.astro';
   function attachSave(body: HTMLElement, textEl: HTMLElement) {
     const save = document.createElement('button');
     save.className = 'save-btn';
-    save.textContent = 'Save text';
-    save.addEventListener('click', () => saveText(textEl.textContent ?? '', save));
+    const existing = saved.find((s) => s.content === (textEl.textContent ?? ''));
+    if (existing) markSaved(save, existing.id);
+    else markUnsaved(save);
+    save.addEventListener('click', () => toggleSave(save, textEl.textContent ?? ''));
     body.appendChild(save);
+  }
+
+  function markSaved(btn: HTMLElement, id: string) {
+    btn.dataset.savedId = id;
+    btn.classList.add('saved');
+    btn.innerHTML = 'Saved <span class="tick">✓</span>';
+  }
+
+  function markUnsaved(btn: HTMLElement) {
+    delete btn.dataset.savedId;
+    btn.classList.remove('saved');
+    btn.textContent = 'Save text';
+  }
+
+  function toggleSave(btn: HTMLElement, content: string) {
+    if (!content.trim()) return;
+    if (btn.dataset.savedId) {
+      const id = btn.dataset.savedId;
+      saved = saved.filter((s) => s.id !== id);
+      persist();
+      markUnsaved(btn);
+    } else {
+      const id = crypto.randomUUID();
+      saved.unshift({ id, content, savedAt: Date.now() });
+      persist();
+      markSaved(btn, id);
+    }
   }
 
   function thinkingEl(): HTMLElement {
@@ -195,18 +224,6 @@ import Layout from '../layouts/Layout.astro';
     persist();
     if (currentId === id) newChat();
     else renderSidebar();
-  }
-
-  function saveText(content: string, btn: HTMLButtonElement) {
-    if (!content.trim()) return;
-    saved.unshift({ id: crypto.randomUUID(), content, savedAt: Date.now() });
-    persist();
-    btn.textContent = 'Saved';
-    btn.classList.add('saved');
-    setTimeout(() => {
-      btn.textContent = 'Save text';
-      btn.classList.remove('saved');
-    }, 1500);
   }
 
   function openSaved() {
@@ -710,8 +727,13 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .save-btn.saved {
-    color: #ffce1c;
+    color: #777;
     opacity: 1;
+  }
+
+  .save-btn .tick {
+    color: #ffce1c;
+    margin-left: 1px;
   }
 
   /* ---- saved view ---- */
