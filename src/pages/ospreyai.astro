@@ -92,11 +92,10 @@ import Layout from '../layouts/Layout.astro';
       const item = document.createElement('div');
       item.className = 'chat-item' + (chat.id === currentId ? ' active' : '');
 
-      item.addEventListener('click', () => openChat(chat.id));
-
       const title = document.createElement('span');
       title.className = 'chat-item-title';
       title.textContent = chat.title || 'New chat';
+      title.addEventListener('click', () => openChat(chat.id));
 
       const del = document.createElement('button');
       del.className = 'chat-item-del';
@@ -403,7 +402,6 @@ import Layout from '../layouts/Layout.astro';
     justify-content: space-between;
     gap: 0.25rem;
     padding: 0.4rem 0.5rem;
-    cursor: pointer;
   }
 
   .chat-item-title {
@@ -417,8 +415,8 @@ import Layout from '../layouts/Layout.astro';
     transition: color 0.15s ease;
   }
 
-  .chat-item.active .chat-item-title,
-  .chat-item:hover .chat-item-title {
+  .chat-item-title:hover,
+  .chat-item.active .chat-item-title {
     color: #ffce1c;
   }
 
