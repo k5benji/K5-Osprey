@@ -485,12 +485,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   function setNotifBadge(n) {
     const b = document.getElementById('notif-badge');
     if (!b) return;
-    if (n > 0) {
-      b.textContent = n > 99 ? '99+' : String(n);
-      b.hidden = false;
-    } else {
-      b.hidden = true;
-    }
+    b.hidden = !(n > 0);
   }
   function pollNotifs() {
     fetch('/api/notifications/count')
@@ -1018,21 +1013,26 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 
   .notif-badge {
     position: absolute;
-    top: -5px;
-    right: -7px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 4px;
-    box-sizing: border-box;
-    border-radius: 999px;
+    top: -1px;
+    right: -1px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
     background: #ffce1c;
-    color: #111;
-    font-size: 0.7rem;
-    font-weight: 700;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    box-shadow: 0 0 4px 1px rgba(255, 206, 28, 0.6);
+    animation: notif-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes notif-glow {
+    0%,
+    100% {
+      opacity: 0.65;
+      box-shadow: 0 0 3px 0 rgba(255, 206, 28, 0.45);
+    }
+    50% {
+      opacity: 1;
+      box-shadow: 0 0 7px 2px rgba(255, 206, 28, 0.85);
+    }
   }
 
   @media (min-width: 1240px) {
