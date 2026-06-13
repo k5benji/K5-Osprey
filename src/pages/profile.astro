@@ -93,7 +93,7 @@ import Layout from '../layouts/Layout.astro';
 
   function renderView(user, isMe) {
     root.innerHTML = `
-      <div class="card center profile-header">
+      <div class="card">
         ${avatarBlock(user)}
         <h1 class="display-name">${esc(user.displayName || user.username)}${badge(user)}</h1>
         <p class="handle">@${esc(user.username)}</p>
@@ -458,10 +458,6 @@ import Layout from '../layouts/Layout.astro';
     margin: 4rem auto 0;
   }
 
-  .card.center.profile-header {
-    margin: 0 auto;
-  }
-
   .avatar {
     display: block;
     width: 96px;
@@ -647,6 +643,7 @@ import Layout from '../layouts/Layout.astro';
 
   .posts {
     margin-top: 2.5rem;
+    max-width: 40rem;
   }
 
   .posts-label {
