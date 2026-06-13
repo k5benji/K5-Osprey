@@ -43,7 +43,7 @@ const blogContentsJson = JSON.stringify(blogContents);
 		<input
 			id="search"
 			type="search"
-			placeholder="Search the written work…"
+			placeholder="Search"
 			class="search-box"
 		/>
 
@@ -133,14 +133,7 @@ const blogContentsJson = JSON.stringify(blogContents);
 }
 </style>
 
-<script type="application/json" id="blog-contents">
-  {blogContentsJson}
-</script>
-
-<script>
-  const contents = JSON.parse(
-    document.getElementById("blog-contents")?.textContent || "{}"
-  );
+<script define:vars={{ contents: blogContents }}>
   const searchInput = document.getElementById("search");
   const archivePosts = document.querySelectorAll(".archive-post");
 
