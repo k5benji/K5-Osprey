@@ -37,19 +37,6 @@ const isProfile = path.startsWith('/profile') || path.startsWith('/u/');
 				</linearGradient>
 			</defs>
 		</svg>
-		<div id="account-bar">
-			<span id="account-name"></span>
-			<a id="account-chip" href="/profile" aria-label="Your profile">
-				<svg class="account-default" viewBox="0 0 24 24" aria-hidden="true">
-					<path
-						fill="currentColor"
-						d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z"
-					/>
-				</svg>
-				<img class="account-img" alt="" hidden />
-			</a>
-		</div>
-
 		<nav class="side-nav" aria-label="Primary">
 			<a class={`side-nav-item${isHome ? ' active' : ''}`} href="/">
 				<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.6 2 11.3h3V21h5v-6h4v6h5v-9.7h3z"/></svg>
@@ -104,17 +91,6 @@ const isProfile = path.startsWith('/profile') || path.startsWith('/u/');
 				.then((r) => r.json())
 				.then((u) => {
 					if (!u) return;
-					const nameEl = document.getElementById('account-name');
-					if (nameEl && u.username) nameEl.textContent = '@' + u.username;
-					if (u.avatar) {
-						const img = document.querySelector('.account-img') as HTMLImageElement | null;
-						const def = document.querySelector('.account-default') as SVGElement | null;
-						if (img) {
-							img.src = u.avatar;
-							img.hidden = false;
-						}
-						if (def) def.style.display = 'none';
-					}
 					// nav account chip (below Settings)
 					const navAcc = document.getElementById('nav-account');
 					const navAv = document.getElementById('nav-account-avatar');
@@ -146,20 +122,6 @@ const isProfile = path.startsWith('/profile') || path.startsWith('/u/');
 			document.addEventListener('visibilitychange', () => {
 				if (!document.hidden) pollNotifs();
 			});
-
-			// align the account chip's right edge to the main content's right edge
-			function alignChip() {
-				const bar = document.getElementById('account-bar');
-				const main = document.querySelector('main');
-				if (!bar || !main) return;
-				const padRight = parseFloat(getComputedStyle(main).paddingRight) || 0;
-				const contentRight = main.getBoundingClientRect().right - padRight;
-				const inset = document.documentElement.clientWidth - contentRight;
-				bar.style.right = Math.max(8, Math.round(inset)) + 'px';
-			}
-			alignChip();
-			window.addEventListener('resize', alignChip);
-			if (document.fonts && document.fonts.ready) document.fonts.ready.then(alignChip);
 		</script>
 	</body>
 </html>
@@ -217,58 +179,6 @@ const isProfile = path.startsWith('/profile') || path.startsWith('/u/');
 		}
 	}
 
-	#account-bar {
-		position: fixed;
-		top: 2rem;
-		/* align with the right edge of the 760px content column (the feed's right border) */
-		right: max(1rem, calc(50vw - 380px));
-		z-index: 50;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		height: 34px;
-	}
-
-	#account-name {
-		font-size: 0.8rem;
-		font-weight: 700;
-		color: #ffce1c;
-	}
-
-	#account-chip {
-		flex-shrink: 0;
-		width: 34px;
-		height: 34px;
-		border-radius: 50%;
-		overflow: hidden;
-		border: 1px solid #333;
-		background: #111;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		transition: border-color 0.15s ease;
-	}
-
-	#account-chip:hover {
-		border-color: #ffce1c;
-	}
-
-	.account-default {
-		width: 20px;
-		height: 20px;
-		color: #666;
-		transition: color 0.15s ease;
-	}
-
-	#account-chip:hover .account-default {
-		color: #ffce1c;
-	}
-
-	.account-img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
 </style>
 
 <style is:global>
@@ -334,10 +244,6 @@ const isProfile = path.startsWith('/profile') || path.startsWith('/u/');
 		}
 	}
 
-	.side-nav-account {
-		margin-top: 0.5rem;
-	}
-
 	.nav-account-avatar {
 		width: 1.6rem;
 		height: 1.6rem;
@@ -387,11 +293,6 @@ const isProfile = path.startsWith('/profile') || path.startsWith('/u/');
 			left: calc(50vw + 380px + 2rem);
 			z-index: 40;
 			white-space: nowrap;
-		}
-
-		/* the account chip lives in the nav (below Settings) at this width */
-		#account-bar {
-			display: none;
 		}
 	}
 </style>
