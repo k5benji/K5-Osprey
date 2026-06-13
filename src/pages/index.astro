@@ -77,6 +77,33 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       </div>
     </footer>
   </main>
+
+  <nav class="side-nav" aria-label="Primary">
+    <a class="side-nav-item active" href="/">
+      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.6 2 11.3h3V21h5v-6h4v6h5v-9.7h3z"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="side-nav-item" href="#">
+      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10.5 3a7.5 7.5 0 1 0 4.55 13.46l4.74 4.74 1.42-1.42-4.74-4.74A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="side-nav-item" href="#">
+      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a6 6 0 0 0-6 6c0 3.6-1 5.3-1.9 6.2L3 15.2V17h18v-1.8l-1.1-1c-.9-.9-1.9-2.6-1.9-6.2a6 6 0 0 0-6-6zm0 20a2.8 2.8 0 0 0 2.8-2.8H9.2A2.8 2.8 0 0 0 12 22z"/></svg>
+      <span>Notifications</span>
+    </a>
+    <a class="side-nav-item" href="/ospreyai">
+      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H8l-5 4z"/></svg>
+      <span>OspreyAI</span>
+    </a>
+    <a class="side-nav-item" href="/profile">
+      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z"/></svg>
+      <span>Profile</span>
+    </a>
+    <a class="side-nav-item" href="#">
+      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 8.5A3.5 3.5 0 1 0 12 15.5 3.5 3.5 0 0 0 12 8.5zm8.94 3.5c0-.46-.04-.92-.13-1.36l2.02-1.58-2-3.46-2.39.96a7.94 7.94 0 0 0-1.17-.68L17 2h-4l-.27 2.42c-.41.18-.8.4-1.17.68l-2.39-.96-2 3.46 2.02 1.58c-.05.45-.08.9-.08 1.36s.03.91.08 1.36L5.16 14.5l2 3.46 2.39-.96c.37.28.76.5 1.17.68L13 22h4l.27-2.42c.41-.18.8-.4 1.17-.68l2.39.96 2-3.46-2.02-1.58c.09-.44.13-.9.13-1.36z"/></svg>
+      <span>Settings</span>
+    </a>
+  </nav>
 </Layout>
 
 <script>
@@ -874,6 +901,84 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+
+  /* ---- X-style side rails (wide screens only) ---- */
+  .side-nav {
+    display: none;
+  }
+
+  .side-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    color: #f5f7fa;
+    text-decoration: none;
+    font-size: 1.15rem;
+    line-height: 1;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .side-nav-item:hover {
+    background: #111;
+    color: #ffce1c;
+  }
+
+  .side-nav-item.active {
+    font-weight: 700;
+  }
+
+  .side-nav-icon {
+    width: 1.6rem;
+    height: 1.6rem;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 1200px) {
+    /* right rail: primary navigation, centered in the right black margin */
+    .side-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      position: fixed;
+      top: 3rem;
+      left: calc(75vw + 190px);
+      transform: translateX(-50%);
+      z-index: 40;
+    }
+
+    /* status block: same (bottom) vertical position, centered in the LEFT margin */
+    .build-info {
+      position: fixed;
+      bottom: 2rem;
+      left: calc(25vw - 190px);
+      transform: translateX(-50%);
+      text-align: center;
+    }
+
+    .build-info .status-row {
+      justify-content: center;
+    }
+
+    /* radar + time + built-by: bottom of the RIGHT margin, under the nav */
+    .radar-side {
+      position: fixed;
+      bottom: 2rem;
+      left: calc(75vw + 190px);
+      transform: translateX(-50%);
+      align-items: center;
+    }
+
+    .radar-side .time-block {
+      text-align: center;
+    }
+
+    /* the OspreyAI nav item replaces the inline chat link */
+    .oracle-link {
+      display: none;
+    }
   }
 
   .status-dot {
