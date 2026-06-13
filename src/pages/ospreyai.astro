@@ -92,10 +92,11 @@ import Layout from '../layouts/Layout.astro';
       const item = document.createElement('div');
       item.className = 'chat-item' + (chat.id === currentId ? ' active' : '');
 
+      item.addEventListener('click', () => openChat(chat.id));
+
       const title = document.createElement('span');
       title.className = 'chat-item-title';
       title.textContent = chat.title || 'New chat';
-      title.addEventListener('click', () => openChat(chat.id));
 
       const del = document.createElement('button');
       del.className = 'chat-item-del';
@@ -121,19 +122,23 @@ import Layout from '../layouts/Layout.astro';
 
     const body = document.createElement('p');
     body.className = 'body';
-    body.textContent = text;
 
-    wrap.append(who, body);
+    const textEl = document.createElement('span');
+    textEl.className = 'body-text';
+    textEl.textContent = text;
+    body.appendChild(textEl);
 
     if (role === 'assistant') {
       const save = document.createElement('button');
       save.className = 'save-btn';
-      save.textContent = 'Save';
+      save.textContent = 'Save text';
       save.addEventListener('click', () => {
-        saveText(body.textContent ?? '', save);
+        saveText(textEl.textContent ?? '', save);
       });
-      wrap.appendChild(save);
+      body.appendChild(save);
     }
+
+    wrap.append(who, body);
     return wrap;
   }
 
@@ -188,7 +193,7 @@ import Layout from '../layouts/Layout.astro';
     btn.textContent = 'Saved';
     btn.classList.add('saved');
     setTimeout(() => {
-      btn.textContent = 'Save';
+      btn.textContent = 'Save text';
       btn.classList.remove('saved');
     }, 1500);
   }
@@ -219,7 +224,11 @@ import Layout from '../layouts/Layout.astro';
 
       const body = document.createElement('p');
       body.className = 'body';
-      body.textContent = item.content;
+
+      const textEl = document.createElement('span');
+      textEl.className = 'body-text';
+      textEl.textContent = item.content;
+      body.appendChild(textEl);
 
       const remove = document.createElement('button');
       remove.className = 'save-btn';
@@ -229,8 +238,9 @@ import Layout from '../layouts/Layout.astro';
         persist();
         openSaved();
       });
+      body.appendChild(remove);
 
-      wrap.append(body, remove);
+      wrap.appendChild(body);
       thread.appendChild(wrap);
     }
     thread.scrollTop = 0;
@@ -301,7 +311,7 @@ import Layout from '../layouts/Layout.astro';
     const pending = messageEl('assistant', '…');
     thread.appendChild(pending);
     thread.scrollTop = thread.scrollHeight;
-    const pendingBody = pending.querySelector('.body') as HTMLElement;
+    const pendingBody = pending.querySelector('.body-text') as HTMLElement;
 
     try {
       const res = await fetch('/api/oracle', {
@@ -396,14 +406,6 @@ import Layout from '../layouts/Layout.astro';
     cursor: pointer;
   }
 
-  .chat-item:hover {
-    background: #111;
-  }
-
-  .chat-item.active {
-    background: #161616;
-  }
-
   .chat-item-title {
     flex: 1;
     font-size: 0.85rem;
@@ -411,20 +413,23 @@ import Layout from '../layouts/Layout.astro';
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: pointer;
+    transition: color 0.15s ease;
   }
 
   .chat-item.active .chat-item-title,
   .chat-item:hover .chat-item-title {
-    color: #f5f7fa;
+    color: #ffce1c;
   }
 
   .chat-item-del {
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 0.9rem;
     line-height: 1;
-    color: #555;
+    color: #666;
     background: transparent;
     border: none;
+    padding: 0 0.15rem;
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.15s ease, color 0.15s ease;
@@ -586,7 +591,9 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .body {
+    position: relative;
     margin: 0;
+    padding-right: 5rem;
     white-space: pre-wrap;
     color: #f5f7fa;
   }
@@ -600,14 +607,14 @@ import Layout from '../layouts/Layout.astro';
     top: 0;
     right: 0;
     font-family: inherit;
-    font-size: 0.7rem;
-    color: #888;
-    background: #000;
-    border: 1px solid #333;
-    padding: 0.2rem 0.55rem;
+    font-size: 0.75rem;
+    color: #777;
+    background: transparent;
+    border: none;
+    padding: 0;
     cursor: pointer;
     opacity: 0;
-    transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    transition: opacity 0.15s ease, color 0.15s ease;
   }
 
   .msg.osprey:hover .save-btn,
@@ -617,12 +624,10 @@ import Layout from '../layouts/Layout.astro';
 
   .save-btn:hover {
     color: #ffce1c;
-    border-color: #ffce1c;
   }
 
   .save-btn.saved {
     color: #ffce1c;
-    border-color: #ffce1c;
     opacity: 1;
   }
 
