@@ -3,5 +3,8 @@
 export async function onRequestGet(context) {
   const target = new URL(context.request.url);
   target.pathname = '/profile/';
-  return context.env.ASSETS.fetch(target);
+  const res = await context.env.ASSETS.fetch(target);
+  const out = new Response(res.body, res);
+  out.headers.set('Cache-Control', 'no-store, must-revalidate');
+  return out;
 }
