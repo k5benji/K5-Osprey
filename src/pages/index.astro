@@ -34,7 +34,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     </defs>
   </svg>
 
-  <main style="padding: 2rem; max-width: 760px; margin: 0 auto; position: relative; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box;">
+  <main style="padding: 2rem 2rem 0; max-width: 760px; margin: 0 auto; position: relative; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box;">
     <nav class="topnav">
       <a href="/rss.xml" class="topnav-link">RSS Feed</a>
       <a href="/kastlefive/" class="topnav-link">Architecture of Kastle Five</a>
@@ -47,7 +47,11 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 
     <section id="composer" class="composer"></section>
 
-    <div id="feed" class="feed"><p class="feed-note">Loading the feed…</p></div>
+    <div id="feed" class="feed">
+      <div class="feed-loading" role="status" aria-label="Loading the feed">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
 
     <footer class="home-footer">
       <p class="oracle-link">
@@ -592,6 +596,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+    padding-bottom: 2rem;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
@@ -603,6 +608,47 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   .feed-note {
     color: #888;
     font-size: 0.9rem;
+  }
+
+  /* yellow "thinking" dots, same as the Osprey AI loader */
+  .feed-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 2rem 0;
+  }
+
+  .feed-loading .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ffce1c;
+    opacity: 0.25;
+    animation: think 1.3s infinite ease-in-out;
+  }
+
+  .feed-loading .dot:nth-child(2) {
+    animation-delay: 0.18s;
+  }
+
+  .feed-loading .dot:nth-child(3) {
+    animation-delay: 0.36s;
+  }
+
+  @keyframes think {
+    0%,
+    70%,
+    100% {
+      opacity: 0.2;
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    35% {
+      opacity: 1;
+      transform: translateY(-4px);
+      box-shadow: 0 0 6px 1px rgba(255, 206, 28, 0.5);
+    }
   }
 
   .post {
