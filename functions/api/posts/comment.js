@@ -95,3 +95,38 @@ export async function onRequestPost({ request, env }) {
 
   return json({ comment: formatComment(row), commentCount: countRow?.c ?? 0 });
 }
+
+// Delete a comment (its author, or the owner of the post it's on).
+export async function onRequestDelete({ request, env }) {
+  const me = await getSessionUser(request, env);
+  if (!me) return json({ error: 'Not signed in.' }, 401);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'Invalid request.' }, 400);
+  }
+  const commentId = (body.commentId ?? '').toString();
+  if (!commentId) return json({ error: 'Missing comment.' }, 400);
+
+  const c = await env.DB.prepare(
+    `SELECT c.user_id, c.post_id, p.user_id AS post_owner
+     FROM post_comments c JOIN posts p ON p.id = c.post_id WHERE c.id = ?`
+  )
+    .bind(commentId)
+    .first();
+  if (!c) return json({ error: 'No such comment.' }, 404);
+  if (c.user_id !== me.id && c.post_owner !== me.id) {
+    return json({ error: 'Not allowed.' }, 403);
+  }
+
+  await env.DB.prepare('DELETE FROM post_comments WHERE id = ?').bind(commentId).run();
+
+  const countRow = await env.DB.prepare(
+    'SELECT COUNT(*) AS c FROM post_comments WHERE post_id = ?'
+  )
+    .bind(c.post_id)
+    .first();
+  return json({ ok: true, commentCount: countRow?.c ?? 0 });
+}

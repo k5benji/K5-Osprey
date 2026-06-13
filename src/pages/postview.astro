@@ -63,16 +63,20 @@ import Layout from '../layouts/Layout.astro';
   }
 
   let signedIn = false;
+  let myUsername = null;
+  let postAuthor = null;
 
   function commentHtml(c) {
     const a = c.author;
+    const canDelete = myUsername && (a.username === myUsername || postAuthor === myUsername);
     return `
-      <article class="comment">
+      <article class="comment" data-id="${esc(c.id)}">
         <a class="comment-avatar" href="/u/${esc(a.username)}">${avatarHtml(a)}</a>
         <div class="comment-main">
           <div class="comment-head">
             <span class="post-namegroup"><a class="post-name" href="/u/${esc(a.username)}">${esc(a.displayName || a.username)}</a>${badges(a)}</span>
             <span class="post-meta">@${esc(a.username)} · ${fmtDate(c.createdAt)}</span>
+            ${canDelete ? `<button class="comment-del" data-id="${esc(c.id)}" aria-label="Delete reply">Delete</button>` : ''}
           </div>
           <div class="comment-body">${esc(c.content)}</div>
         </div>
@@ -81,6 +85,7 @@ import Layout from '../layouts/Layout.astro';
 
   function render(p) {
     const a = p.author;
+    postAuthor = a.username;
     root.innerHTML = `
       <article class="post solo" data-id="${esc(p.id)}">
         <div class="post-head-row">
@@ -144,7 +149,39 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
+    const listEl = document.getElementById('comment-list');
+    if (listEl) {
+      listEl.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest('.comment-del') as HTMLElement | null;
+        if (!btn) return;
+        deleteComment(btn.getAttribute('data-id'), btn.closest('.comment') as HTMLElement | null);
+      });
+    }
+
     loadComments(p.id);
+  }
+
+  async function deleteComment(commentId, el) {
+    if (!commentId) return;
+    if (!confirm('Delete this reply?')) return;
+    try {
+      const res = await fetch('/api/posts/comment', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commentId }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (el) el.remove();
+      const cnt = root.querySelector('.act.reply .cnt');
+      if (cnt) cnt.textContent = fmtCount(data.commentCount);
+      const listEl = document.getElementById('comment-list');
+      if (listEl && !listEl.querySelector('.comment')) {
+        listEl.innerHTML = '<p class="feed-note">No replies yet.</p>';
+      }
+    } catch {
+      /* ignore */
+    }
   }
 
   async function loadComments(postId) {
@@ -226,6 +263,7 @@ import Layout from '../layouts/Layout.astro';
         fetch('/api/me').then((r) => r.json()).catch(() => null),
       ]);
       signedIn = !!me;
+      myUsername = me && me.username ? me.username : null;
       if (!postRes.ok) {
         root.innerHTML = '<p class="feed-note">Post not found.</p>';
         return;
@@ -307,7 +345,7 @@ import Layout from '../layouts/Layout.astro';
   .post-name:hover {
     text-decoration: underline;
   }
-  .post-head .badge-svg {
+  .badge-svg {
     width: 1em;
     height: 1em;
     margin-left: 0.1em;
@@ -460,6 +498,21 @@ import Layout from '../layouts/Layout.astro';
     align-items: center;
     gap: 0.3rem;
     flex-wrap: wrap;
+  }
+
+  .comment-del {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    font-family: inherit;
+    font-size: 0.8rem;
+    padding: 0;
+  }
+
+  .comment-del:hover {
+    color: #ff6b6b;
   }
 
   .comment-body {
