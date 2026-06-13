@@ -199,7 +199,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
         <div class="post-main">
           <div class="post-head">
             <a class="post-name" href="/u/${esc(a.username)}">${esc(a.displayName || a.username)}</a>${badges(a)}
-            <span class="post-meta">@${esc(a.username)} · <a class="post-time" href="/post/${esc(p.id)}">${relTime(p.createdAt)}</a></span>
+            <span class="post-meta">@${esc(a.username)} · ${relTime(p.createdAt)}</span>
           </div>
           <div class="post-body">${esc(p.content)}</div>
           <div class="post-actions">
@@ -290,11 +290,13 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 
   feedEl.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
-    const actionEl = target.closest('.post-action');
     const article = target.closest('.post') as HTMLElement | null;
-    if (actionEl && article) {
+    if (!article) return;
+    const id = article.getAttribute('data-id');
+
+    const actionEl = target.closest('.post-action');
+    if (actionEl) {
       const act = actionEl.getAttribute('data-act');
-      const id = article.getAttribute('data-id');
       if (act === 'like' || act === 'repost') {
         toggle(act, id, article);
       } else if (act === 'share') {
@@ -302,6 +304,12 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       }
       return;
     }
+
+    // a link inside the post (username / avatar) navigates itself
+    if (target.closest('a')) return;
+
+    // clicking anywhere else on the post opens it
+    location.href = '/post/' + id;
   });
 
   async function loadFeed() {
@@ -446,8 +454,14 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   .post {
     display: flex;
     gap: 0.75rem;
-    padding: 0.95rem 0;
+    padding: 0.95rem 0.5rem;
     border-bottom: 1px solid #222;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .post:hover {
+    background: #0b0b0b;
   }
 
   .post-avatar {
