@@ -15,11 +15,47 @@ Voice and conduct:
 const MAX_HISTORY = 12;
 const MAX_CONTENT = 2000;
 
+const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+
 export async function onRequestPost({ request, env }) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'Invalid request.' }, 400);
+  }
+
+  // Title generation mode
+  if (body?.titleFor) {
+    const seed = body.titleFor.toString().trim().slice(0, 500);
+    if (!seed) return json({ title: 'New chat' });
+    try {
+      const result = await env.AI.run(MODEL, {
+        messages: [
+          {
+            role: 'system',
+            content:
+              'Generate a short, plain title of 2 to 5 words summarizing a conversation that starts with the user message below. Reply with ONLY the title. No quotes, no trailing punctuation, no preamble.',
+          },
+          { role: 'user', content: seed },
+        ],
+        max_tokens: 20,
+        temperature: 0.3,
+      });
+      const title = (result.response ?? '')
+        .trim()
+        .replace(/^["']+|["']+$/g, '')
+        .replace(/[.]+$/, '')
+        .slice(0, 60);
+      return json({ title: title || 'New chat' });
+    } catch (error) {
+      console.error('Title error:', error);
+      return json({ title: 'New chat' });
+    }
+  }
+
   let messages;
   try {
-    const body = await request.json();
-
     if (Array.isArray(body?.messages)) {
       messages = body.messages
         .filter(
@@ -47,7 +83,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const result = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+    const result = await env.AI.run(MODEL, {
       messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
       max_tokens: 800,
       temperature: 0.7,
