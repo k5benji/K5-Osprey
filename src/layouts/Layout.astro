@@ -122,6 +122,15 @@ const isProfile = path.startsWith('/profile') || path.startsWith('/u/');
 			document.addEventListener('visibilitychange', () => {
 				if (!document.hidden) pollNotifs();
 			});
+
+			// Settings (profile edit) active state — query params aren't known at build time
+			if (
+				location.pathname.replace(/\/$/, '') === '/profile' &&
+				new URLSearchParams(location.search).has('edit')
+			) {
+				document.querySelector('.side-nav-item[href="/profile?edit=1"]')?.classList.add('active');
+				document.querySelector('.side-nav-item[href="/profile"]')?.classList.remove('active');
+			}
 		</script>
 	</body>
 </html>
