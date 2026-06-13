@@ -110,7 +110,7 @@ import Layout from '../layouts/Layout.astro';
         ${
           signedIn
             ? `<form class="comment-composer" id="comment-form">
-                 <textarea id="comment-input" rows="1" maxlength="500" placeholder="Post your reply"></textarea>
+                 <textarea id="comment-input" rows="1" maxlength="500" placeholder="Post your comment"></textarea>
                  <button type="submit" class="comment-btn">Reply</button>
                  <span class="comment-status" id="comment-status"></span>
                </form>`
@@ -177,7 +177,7 @@ import Layout from '../layouts/Layout.astro';
       if (cnt) cnt.textContent = fmtCount(data.commentCount);
       const listEl = document.getElementById('comment-list');
       if (listEl && !listEl.querySelector('.comment')) {
-        listEl.innerHTML = '<p class="feed-note">No replies yet.</p>';
+        listEl.innerHTML = '';
       }
     } catch {
       /* ignore */
@@ -191,9 +191,7 @@ import Layout from '../layouts/Layout.astro';
       const res = await fetch('/api/posts/comment?postId=' + encodeURIComponent(postId));
       const data = await res.json();
       const comments = data.comments || [];
-      list.innerHTML = comments.length
-        ? comments.map(commentHtml).join('')
-        : '<p class="feed-note">No replies yet.</p>';
+      list.innerHTML = comments.length ? comments.map(commentHtml).join('') : '';
     } catch {
       list.innerHTML = '<p class="feed-note">Could not load replies.</p>';
     }
