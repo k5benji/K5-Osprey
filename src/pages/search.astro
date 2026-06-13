@@ -4,54 +4,165 @@ import { getCollection } from 'astro:content';
 
 const posts = await getCollection('blog');
 
-const searchData = posts.map((post) => ({
-  title: post.data.title,
-  description: post.data.description,
-  url: `/writtenwork/${post.id}/`,
-}));
+const searchData = posts.map((post) => {
+  const text = (post.body || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[#*_`~>]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return {
+    title: post.data.title,
+    url: `/writtenwork/${post.id}/`,
+    text,
+  };
+});
 ---
 
 <Layout>
-  <main style="padding: 2rem; max-width: 760px; margin: 0 auto;">
+  <main>
     <h1>Search</h1>
-
     <input
       id="search"
       type="search"
-      placeholder="Search the archive..."
-      style="width: 100%; padding: 0.75rem; font-size: 1rem;"
+      placeholder="Search the written work…"
+      autocomplete="off"
     />
-
-    <ul id="results" style="margin-top: 2rem;"></ul>
+    <p class="hint" id="hint">Type to search across every piece.</p>
+    <ul id="results"></ul>
   </main>
 </Layout>
 
 <script define:vars={{ searchData }}>
   const input = document.getElementById('search');
   const results = document.getElementById('results');
+  const hint = document.getElementById('hint');
 
-  input.addEventListener('input', () => {
+  function escapeHtml(s) {
+    return s.replace(
+      /[&<>"]/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]
+    );
+  }
+
+  function snippetFor(text, query) {
+    const idx = text.toLowerCase().indexOf(query);
+    if (idx < 0) {
+      const head = text.slice(0, 120);
+      return escapeHtml(head) + (text.length > 120 ? ' …' : '');
+    }
+    const start = Math.max(0, idx - 50);
+    const end = Math.min(text.length, idx + query.length + 80);
+    const before = (start > 0 ? '… ' : '') + text.slice(start, idx);
+    const match = text.slice(idx, idx + query.length);
+    const after = text.slice(idx + query.length, end) + (end < text.length ? ' …' : '');
+    return escapeHtml(before) + '<mark>' + escapeHtml(match) + '</mark>' + escapeHtml(after);
+  }
+
+  function render() {
     const query = input.value.toLowerCase().trim();
-
     results.innerHTML = '';
 
-    if (!query) return;
+    if (!query) {
+      hint.textContent = 'Type to search across every piece.';
+      hint.hidden = false;
+      return;
+    }
 
-    const matches = searchData.filter((post) =>
-      post.title.toLowerCase().includes(query) ||
-      post.description.toLowerCase().includes(query)
+    const matches = searchData.filter(
+      (post) => post.title.toLowerCase().includes(query) || post.text.toLowerCase().includes(query)
     );
 
+    if (matches.length === 0) {
+      hint.textContent = 'No matches.';
+      hint.hidden = false;
+      return;
+    }
+
+    hint.hidden = true;
     for (const post of matches) {
       const li = document.createElement('li');
-      li.style.marginBottom = '1rem';
-
-      li.innerHTML = `
-        <a href="${post.url}">${post.title}</a>
-        <p>${post.description}</p>
-      `;
-
+      li.className = 'result';
+      li.innerHTML =
+        `<a class="result-title" href="${post.url}">${escapeHtml(post.title)}</a>` +
+        `<p class="result-snippet">${snippetFor(post.text, query)}</p>`;
       results.appendChild(li);
     }
-  });
+  }
+
+  input.addEventListener('input', render);
+  input.focus();
 </script>
+
+<style is:global>
+  main {
+    padding: 2rem;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    margin: 0 0 1.5rem;
+  }
+
+  #search {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1.1rem;
+    color: #f5f7fa;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #333;
+    padding: 0.6rem 0;
+  }
+
+  #search:focus {
+    outline: none;
+    border-bottom-color: #ffce1c;
+  }
+
+  #search::placeholder {
+    color: #555;
+  }
+
+  .hint {
+    margin: 1.5rem 0 0;
+    color: #888;
+    font-size: 0.85rem;
+  }
+
+  #results {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+  }
+
+  .result {
+    margin-bottom: 1.75rem;
+  }
+
+  .result-title,
+  .result-title:visited {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f5f7fa;
+    text-decoration: none;
+  }
+
+  .result-title:hover {
+    color: #ffce1c;
+  }
+
+  .result-snippet {
+    margin: 0.4rem 0 0;
+    color: #999;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .result-snippet mark {
+    background: transparent;
+    color: #ffce1c;
+    font-weight: 700;
+  }
+</style>
