@@ -198,7 +198,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
         <a class="post-avatar" href="/u/${esc(a.username)}">${avatarHtml(a)}</a>
         <div class="post-main">
           <div class="post-head">
-            <a class="post-name" href="/u/${esc(a.username)}">${esc(a.displayName || a.username)}</a>${badges(a)}
+            <span class="post-namegroup"><a class="post-name" href="/u/${esc(a.username)}">${esc(a.displayName || a.username)}</a>${badges(a)}</span>
             <span class="post-meta">@${esc(a.username)} · ${relTime(p.createdAt)}</span>
           </div>
           <div class="post-body">${esc(p.content)}</div>

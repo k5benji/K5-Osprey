@@ -68,7 +68,7 @@ import Layout from '../layouts/Layout.astro';
           <a class="post-avatar" href="/u/${esc(a.username)}">${avatarHtml(a)}</a>
           <div>
             <div class="post-head">
-              <a class="post-name" href="/u/${esc(a.username)}">${esc(a.displayName || a.username)}</a>${badges(a)}
+              <span class="post-namegroup"><a class="post-name" href="/u/${esc(a.username)}">${esc(a.displayName || a.username)}</a>${badges(a)}</span>
             </div>
             <span class="post-meta">@${esc(a.username)}</span>
           </div>
@@ -203,6 +203,7 @@ import Layout from '../layouts/Layout.astro';
   .post-head .badge-svg {
     width: 1em;
     height: 1em;
+    margin-left: 0.1em;
     vertical-align: -0.15em;
   }
   .post-meta {
