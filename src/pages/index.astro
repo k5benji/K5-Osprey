@@ -34,7 +34,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     </defs>
   </svg>
 
-  <main style="padding: 2rem; max-width: 760px; margin: 0 auto; position: relative;">
+  <main style="padding: 2rem; max-width: 760px; margin: 0 auto; position: relative; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box;">
     <nav class="topnav">
       <a href="/rss.xml" class="topnav-link">RSS Feed</a>
       <a href="/kastlefive/" class="topnav-link">Architecture of Kastle Five</a>
@@ -215,11 +215,11 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   function renderComposer() {
     if (signedIn) {
       composerEl.innerHTML = `
-        <textarea id="post-input" maxlength="500" rows="1" placeholder="What's the signal?"></textarea>
-        <div class="composer-row">
-          <span class="composer-status" id="composer-status"></span>
+        <div class="composer-inner">
+          <textarea id="post-input" maxlength="500" rows="1" placeholder="What's the signal?"></textarea>
           <button id="post-btn" class="post-btn">Post</button>
-        </div>`;
+        </div>
+        <span class="composer-status" id="composer-status"></span>`;
       const input = document.getElementById('post-input') as HTMLTextAreaElement;
       const btn = document.getElementById('post-btn') as HTMLButtonElement;
       const grow = () => {
@@ -332,6 +332,11 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     min-height: 34px;
     margin-bottom: 2rem;
     font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  header {
+    flex-shrink: 0;
   }
 
   .topnav-link,
@@ -351,13 +356,21 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 
 <style is:global>
   .composer {
-    margin-bottom: 1.5rem;
+    flex-shrink: 0;
+    margin-bottom: 1.25rem;
     border-bottom: 1px solid #222;
-    padding-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .composer-inner {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
   }
 
   #post-input {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     font-family: inherit;
     font-size: 1.1rem;
     line-height: 1.5;
@@ -377,17 +390,15 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     color: #555;
   }
 
-  .composer-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
-  }
-
   .composer-status {
+    display: block;
+    margin-top: 0.4rem;
     color: #ff6b6b;
     font-size: 0.8rem;
+  }
+
+  .composer-status:empty {
+    display: none;
   }
 
   .post-btn {
@@ -413,6 +424,18 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   .post-btn:disabled {
     opacity: 0.5;
     cursor: default;
+  }
+
+  .feed {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .feed::-webkit-scrollbar {
+    display: none;
   }
 
   .feed-note {
@@ -472,6 +495,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   .post-head .badge-svg {
     width: 1em;
     height: 1em;
+    margin-left: 0.1em;
     vertical-align: -0.15em;
   }
 
@@ -527,7 +551,8 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   }
 
   .home-footer {
-    margin-top: 4rem;
+    flex-shrink: 0;
+    margin-top: 1rem;
   }
 </style>
 

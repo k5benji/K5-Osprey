@@ -64,8 +64,8 @@ export function formatPost(r) {
       engineer: !!r.engineer,
       avatar: avatarUrl({ avatar_key: r.avatar_key, avatar_url: r.avatar_url }),
     },
-    likeCount: r.like_count ?? 0,
-    repostCount: r.repost_count ?? 0,
+    likeCount: (r.like_count ?? 0) + (r.base_likes ?? 0),
+    repostCount: (r.repost_count ?? 0) + (r.base_reposts ?? 0),
     liked: !!r.liked,
     reposted: !!r.reposted,
   };
