@@ -499,6 +499,20 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) pollNotifs();
   });
+
+  // line the first nav item ("Home") up with the "Osprey" title
+  function alignSideNav() {
+    const nav = document.querySelector('.side-nav') as HTMLElement | null;
+    const title = document.querySelector('.title-main') as HTMLElement | null;
+    if (!nav || !title || getComputedStyle(nav).display === 'none') return;
+    const t = title.getBoundingClientRect();
+    const item = nav.querySelector('.side-nav-item') as HTMLElement | null;
+    const ih = item ? item.getBoundingClientRect().height : 0;
+    nav.style.top = Math.round(t.top + t.height / 2 - ih / 2) + 'px';
+  }
+  requestAnimationFrame(alignSideNav);
+  window.addEventListener('resize', alignSideNav);
+  if ((document as any).fonts?.ready) (document as any).fonts.ready.then(alignSideNav);
 </script>
 
 <style>
