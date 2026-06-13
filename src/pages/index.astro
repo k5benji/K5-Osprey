@@ -60,6 +60,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 
       <div class="status-row-wrap">
         <div class="build-info">
+          <p class="current-time">Current time: <span id="local-time"></span></p>
           <p class="build-number status-row">
             <span>Site Status:</span>
             <span class="status-dot" aria-hidden="true"></span>
@@ -68,15 +69,12 @@ import RadomeRadar from '../components/RadomeRadar.astro';
           <p class="build-number">Osprey Kastle Five Build 0.8.1</p>
           <p class="build-number">Published: Sept 5, 2025</p>
           <p class="build-number">Updated: Jun 9, 2026</p>
+          <p class="current-time">
+            <a class="built-by-link" href="https://x.com/k5binya" target="_blank" rel="noopener">Built by @k5binya</a>
+          </p>
         </div>
         <div class="radar-side">
           <RadomeRadar />
-          <div class="time-block">
-            <p class="current-time">Current time: <span id="local-time"></span></p>
-            <p class="current-time">
-              <a class="built-by-link" href="https://x.com/k5binya" target="_blank" rel="noopener">Built by @k5binya</a>
-            </p>
-          </div>
         </div>
       </div>
     </footer>
