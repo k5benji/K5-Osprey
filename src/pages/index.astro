@@ -356,6 +356,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     if (target.closest('a')) return;
 
     // clicking anywhere else on the post opens it
+    if (!id) return;
     location.href = '/post/' + id;
   });
 
