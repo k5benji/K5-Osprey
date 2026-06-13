@@ -41,7 +41,11 @@ export async function onRequestGet({ request, env }) {
     });
     const tokenData = await tokenRes.json();
     accessToken = tokenData.access_token;
-  } catch {
+    if (!accessToken) {
+      console.error('Token exchange returned no access_token:', JSON.stringify(tokenData));
+    }
+  } catch (e) {
+    console.error('Token exchange threw:', e && e.message);
     return fail('token');
   }
   if (!accessToken) return fail('token');
