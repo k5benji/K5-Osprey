@@ -110,6 +110,10 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54A.48.48 0 0 0 14.5 2h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.49.49 0 0 0 .12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.04.24.24.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.12-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
       <span>Settings</span>
     </a>
+    <a class="side-nav-item side-nav-account" href="/profile" id="nav-account" hidden>
+      <span class="nav-account-avatar" id="nav-account-avatar"></span>
+      <span class="nav-account-name" id="nav-account-name"></span>
+    </a>
   </nav>
 </Layout>
 
@@ -493,6 +497,23 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       .then((d) => setNotifBadge(d.count || 0))
       .catch(() => {});
   }
+  // nav account chip (below Settings)
+  fetch('/api/me')
+    .then((r) => r.json())
+    .then((u) => {
+      if (!u) return;
+      const el = document.getElementById('nav-account');
+      const av = document.getElementById('nav-account-avatar');
+      const nm = document.getElementById('nav-account-name');
+      if (!el || !av || !nm) return;
+      av.innerHTML = u.avatar
+        ? `<img src="${esc(u.avatar)}" alt="" />`
+        : '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z"/></svg>';
+      nm.innerHTML = '@' + esc(u.username) + badges(u);
+      el.hidden = false;
+    })
+    .catch(() => {});
+
   pollNotifs();
   setInterval(pollNotifs, 12000);
   // refresh immediately when the tab regains focus
@@ -1025,6 +1046,47 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     display: inline-flex;
   }
 
+  .side-nav-account {
+    margin-top: 0.5rem;
+  }
+
+  .nav-account-avatar {
+    width: 1.9rem;
+    height: 1.9rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid #333;
+    background: #111;
+    color: #666;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-account-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .nav-account-avatar svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .nav-account-name {
+    color: #ffce1c;
+    font-weight: 700;
+  }
+
+  .nav-account-name .badge-svg {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    margin-left: 0.1em;
+  }
+
   .notif-badge {
     position: absolute;
     top: -1px;
@@ -1084,6 +1146,11 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 
     /* the OspreyAI nav item replaces the inline chat link */
     .oracle-link {
+      display: none;
+    }
+
+    /* the account chip moves into the nav (below Settings) */
+    :global(#account-bar) {
       display: none;
     }
   }
