@@ -1,6 +1,8 @@
-import { getSessionUser, publicUser, json } from '../_auth.js';
+import { getSessionUser, publicUser, json, followStats } from '../_auth.js';
 
 export async function onRequestGet({ request, env }) {
   const user = await getSessionUser(request, env);
-  return json(user ? { ...publicUser(user), me: true } : null);
+  if (!user) return json(null);
+  const stats = await followStats(env, user, user.id);
+  return json({ ...publicUser(user), me: true, ...stats });
 }

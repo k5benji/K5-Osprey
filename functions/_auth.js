@@ -52,6 +52,33 @@ export function sessionCookie(sid, maxAgeSeconds) {
   return `session=${sid}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAgeSeconds}`;
 }
 
+export async function followStats(env, userRow, viewerId) {
+  const followers = await env.DB.prepare(
+    'SELECT COUNT(*) AS c FROM follows WHERE followee_id = ?'
+  )
+    .bind(userRow.id)
+    .first();
+  const following = await env.DB.prepare(
+    'SELECT COUNT(*) AS c FROM follows WHERE follower_id = ?'
+  )
+    .bind(userRow.id)
+    .first();
+  let isFollowing = false;
+  if (viewerId && viewerId !== userRow.id) {
+    const r = await env.DB.prepare(
+      'SELECT 1 FROM follows WHERE follower_id = ? AND followee_id = ?'
+    )
+      .bind(viewerId, userRow.id)
+      .first();
+    isFollowing = !!r;
+  }
+  return {
+    followers: (followers?.c ?? 0) + (userRow.base_followers ?? 0),
+    following: (following?.c ?? 0) + (userRow.base_following ?? 0),
+    isFollowing,
+  };
+}
+
 export function formatPost(r) {
   return {
     id: r.id,

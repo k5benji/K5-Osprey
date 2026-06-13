@@ -1,4 +1,4 @@
-import { getSessionUser, publicUser, json } from '../_auth.js';
+import { getSessionUser, publicUser, json, followStats } from '../_auth.js';
 
 export async function onRequestPost({ request, env }) {
   const user = await getSessionUser(request, env);
@@ -31,5 +31,6 @@ export async function onRequestPost({ request, env }) {
     .run();
 
   const updated = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(user.id).first();
-  return json({ ...publicUser(updated), me: true });
+  const stats = await followStats(env, updated, updated.id);
+  return json({ ...publicUser(updated), me: true, ...stats });
 }

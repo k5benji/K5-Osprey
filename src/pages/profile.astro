@@ -92,16 +92,19 @@ import Layout from '../layouts/Layout.astro';
   }
 
   function renderView(user, isMe) {
-    const c = followCounts(user.username);
-    const menu = isMe
-      ? `<div class="profile-menu-wrap">
-           <button class="profile-menu-btn" aria-label="Profile options">${MENU_ICON}</button>
-           <div class="profile-menu" hidden>
-             <button class="profile-menu-item" data-act="edit">Edit profile</button>
-             <button class="profile-menu-item" data-act="logout">Log out</button>
-           </div>
-         </div>`
-      : '';
+    const followers = user.followers ?? 0;
+    const following = user.following ?? 0;
+    const menuItems = isMe
+      ? `<button class="profile-menu-item" data-act="edit">Edit profile</button>
+         <button class="profile-menu-item" data-act="logout">Log out</button>`
+      : `<button class="profile-menu-item" data-act="copy">Copy link to profile</button>`;
+    const menu = `<div class="profile-menu-wrap">
+        <button class="profile-menu-btn" aria-label="Profile options">${MENU_ICON}</button>
+        <div class="profile-menu" hidden>${menuItems}</div>
+      </div>`;
+    const followBtn = isMe
+      ? ''
+      : `<button class="follow-btn${user.isFollowing ? ' following' : ''}" type="button"><span class="follow-shine"></span><span class="follow-label">${user.isFollowing ? 'Following' : 'Follow'}</span></button>`;
     root.innerHTML = `
       <div class="card">
         ${avatarBlock(user)}
@@ -109,13 +112,13 @@ import Layout from '../layouts/Layout.astro';
         <p class="handle">@${esc(user.username)}</p>
         ${user.bio ? `<p class="bio">${esc(user.bio)}</p>` : ''}
         <div class="profile-stats">
-          <span class="profile-stat"><span class="stat-num" data-following="${c.following}">${fmtFollow(c.following)}</span> Following</span>
-          <span class="profile-stat"><span class="stat-num">${fmtFollow(c.followers)}</span> Followers</span>
+          <span class="profile-stat"><span class="stat-num">${fmtFollow(following)}</span> Following</span>
+          <span class="profile-stat"><span class="stat-num" data-followers="${followers}">${fmtFollow(followers)}</span> Followers</span>
         </div>
       </div>
       <div class="follow-group">
         ${menu}
-        <button class="follow-btn" type="button"><span class="follow-shine"></span><span class="follow-label">Follow</span></button>
+        ${followBtn}
       </div>
       <div class="posts" id="user-posts"></div>`;
     wireFollowGroup(user, isMe);
@@ -150,33 +153,53 @@ import Layout from '../layouts/Layout.astro';
         closeMenus();
         if (hidden) m.removeAttribute('hidden');
       });
-      m.querySelector('[data-act="edit"]').addEventListener('click', () => renderEdit(user));
-      m.querySelector('[data-act="logout"]').addEventListener('click', logout);
+      const editItem = m.querySelector('[data-act="edit"]');
+      const logoutItem = m.querySelector('[data-act="logout"]');
+      const copyItem = m.querySelector('[data-act="copy"]');
+      if (editItem) editItem.addEventListener('click', () => renderEdit(user));
+      if (logoutItem) logoutItem.addEventListener('click', logout);
+      if (copyItem)
+        copyItem.addEventListener('click', () => {
+          navigator.clipboard?.writeText(location.origin + '/u/' + user.username).catch(() => {});
+          closeMenus();
+        });
     }
     const fbtn = group.querySelector('.follow-btn');
+    if (!fbtn) return;
     const label = fbtn.querySelector('.follow-label');
-    const stat = root.querySelector('.stat-num[data-following]');
-    let following = false;
-    fbtn.addEventListener('click', () => {
-      following = !following;
+    const stat = root.querySelector('.stat-num[data-followers]');
+    let busy = false;
+    fbtn.addEventListener('click', async () => {
+      if (busy) return;
+      busy = true;
       // replay the chrome sweep animation
       fbtn.classList.remove('animating');
       void fbtn.offsetWidth;
       fbtn.classList.add('animating');
-      fbtn.classList.toggle('following', following);
-      label.textContent = following ? 'Following' : 'Follow';
-      if (stat) {
-        let n = parseInt(stat.getAttribute('data-following'), 10) || 0;
-        n += following ? 1 : -1;
-        stat.setAttribute('data-following', String(n));
-        stat.textContent = fmtFollow(n);
+      try {
+        const res = await fetch('/api/follow', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user.username }),
+        });
+        if (res.status === 401) {
+          location.href = '/profile';
+          return;
+        }
+        const data = await res.json();
+        if (!res.ok) return;
+        fbtn.classList.toggle('following', data.following);
+        label.textContent = data.following ? 'Following' : 'Follow';
+        if (stat) {
+          stat.setAttribute('data-followers', String(data.followers));
+          stat.textContent = fmtFollow(data.followers);
+        }
+      } catch {
+        /* ignore */
+      } finally {
+        busy = false;
       }
     });
-  }
-
-  function followCounts(username) {
-    if ((username || '').toLowerCase() === 'k5binya') return { followers: 17000, following: 5 };
-    return { followers: 0, following: 0 };
   }
 
   function fmtFollow(n) {
@@ -749,12 +772,17 @@ import Layout from '../layouts/Layout.astro';
   .profile-menu-btn {
     display: inline-flex;
     align-items: center;
+    line-height: 0;
     background: transparent;
     border: none;
     color: #666;
     cursor: pointer;
     padding: 0.1rem;
     transition: color 0.15s ease;
+  }
+
+  .profile-menu-btn .post-icon {
+    display: block;
   }
 
   .profile-menu-btn:hover {
