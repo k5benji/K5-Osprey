@@ -92,22 +92,86 @@ import Layout from '../layouts/Layout.astro';
   }
 
   function renderView(user, isMe) {
+    const c = followCounts(user.username);
+    const menu = isMe
+      ? `<div class="profile-menu-wrap">
+           <button class="profile-menu-btn" aria-label="Profile options">${MENU_ICON}</button>
+           <div class="profile-menu" hidden>
+             <button class="profile-menu-item" data-act="edit">Edit profile</button>
+             <button class="profile-menu-item" data-act="logout">Log out</button>
+           </div>
+         </div>`
+      : '';
     root.innerHTML = `
       <div class="card">
         ${avatarBlock(user)}
         <h1 class="display-name">${esc(user.displayName || user.username)}${badge(user)}</h1>
         <p class="handle">@${esc(user.username)}</p>
         ${user.bio ? `<p class="bio">${esc(user.bio)}</p>` : ''}
-        ${(() => {
-          const c = followCounts(user.username);
-          return `<div class="profile-stats">
-            <span class="profile-stat"><span class="stat-num">${fmtFollow(c.following)}</span> Following</span>
-            <span class="profile-stat"><span class="stat-num">${fmtFollow(c.followers)}</span> Followers</span>
-          </div>`;
-        })()}
+        <div class="profile-stats">
+          <span class="profile-stat"><span class="stat-num" data-following="${c.following}">${fmtFollow(c.following)}</span> Following</span>
+          <span class="profile-stat"><span class="stat-num">${fmtFollow(c.followers)}</span> Followers</span>
+        </div>
+      </div>
+      <div class="follow-group">
+        ${menu}
+        <button class="follow-btn" type="button"><span class="follow-shine"></span><span class="follow-label">Follow</span></button>
       </div>
       <div class="posts" id="user-posts"></div>`;
+    wireFollowGroup(user, isMe);
     loadUserPosts(user, isMe);
+    requestAnimationFrame(positionFollowGroup);
+  }
+
+  function positionFollowGroup() {
+    const group = root.querySelector('.follow-group');
+    const posts = root.querySelector('.posts');
+    const name = root.querySelector('.display-name');
+    if (!group || !posts || !name) return;
+    const rr = root.getBoundingClientRect();
+    const pr = posts.getBoundingClientRect();
+    const nr = name.getBoundingClientRect();
+    group.style.left = pr.right - rr.left + 'px';
+    group.style.top = nr.top + nr.height / 2 - rr.top + 'px';
+  }
+  window.addEventListener('resize', positionFollowGroup);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(positionFollowGroup);
+
+  function wireFollowGroup(user, isMe) {
+    const group = root.querySelector('.follow-group');
+    if (!group) return;
+    const wrap = group.querySelector('.profile-menu-wrap');
+    if (wrap) {
+      const btn = wrap.querySelector('.profile-menu-btn');
+      const m = wrap.querySelector('.profile-menu');
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const hidden = m.hasAttribute('hidden');
+        closeMenus();
+        if (hidden) m.removeAttribute('hidden');
+      });
+      m.querySelector('[data-act="edit"]').addEventListener('click', () => renderEdit(user));
+      m.querySelector('[data-act="logout"]').addEventListener('click', logout);
+    }
+    const fbtn = group.querySelector('.follow-btn');
+    const label = fbtn.querySelector('.follow-label');
+    const stat = root.querySelector('.stat-num[data-following]');
+    let following = false;
+    fbtn.addEventListener('click', () => {
+      following = !following;
+      // replay the chrome sweep animation
+      fbtn.classList.remove('animating');
+      void fbtn.offsetWidth;
+      fbtn.classList.add('animating');
+      fbtn.classList.toggle('following', following);
+      label.textContent = following ? 'Following' : 'Follow';
+      if (stat) {
+        let n = parseInt(stat.getAttribute('data-following'), 10) || 0;
+        n += following ? 1 : -1;
+        stat.setAttribute('data-following', String(n));
+        stat.textContent = fmtFollow(n);
+      }
+    });
   }
 
   function followCounts(username) {
@@ -170,16 +234,7 @@ import Layout from '../layouts/Layout.astro';
   async function loadUserPosts(user, isMe) {
     const el = document.getElementById('user-posts');
     if (!el) return;
-    const menu = isMe
-      ? `<div class="profile-menu-wrap">
-           <button class="profile-menu-btn" aria-label="Profile options">${MENU_ICON}</button>
-           <div class="profile-menu" hidden>
-             <button class="profile-menu-item" data-act="edit">Edit profile</button>
-             <button class="profile-menu-item" data-act="logout">Log out</button>
-           </div>
-         </div>`
-      : '';
-    const head = `<div class="posts-head"><span class="posts-label">Posts</span>${menu}</div>`;
+    const head = '<p class="posts-label">Posts</p>';
     try {
       const res = await fetch('/api/posts?user=' + encodeURIComponent(user.username));
       const data = await res.json();
@@ -188,19 +243,7 @@ import Layout from '../layouts/Layout.astro';
     } catch {
       el.innerHTML = head;
     }
-    const wrap = el.querySelector('.profile-menu-wrap');
-    if (wrap) {
-      const btn = wrap.querySelector('.profile-menu-btn');
-      const m = wrap.querySelector('.profile-menu');
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const hidden = m.hasAttribute('hidden');
-        closeMenus();
-        if (hidden) m.removeAttribute('hidden');
-      });
-      m.querySelector('[data-act="edit"]').addEventListener('click', () => renderEdit(user));
-      m.querySelector('[data-act="logout"]').addEventListener('click', logout);
-    }
+    positionFollowGroup();
   }
 
   async function togglePost(kind, id, article) {
@@ -471,6 +514,10 @@ import Layout from '../layouts/Layout.astro';
     min-height: 100vh;
   }
 
+  #profile-root {
+    position: relative;
+  }
+
   .muted {
     color: #888;
   }
@@ -685,17 +732,10 @@ import Layout from '../layouts/Layout.astro';
     max-width: 40rem;
   }
 
-  .posts-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .posts-label {
     margin: 0 0 0.25rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid #222;
-  }
-
-  .posts-label {
-    margin: 0;
     font-size: 0.8rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -749,6 +789,67 @@ import Layout from '../layouts/Layout.astro';
   .profile-menu-item:hover {
     background: #1a1a1a;
     color: #ffce1c;
+  }
+
+  .follow-group {
+    position: absolute;
+    transform: translate(-100%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 30;
+  }
+
+  .follow-btn {
+    position: relative;
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #111;
+    background: #ffce1c;
+    border: 1px solid #ffce1c;
+    border-radius: 999px;
+    padding: 0.45rem 1.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .follow-btn.following {
+    background: transparent;
+    color: #ffce1c;
+  }
+
+  .follow-btn .follow-label {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* chrome sweep overlay */
+  .follow-btn .follow-shine {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+      120deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 35%,
+      rgba(255, 255, 255, 0.95) 50%,
+      rgba(255, 255, 255, 0.15) 65%,
+      transparent 100%
+    );
+    transform: translateX(-130%);
+    pointer-events: none;
+  }
+
+  .follow-btn.animating .follow-shine {
+    animation: chromeSweep 0.6s ease;
+  }
+
+  @keyframes chromeSweep {
+    to {
+      transform: translateX(130%);
+    }
   }
 
   .post {
