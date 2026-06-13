@@ -19,6 +19,7 @@ import Layout from '../layouts/Layout.astro';
 
       <div class="composer" id="composer">
         <p class="empty-title" id="empty-title">Chat with Osprey</p>
+        <p class="empty-sub" id="empty-sub">Powered by Kastle Five Systems</p>
         <form id="chat-form" class="chat-form">
           <span class="prompt" aria-hidden="true">&gt;</span>
           <textarea
@@ -514,7 +515,7 @@ import Layout from '../layouts/Layout.astro';
 
   .empty-title {
     display: none;
-    margin: 0 0 1.5rem;
+    margin: 0 0 0.4rem;
     text-align: center;
     font-size: 1.6rem;
     font-weight: 700;
@@ -522,6 +523,18 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .chat-main.empty .empty-title {
+    display: block;
+  }
+
+  .empty-sub {
+    display: none;
+    margin: 0 0 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #ffce1c;
+  }
+
+  .chat-main.empty .empty-sub {
     display: block;
   }
 
