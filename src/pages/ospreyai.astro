@@ -223,7 +223,7 @@ import Layout from '../layouts/Layout.astro';
     if (saved.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'saved-empty';
-      empty.textContent = 'Nothing saved yet. Hover an Osprey answer and press Save.';
+      empty.textContent = 'Nothing saved yet. Press save text after receiving an Osprey answer.';
       thread.appendChild(empty);
       return;
     }
