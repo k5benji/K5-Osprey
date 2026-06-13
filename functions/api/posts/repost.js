@@ -32,5 +32,7 @@ export async function onRequestPost({ request, env }) {
   const row = await env.DB.prepare('SELECT COUNT(*) AS count FROM post_reposts WHERE post_id = ?')
     .bind(postId)
     .first();
-  return json({ reposted: !existing, repostCount: row.count });
+  const post = await env.DB.prepare('SELECT base_reposts FROM posts WHERE id = ?').bind(postId).first();
+  const base = post?.base_reposts ?? 0;
+  return json({ reposted: !existing, repostCount: row.count + base });
 }

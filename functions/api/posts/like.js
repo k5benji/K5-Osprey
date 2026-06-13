@@ -32,5 +32,7 @@ export async function onRequestPost({ request, env }) {
   const row = await env.DB.prepare('SELECT COUNT(*) AS count FROM post_likes WHERE post_id = ?')
     .bind(postId)
     .first();
-  return json({ liked: !existing, likeCount: row.count });
+  const post = await env.DB.prepare('SELECT base_likes FROM posts WHERE id = ?').bind(postId).first();
+  const base = post?.base_likes ?? 0;
+  return json({ liked: !existing, likeCount: row.count + base });
 }

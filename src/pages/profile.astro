@@ -1,39 +1,25 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
-
-// The author whose written work shows as a posts feed on their profile.
-const AUTHOR = 'k5binya';
-
-const blog = await getCollection('blog');
-const authorPosts = blog
-  .map((p) => {
-    const text = (p.body || '')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/[#*_`~>]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    return {
-      slug: p.id,
-      title: p.data.title,
-      date: p.data.pubDate.toISOString(),
-      excerpt: text.slice(0, 240) + (text.length > 240 ? '…' : ''),
-    };
-  })
-  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 ---
 
 <Layout>
+  <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#8a9098"></stop>
+        <stop offset="35%" stop-color="#f3f6f9"></stop>
+        <stop offset="50%" stop-color="#ffffff"></stop>
+        <stop offset="66%" stop-color="#b9bfc5"></stop>
+        <stop offset="100%" stop-color="#5f656b"></stop>
+        <animateTransform attributeName="gradientTransform" type="translate" values="-1 -1; 1 1; -1 -1" dur="3.5s" repeatCount="indefinite"></animateTransform>
+      </linearGradient>
+    </defs>
+  </svg>
   <main>
     <div id="profile-root"><p class="muted">Loading…</p></div>
     <p class="back-link"><a href="/">Return Home</a></p>
   </main>
 </Layout>
-
-<script define:vars={{ authorPosts, authorUsername: AUTHOR }}>
-  globalThis.__OSPREY = { authorPosts, authorUsername };
-</script>
 
 <script>
   const root = document.getElementById('profile-root');
@@ -67,18 +53,26 @@ const authorPosts = blog
     if (user.engineer) {
       html +=
         '<span class="badge-wrap"><svg class="badge-svg engineer-badge" viewBox="0 0 22 22" aria-label="Engineer of Kastle Five">' +
-        '<defs><linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">' +
-        '<stop offset="0%" stop-color="#8a9098"/>' +
-        '<stop offset="35%" stop-color="#f3f6f9"/>' +
-        '<stop offset="50%" stop-color="#ffffff"/>' +
-        '<stop offset="66%" stop-color="#b9bfc5"/>' +
-        '<stop offset="100%" stop-color="#5f656b"/>' +
-        '<animateTransform attributeName="gradientTransform" type="translate" values="-1 -1; 1 1; -1 -1" dur="3.5s" repeatCount="indefinite"/>' +
-        '</linearGradient></defs>' +
         `<path fill="url(#chrome)" fill-rule="evenodd" d="${SEAL}"/>` +
         '</svg><span class="tip">Engineer of Kastle Five</span></span>';
     }
     return html;
+  }
+
+  // post badges (no tooltip, matching the home feed)
+  function postBadges(a) {
+    let h = '';
+    if (a.verified)
+      h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title><path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/></svg>`;
+    if (a.engineer)
+      h += `<svg class="badge-svg" viewBox="0 0 22 22"><title>Engineer of Kastle Five</title><path fill="url(#chrome)" fill-rule="evenodd" d="${SEAL}"/></svg>`;
+    return h;
+  }
+
+  function postAvatar(a) {
+    if (a.avatar) return `<img class="post-avatar-img" src="${esc(a.avatar)}" alt="" />`;
+    const initial = (a.displayName || a.username || '?').charAt(0).toUpperCase();
+    return `<span class="post-avatar-img fallback">${esc(initial)}</span>`;
   }
 
   function renderView(user, isMe) {
@@ -97,17 +91,12 @@ const authorPosts = blog
             : ''
         }
       </div>
-      ${postsFeed(user)}`;
+      <div class="posts" id="user-posts"></div>`;
     if (isMe) {
       document.getElementById('edit-btn').addEventListener('click', () => renderEdit(user));
       document.getElementById('logout-btn').addEventListener('click', logout);
     }
-    root.querySelectorAll('.post').forEach((el) => {
-      el.addEventListener('click', () => {
-        const href = el.getAttribute('data-href');
-        if (href) location.href = href;
-      });
-    });
+    loadUserPosts(user.username);
   }
 
   // ---- posts feed (the author's written work, as X-style posts) ----
@@ -125,62 +114,67 @@ const authorPosts = blog
   };
 
   function fmtCount(n) {
+    if (!n) return '';
     if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'K';
     return String(n);
   }
 
-  function postCounts(slug) {
-    let h = 0;
-    for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
-    const likes = 80 + (h % 1400);
-    return {
-      replies: Math.max(1, Math.floor(likes / 14)),
-      reposts: Math.max(1, Math.floor(likes / 7)),
-      likes,
-      views: likes * 28 + (h % 4000),
-    };
-  }
-
   function fmtPostDate(iso) {
-    const d = new Date(iso);
+    const d = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T') + 'Z');
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
-  function postsFeed(user) {
-    const data = globalThis.__OSPREY || {};
-    if (!user || user.username !== data.authorUsername || !Array.isArray(data.authorPosts)) return '';
-    const posts = data.authorPosts;
-    if (posts.length === 0) return '';
+  function postHtml(p) {
+    const a = p.author;
+    return `
+      <article class="post" data-id="${esc(p.id)}">
+        <div class="post-avatar">${postAvatar(a)}</div>
+        <div class="post-main">
+          <div class="post-head">
+            <span class="post-namegroup"><span class="post-name">${esc(a.displayName || a.username)}</span>${postBadges(a)}</span>
+            <span class="post-meta">@${esc(a.username)} · ${fmtPostDate(p.createdAt)}</span>
+          </div>
+          <div class="post-body">${esc(p.content)}</div>
+          <div class="post-actions">
+            <span class="post-action" data-act="reply">${ICONS.reply}</span>
+            <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${ICONS.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
+            <button class="post-action act like${p.liked ? ' on' : ''}" data-act="like">${ICONS.like}<span class="cnt">${fmtCount(p.likeCount)}</span></button>
+            <span class="post-action" data-act="share">${ICONS.share}</span>
+          </div>
+        </div>
+      </article>`;
+  }
 
-    const name = esc(user.displayName || user.username);
-    const handle = esc(user.username);
-    const badges = badge(user);
-    const avatar = avatarBlock(user);
+  async function loadUserPosts(username) {
+    const el = document.getElementById('user-posts');
+    if (!el) return;
+    try {
+      const res = await fetch('/api/posts?user=' + encodeURIComponent(username));
+      const data = await res.json();
+      const posts = data.posts || [];
+      el.innerHTML = posts.length
+        ? '<p class="posts-label">Posts</p>' + posts.map(postHtml).join('')
+        : '';
+    } catch {
+      el.innerHTML = '';
+    }
+  }
 
-    const items = posts
-      .map((p) => {
-        const c = postCounts(p.slug);
-        return `
-          <article class="post" data-href="/writtenwork/${esc(p.slug)}/">
-            <div class="post-avatar">${avatar}</div>
-            <div class="post-main">
-              <div class="post-head">
-                <span class="post-namegroup"><span class="post-name">${name}</span>${badges}</span>
-                <span class="post-meta">@${handle} · ${fmtPostDate(p.date)}</span>
-              </div>
-              <div class="post-body">${esc(p.excerpt)}</div>
-              <div class="post-actions">
-                <span class="post-action">${ICONS.reply}</span>
-                <span class="post-action">${ICONS.repost}<span class="cnt">${fmtCount(c.reposts)}</span></span>
-                <span class="post-action">${ICONS.like}<span class="cnt">${fmtCount(c.likes)}</span></span>
-                <span class="post-action">${ICONS.share}</span>
-              </div>
-            </div>
-          </article>`;
-      })
-      .join('');
-
-    return `<div class="posts"><p class="posts-label">Posts</p>${items}</div>`;
+  async function togglePost(kind, id, article) {
+    const res = await fetch('/api/posts/' + kind, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId: id }),
+    });
+    if (res.status === 401) {
+      location.href = '/profile';
+      return;
+    }
+    const data = await res.json();
+    if (!res.ok) return;
+    const btn = article.querySelector('.act.' + kind);
+    btn.classList.toggle('on', kind === 'like' ? data.liked : data.reposted);
+    btn.querySelector('.cnt').textContent = fmtCount(kind === 'like' ? data.likeCount : data.repostCount);
   }
 
   function renderEdit(user) {
@@ -311,6 +305,23 @@ const authorPosts = blog
     if (me) renderView(me, true);
     else renderSignin();
   }
+
+  // delegated post interactions (root persists across renders)
+  root.addEventListener('click', (e) => {
+    const target = e.target;
+    const article = target.closest('.post');
+    if (!article) return;
+    const id = article.getAttribute('data-id');
+    const actionEl = target.closest('.post-action');
+    if (actionEl) {
+      const act = actionEl.getAttribute('data-act');
+      if (act === 'like' || act === 'repost') togglePost(act, id, article);
+      else if (act === 'share') navigator.clipboard?.writeText(location.origin + '/post/' + id).catch(() => {});
+      return;
+    }
+    if (target.closest('a')) return;
+    location.href = '/post/' + id;
+  });
 
   init();
 </script>
@@ -547,10 +558,22 @@ const authorPosts = blog
     background: #0b0b0b;
   }
 
-  .post-avatar .avatar,
-  .post-avatar .avatar-fallback {
+  .post-avatar {
+    flex-shrink: 0;
+  }
+
+  .post-avatar-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 42px;
     height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #333;
+    background: #111;
+    color: #ffce1c;
+    font-weight: 700;
     font-size: 1.2rem;
   }
 
@@ -599,10 +622,26 @@ const authorPosts = blog
   }
 
   .post-action {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.35rem;
     font-size: 0.8rem;
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+    transition: color 0.15s ease;
+  }
+
+  .post-action:hover {
+    color: #ffce1c;
+  }
+
+  .post-action.like.on,
+  .post-action.repost.on {
+    color: #ffce1c;
   }
 
   .post-icon {
