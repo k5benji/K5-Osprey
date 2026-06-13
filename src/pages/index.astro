@@ -774,10 +774,10 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 
   /* nav account chip contents are injected via JS, so size them globally */
   .nav-account-name .badge-svg {
-    width: 1em;
-    height: 1em;
-    margin-left: 0.1em;
-    vertical-align: -0.15em;
+    width: 0.95em;
+    height: 0.95em;
+    margin-left: 0.15em;
+    flex-shrink: 0;
   }
 
   .nav-account-avatar img {
@@ -787,8 +787,8 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   }
 
   .nav-account-avatar svg {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1rem;
+    height: 1rem;
   }
 
   .post-meta {
@@ -1070,8 +1070,8 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   }
 
   .nav-account-avatar {
-    width: 1.9rem;
-    height: 1.9rem;
+    width: 1.6rem;
+    height: 1.6rem;
     flex-shrink: 0;
     border-radius: 50%;
     overflow: hidden;
@@ -1084,6 +1084,8 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   }
 
   .nav-account-name {
+    display: inline-flex;
+    align-items: center;
     color: #ffce1c;
     font-weight: 700;
   }
