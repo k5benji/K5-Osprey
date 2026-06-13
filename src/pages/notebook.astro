@@ -40,6 +40,7 @@ import Layout from '../layouts/Layout.astro';
     id: number;
     name: string;
     comment: string;
+    reply: string | null;
     created_at: string;
   }
 
@@ -104,6 +105,18 @@ import Layout from '../layouts/Layout.astro';
         body.textContent = entry.comment;
 
         line.append(meta, body);
+
+        if (entry.reply) {
+          const reply = document.createElement('p');
+          reply.className = 'entry-reply';
+          const who = document.createElement('span');
+          who.className = 'entry-reply-who';
+          who.textContent = 'Osprey ';
+          reply.appendChild(who);
+          reply.appendChild(document.createTextNode(entry.reply));
+          line.appendChild(reply);
+        }
+
         entriesEl.appendChild(line);
       }
     } catch {
@@ -241,5 +254,18 @@ import Layout from '../layouts/Layout.astro';
     margin: 0.25rem 0 0;
     color: #555;
     white-space: pre-wrap;
+  }
+
+  .entry-reply {
+    margin: 0.5rem 0 0 1rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid #333;
+    color: #999;
+    white-space: pre-wrap;
+  }
+
+  .entry-reply-who {
+    color: #ffce1c;
+    font-weight: 700;
   }
 </style>
