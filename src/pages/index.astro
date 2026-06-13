@@ -4,6 +4,18 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 ---
 
 <Layout>
+  <div id="boot" aria-hidden="true">
+    <pre id="boot-text"></pre>
+    <span class="boot-skip">click anywhere to skip</span>
+  </div>
+  <script is:inline>
+    // returning visitors this session: remove the overlay before paint
+    if (sessionStorage.getItem('k5-booted')) {
+      var b = document.getElementById('boot');
+      if (b) b.remove();
+    }
+  </script>
+
   <main style="padding: 2rem; max-width: 760px; margin: 0 auto; position: relative;">
     <header>
       <h1>Osprey, engineered by Kastle Five systems.</h1>
@@ -79,9 +91,110 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   }
   tick();
   setInterval(tick, 1000);
+
+  // ---------- boot sequence ----------
+  const boot = document.getElementById('boot');
+  const bootText = document.getElementById('boot-text');
+
+  if (boot && bootText && !sessionStorage.getItem('k5-booted')) {
+    const lines = [
+      'KASTLE FIVE SYSTEMS',
+      '> INITIALIZING...',
+      '> RADAR ONLINE',
+      '> SIGNAL ACQUIRED',
+    ];
+    let done = false;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      sessionStorage.setItem('k5-booted', '1');
+      boot.classList.add('boot-out');
+      setTimeout(() => boot.remove(), 600);
+    };
+
+    // skip on any click or key
+    boot.addEventListener('click', finish);
+    window.addEventListener('keydown', finish, { once: true });
+
+    let li = 0;
+    let ci = 0;
+    const type = () => {
+      if (done) return;
+      if (li >= lines.length) {
+        setTimeout(finish, 550);
+        return;
+      }
+      const line = lines[li];
+      if (ci <= line.length) {
+        bootText.textContent =
+          lines.slice(0, li).join('\n') + (li > 0 ? '\n' : '') + line.slice(0, ci);
+        ci++;
+        setTimeout(type, 22);
+      } else {
+        bootText.textContent = lines.slice(0, li + 1).join('\n');
+        li++;
+        ci = 0;
+        setTimeout(type, 260);
+      }
+    };
+    type();
+  } else if (boot) {
+    boot.remove();
+  }
 </script>
 
 <style>
+  #boot {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+    max-width: 760px;
+    margin: 0 auto;
+    cursor: pointer;
+    transition: opacity 0.5s ease;
+  }
+
+  #boot.boot-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #boot-text {
+    margin: 0;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.9;
+    color: #ffce1c;
+    white-space: pre-wrap;
+  }
+
+  #boot-text::after {
+    content: '▋';
+    animation: boot-blink 1s steps(1) infinite;
+  }
+
+  @keyframes boot-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .boot-skip {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #555;
+  }
+
   .rss-link {
     margin-top: 3rem;
     font-size: 1rem;
