@@ -36,6 +36,18 @@
 					}
 				})
 				.catch(() => {});
+
+			// on the homepage, align the account chip's right edge with the title's last character
+			function alignChip() {
+				const chip = document.getElementById('account-chip');
+				const header = document.querySelector('header');
+				if (!chip || !header || location.pathname !== '/') return;
+				const rect = header.getBoundingClientRect();
+				chip.style.right = Math.max(8, Math.round(window.innerWidth - rect.right)) + 'px';
+			}
+			alignChip();
+			window.addEventListener('resize', alignChip);
+			if (document.fonts && document.fonts.ready) document.fonts.ready.then(alignChip);
 		</script>
 	</body>
 </html>
