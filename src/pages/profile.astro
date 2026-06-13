@@ -277,7 +277,10 @@ const authorPosts = blog
       <div class="card center">
         <h1 class="display-name">Profile</h1>
         <p class="muted">Sign in to claim a username, add a picture, and a short description.</p>
-        <a class="btn" href="/api/auth/github">Sign in with GitHub</a>
+        <div class="signin-options">
+          <a class="btn" href="/api/auth/github">Sign in with GitHub</a>
+          <a class="btn ghost" href="/api/auth/google">Sign in with Google</a>
+        </div>
       </div>`;
   }
 
@@ -426,6 +429,14 @@ const authorPosts = blog
 
   .card.center .actions {
     justify-content: center;
+  }
+
+  .signin-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 1.5rem;
   }
 
   .btn {

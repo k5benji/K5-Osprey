@@ -42,28 +42,6 @@
 					}
 				})
 				.catch(() => {});
-
-			// place the account chip at the same spot on every page: the right
-			// edge of the homepage title within the centered 760px column
-			const TITLE = 'Osprey, engineered by Kastle Five systems.';
-			function alignChip() {
-				const bar = document.getElementById('account-bar');
-				if (!bar) return;
-				const meas = document.createElement('span');
-				meas.style.cssText =
-					'position:absolute;visibility:hidden;white-space:nowrap;font:700 2em Helvetica,Arial,sans-serif;';
-				meas.textContent = TITLE;
-				document.body.appendChild(meas);
-				const titleWidth = meas.offsetWidth;
-				meas.remove();
-				const vw = window.innerWidth;
-				const contentLeft = vw >= 824 ? (vw - 824) / 2 + 32 : 32;
-				const titleRight = contentLeft + titleWidth;
-				bar.style.right = Math.max(8, Math.round(vw - titleRight)) + 'px';
-			}
-			alignChip();
-			window.addEventListener('resize', alignChip);
-			if (document.fonts && document.fonts.ready) document.fonts.ready.then(alignChip);
 		</script>
 	</body>
 </html>
@@ -82,13 +60,14 @@
 
 	#account-bar {
 		position: fixed;
-		top: 1rem;
-		/* align with the right edge of the 760px content column, min 1rem on narrow screens */
+		top: 2rem;
+		/* align with the right edge of the 760px content column (the feed's right border) */
 		right: max(1rem, calc(50vw - 380px));
 		z-index: 50;
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		height: 34px;
 	}
 
 	#account-name {

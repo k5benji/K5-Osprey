@@ -134,20 +134,6 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   tick();
   setInterval(tick, 1000);
 
-  // ---------- radar alignment ----------
-  const headerEl = document.querySelector('header');
-  const sideEl = document.querySelector('.radar-side') as HTMLElement | null;
-  function alignRadar() {
-    if (!headerEl || !sideEl) return;
-    sideEl.style.marginRight = '0';
-    const headerRight = headerEl.getBoundingClientRect().right;
-    const sideRight = sideEl.getBoundingClientRect().right;
-    sideEl.style.marginRight = `${Math.max(0, sideRight - headerRight)}px`;
-  }
-  alignRadar();
-  window.addEventListener('resize', alignRadar);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(alignRadar);
-
   // ---------- live feed ----------
   const SEAL =
     'M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44C11.866 1.07 11.235.876 10.59.86c-.646.017-1.273.213-1.813.568-.54.355-.969.854-1.24 1.44-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245C1.61 9.726 1.412 10.355 1.394 11c.018.646.215 1.275.57 1.816.354.54.852.972 1.438 1.246-.223.607-.27 1.264-.14 1.897.131.634.437 1.218.882 1.687.47.445 1.053.75 1.687.882.633.13 1.29.083 1.897-.14.273.587.704 1.086 1.245 1.44.541.354 1.172.548 1.817.564.646-.017 1.273-.213 1.813-.568.54-.355.969-.854 1.24-1.44.608.223 1.267.272 1.902.14.635-.13 1.22-.436 1.69-.882.445-.47.749-1.055.878-1.688.13-.633.08-1.29-.144-1.896.587-.274 1.087-.705 1.443-1.245.356-.54.554-1.169.573-1.814zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246-5.683 6.206z';
@@ -213,7 +199,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
         <div class="post-main">
           <div class="post-head">
             <a class="post-name" href="/u/${esc(a.username)}">${esc(a.displayName || a.username)}</a>${badges(a)}
-            <span class="post-meta">@${esc(a.username)} · ${relTime(p.createdAt)}</span>
+            <span class="post-meta">@${esc(a.username)} · <a class="post-time" href="/post/${esc(p.id)}">${relTime(p.createdAt)}</a></span>
           </div>
           <div class="post-body">${esc(p.content)}</div>
           <div class="post-actions">
@@ -243,7 +229,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       input.addEventListener('input', grow);
       btn.addEventListener('click', submitPost);
     } else {
-      composerEl.innerHTML = `<a class="post-btn" href="/api/auth/github">Sign in to post</a>`;
+      composerEl.innerHTML = `<a class="post-btn" href="/profile">Sign in to post</a>`;
     }
   }
 
@@ -284,7 +270,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       });
       const data = await res.json();
       if (res.status === 401) {
-        location.href = '/api/auth/github';
+        location.href = '/profile';
         return;
       }
       if (!res.ok) return;
@@ -312,7 +298,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       if (act === 'like' || act === 'repost') {
         toggle(act, id, article);
       } else if (act === 'share') {
-        navigator.clipboard?.writeText(location.origin).catch(() => {});
+        navigator.clipboard?.writeText(location.origin + '/post/' + id).catch(() => {});
       }
       return;
     }
@@ -341,7 +327,9 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   .topnav {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 1.25rem;
+    min-height: 34px;
     margin-bottom: 2rem;
     font-size: 0.8rem;
   }

@@ -51,3 +51,34 @@ export function publicUser(u) {
 export function sessionCookie(sid, maxAgeSeconds) {
   return `session=${sid}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAgeSeconds}`;
 }
+
+export function formatPost(r) {
+  return {
+    id: r.id,
+    content: r.content,
+    createdAt: r.created_at,
+    author: {
+      username: r.username,
+      displayName: r.display_name,
+      verified: !!r.verified,
+      engineer: !!r.engineer,
+      avatar: avatarUrl({ avatar_key: r.avatar_key, avatar_url: r.avatar_url }),
+    },
+    likeCount: r.like_count ?? 0,
+    repostCount: r.repost_count ?? 0,
+    liked: !!r.liked,
+    reposted: !!r.reposted,
+  };
+}
+
+export async function uniqueUsername(env, base) {
+  const root = (base || 'osprey').toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20) || 'osprey';
+  let candidate = root;
+  let n = 0;
+  while (true) {
+    const taken = await env.DB.prepare('SELECT 1 FROM users WHERE username = ?').bind(candidate).first();
+    if (!taken) return candidate;
+    n += 1;
+    candidate = `${root}${n}`;
+  }
+}

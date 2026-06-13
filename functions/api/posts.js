@@ -1,25 +1,6 @@
-import { getSessionUser, avatarUrl, json } from '../_auth.js';
+import { getSessionUser, formatPost, json } from '../_auth.js';
 
 const MAX_LEN = 500;
-
-function formatPost(r) {
-  return {
-    id: r.id,
-    content: r.content,
-    createdAt: r.created_at,
-    author: {
-      username: r.username,
-      displayName: r.display_name,
-      verified: !!r.verified,
-      engineer: !!r.engineer,
-      avatar: avatarUrl({ avatar_key: r.avatar_key, avatar_url: r.avatar_url }),
-    },
-    likeCount: r.like_count ?? 0,
-    repostCount: r.repost_count ?? 0,
-    liked: !!r.liked,
-    reposted: !!r.reposted,
-  };
-}
 
 export async function onRequestGet({ request, env }) {
   const me = await getSessionUser(request, env);
