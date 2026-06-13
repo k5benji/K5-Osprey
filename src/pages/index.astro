@@ -254,7 +254,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
           </div>
           <div class="post-body">${esc(p.content)}</div>
           <div class="post-actions">
-            <span class="post-action" data-act="reply">${IC.reply}</span>
+            <span class="post-action" data-act="reply">${IC.reply}<span class="cnt">${fmtCount(p.commentCount)}</span></span>
             <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${IC.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
             <button class="post-action act like${p.liked ? ' on' : ''}" data-act="like">${IC.like}<span class="cnt">${fmtCount(p.likeCount)}</span></button>
             <span class="post-action" data-act="share">${IC.share}</span>
@@ -380,6 +380,8 @@ import RadomeRadar from '../components/RadomeRadar.astro';
         toggle(act, id, article);
       } else if (act === 'share') {
         navigator.clipboard?.writeText(location.origin + '/post/' + id).catch(() => {});
+      } else if (act === 'reply' && id) {
+        location.href = '/post/' + id;
       }
       return;
     }
@@ -479,18 +481,29 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 
   loadFeed();
 
-  // notifications unread badge
-  fetch('/api/me')
-    .then((r) => r.json())
-    .then((u) => {
-      if (!u || !u.unreadNotifications) return;
-      const b = document.getElementById('notif-badge');
-      if (b) {
-        b.textContent = u.unreadNotifications > 99 ? '99+' : String(u.unreadNotifications);
-        b.hidden = false;
-      }
-    })
-    .catch(() => {});
+  // notifications unread badge — polled for near-real-time updates
+  function setNotifBadge(n) {
+    const b = document.getElementById('notif-badge');
+    if (!b) return;
+    if (n > 0) {
+      b.textContent = n > 99 ? '99+' : String(n);
+      b.hidden = false;
+    } else {
+      b.hidden = true;
+    }
+  }
+  function pollNotifs() {
+    fetch('/api/notifications/count')
+      .then((r) => r.json())
+      .then((d) => setNotifBadge(d.count || 0))
+      .catch(() => {});
+  }
+  pollNotifs();
+  setInterval(pollNotifs, 12000);
+  // refresh immediately when the tab regains focus
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) pollNotifs();
+  });
 </script>
 
 <style>

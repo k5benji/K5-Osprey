@@ -245,7 +245,7 @@ import Layout from '../layouts/Layout.astro';
           </div>
           <div class="post-body">${esc(p.content)}</div>
           <div class="post-actions">
-            <span class="post-action" data-act="reply">${ICONS.reply}</span>
+            <span class="post-action" data-act="reply">${ICONS.reply}<span class="cnt">${fmtCount(p.commentCount)}</span></span>
             <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${ICONS.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
             <button class="post-action act like${p.liked ? ' on' : ''}" data-act="like">${ICONS.like}<span class="cnt">${fmtCount(p.likeCount)}</span></button>
             <span class="post-action" data-act="share">${ICONS.share}</span>
@@ -519,6 +519,7 @@ import Layout from '../layouts/Layout.astro';
       const act = actionEl.getAttribute('data-act');
       if (act === 'like' || act === 'repost') togglePost(act, id, article);
       else if (act === 'share') navigator.clipboard?.writeText(location.origin + '/post/' + id).catch(() => {});
+      else if (act === 'reply') location.href = '/post/' + id;
       return;
     }
     if (target.closest('.post-edit')) return;

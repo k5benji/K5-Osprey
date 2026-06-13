@@ -13,6 +13,7 @@ export async function onRequestGet({ request, env }) {
        u.username, u.display_name, u.verified, u.engineer, u.avatar_key, u.avatar_url,
        (SELECT COUNT(*) FROM post_likes l WHERE l.post_id = p.id) AS like_count,
        (SELECT COUNT(*) FROM post_reposts r WHERE r.post_id = p.id) AS repost_count,
+       (SELECT COUNT(*) FROM post_comments c WHERE c.post_id = p.id) AS comment_count,
        (SELECT COUNT(*) FROM post_likes l WHERE l.post_id = p.id AND l.user_id = ?) AS liked,
        (SELECT COUNT(*) FROM post_reposts r WHERE r.post_id = p.id AND r.user_id = ?) AS reposted
      FROM posts p JOIN users u ON u.id = p.user_id WHERE p.id = ?`

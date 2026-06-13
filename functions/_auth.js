@@ -120,6 +120,7 @@ export function formatPost(r) {
     },
     likeCount: (r.like_count ?? 0) + (r.base_likes ?? 0),
     repostCount: (r.repost_count ?? 0) + (r.base_reposts ?? 0),
+    commentCount: r.comment_count ?? 0,
     liked: !!r.liked,
     reposted: !!r.reposted,
   };
