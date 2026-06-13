@@ -55,7 +55,8 @@
 	#account-chip {
 		position: fixed;
 		top: 1rem;
-		right: 1rem;
+		/* align with the right edge of the 760px content column, min 1rem on narrow screens */
+		right: max(1rem, calc(50vw - 380px));
 		z-index: 50;
 		width: 34px;
 		height: 34px;
