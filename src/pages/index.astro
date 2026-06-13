@@ -82,39 +82,6 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     </footer>
   </main>
 
-  <nav class="side-nav" aria-label="Primary">
-    <a class="side-nav-item active" href="/">
-      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.6 2 11.3h3V21h5v-6h4v6h5v-9.7h3z"/></svg>
-      <span>Home</span>
-    </a>
-    <a class="side-nav-item" href="#">
-      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10.5 3a7.5 7.5 0 1 0 4.55 13.46l4.74 4.74 1.42-1.42-4.74-4.74A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z"/></svg>
-      <span>Search</span>
-    </a>
-    <a class="side-nav-item" href="/notifications">
-      <span class="side-nav-iconwrap">
-        <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a6 6 0 0 0-6 6c0 3.6-1 5.3-1.9 6.2L3 15.2V17h18v-1.8l-1.1-1c-.9-.9-1.9-2.6-1.9-6.2a6 6 0 0 0-6-6zm0 20a2.8 2.8 0 0 0 2.8-2.8H9.2A2.8 2.8 0 0 0 12 22z"/></svg>
-        <span class="notif-badge" id="notif-badge" hidden></span>
-      </span>
-      <span>Notifications</span>
-    </a>
-    <a class="side-nav-item" href="/ospreyai">
-      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H8l-5 4z"/></svg>
-      <span>OspreyAI</span>
-    </a>
-    <a class="side-nav-item" href="/profile">
-      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z"/></svg>
-      <span>Profile</span>
-    </a>
-    <a class="side-nav-item" href="#">
-      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54A.48.48 0 0 0 14.5 2h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.49.49 0 0 0 .12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.04.24.24.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.12-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
-      <span>Settings</span>
-    </a>
-    <a class="side-nav-item side-nav-account" href="/profile" id="nav-account" hidden>
-      <span class="nav-account-avatar" id="nav-account-avatar"></span>
-      <span class="nav-account-name" id="nav-account-name"></span>
-    </a>
-  </nav>
 </Layout>
 
 <script>
@@ -484,56 +451,6 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   }
 
   loadFeed();
-
-  // notifications unread badge — polled for near-real-time updates
-  function setNotifBadge(n) {
-    const b = document.getElementById('notif-badge');
-    if (!b) return;
-    b.hidden = !(n > 0);
-  }
-  function pollNotifs() {
-    fetch('/api/notifications/count')
-      .then((r) => r.json())
-      .then((d) => setNotifBadge(d.count || 0))
-      .catch(() => {});
-  }
-  // nav account chip (below Settings)
-  fetch('/api/me')
-    .then((r) => r.json())
-    .then((u) => {
-      if (!u) return;
-      const el = document.getElementById('nav-account');
-      const av = document.getElementById('nav-account-avatar');
-      const nm = document.getElementById('nav-account-name');
-      if (!el || !av || !nm) return;
-      av.innerHTML = u.avatar
-        ? `<img src="${esc(u.avatar)}" alt="" />`
-        : '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z"/></svg>';
-      nm.innerHTML = '@' + esc(u.username) + badges(u);
-      el.hidden = false;
-    })
-    .catch(() => {});
-
-  pollNotifs();
-  setInterval(pollNotifs, 12000);
-  // refresh immediately when the tab regains focus
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) pollNotifs();
-  });
-
-  // line the first nav item ("Home") up with the "Osprey" title
-  function alignSideNav() {
-    const nav = document.querySelector('.side-nav') as HTMLElement | null;
-    const title = document.querySelector('.title-main') as HTMLElement | null;
-    if (!nav || !title || getComputedStyle(nav).display === 'none') return;
-    const t = title.getBoundingClientRect();
-    const item = nav.querySelector('.side-nav-item') as HTMLElement | null;
-    const ih = item ? item.getBoundingClientRect().height : 0;
-    nav.style.top = Math.round(t.top + t.height / 2 - ih / 2) + 'px';
-  }
-  requestAnimationFrame(alignSideNav);
-  window.addEventListener('resize', alignSideNav);
-  if ((document as any).fonts?.ready) (document as any).fonts.ready.then(alignSideNav);
 </script>
 
 <style>
@@ -772,24 +689,6 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     vertical-align: -0.15em;
   }
 
-  /* nav account chip contents are injected via JS, so size them globally */
-  .nav-account-name .badge-svg {
-    width: 0.95em;
-    height: 0.95em;
-    margin-left: 0.15em;
-    flex-shrink: 0;
-  }
-
-  .nav-account-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .nav-account-avatar svg {
-    width: 1rem;
-    height: 1rem;
-  }
 
   .post-meta {
     color: #888;
@@ -1027,106 +926,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     gap: 4px;
   }
 
-  /* ---- X-style side rails (wide screens only) ---- */
-  .side-nav {
-    display: none;
-  }
-
-  .side-nav-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.55rem 1.1rem;
-    border-radius: 999px;
-    color: #f5f7fa;
-    text-decoration: none;
-    font-size: 1.15rem;
-    line-height: 1;
-    transition: background-color 0.15s ease, color 0.15s ease;
-  }
-
-  .side-nav-item:hover {
-    background: #111;
-    color: #ffce1c;
-  }
-
-  .side-nav-item.active {
-    font-weight: 700;
-  }
-
-  .side-nav-icon {
-    width: 1.6rem;
-    height: 1.6rem;
-    flex-shrink: 0;
-  }
-
-  .side-nav-iconwrap {
-    position: relative;
-    display: inline-flex;
-  }
-
-  .side-nav-account {
-    margin-top: 0.5rem;
-  }
-
-  .nav-account-avatar {
-    width: 1.6rem;
-    height: 1.6rem;
-    flex-shrink: 0;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 1px solid #333;
-    background: #111;
-    color: #666;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .nav-account-name {
-    display: inline-flex;
-    align-items: center;
-    color: #ffce1c;
-    font-weight: 700;
-  }
-
-  .notif-badge {
-    position: absolute;
-    top: -1px;
-    right: -1px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #ffce1c;
-    box-shadow: 0 0 4px 1px rgba(255, 206, 28, 0.6);
-    animation: notif-glow 3s ease-in-out infinite;
-  }
-
-  @keyframes notif-glow {
-    0%,
-    100% {
-      opacity: 0.65;
-      box-shadow: 0 0 3px 0 rgba(255, 206, 28, 0.45);
-    }
-    50% {
-      opacity: 1;
-      box-shadow: 0 0 7px 2px rgba(255, 206, 28, 0.85);
-    }
-  }
-
   @media (min-width: 1240px) {
-    /* right rail: primary nav, hugging the right edge of the feed column */
-    .side-nav {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      position: fixed;
-      top: 3rem;
-      left: calc(50vw + 380px + 2rem);
-      z-index: 40;
-      white-space: nowrap;
-    }
-
     /* status block: bottom-left, just left of the feed, flush left */
     .build-info {
       position: fixed;
@@ -1149,11 +949,6 @@ import RadomeRadar from '../components/RadomeRadar.astro';
 
     /* the OspreyAI nav item replaces the inline chat link */
     .oracle-link {
-      display: none;
-    }
-
-    /* the account chip moves into the nav (below Settings) */
-    :global(#account-bar) {
       display: none;
     }
   }
