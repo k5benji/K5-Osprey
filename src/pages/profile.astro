@@ -98,21 +98,26 @@ import Layout from '../layouts/Layout.astro';
         <h1 class="display-name">${esc(user.displayName || user.username)}${badge(user)}</h1>
         <p class="handle">@${esc(user.username)}</p>
         ${user.bio ? `<p class="bio">${esc(user.bio)}</p>` : ''}
-        ${
-          isMe
-            ? `<div class="actions">
-                 <button id="edit-btn" class="btn">Edit profile</button>
-                 <button id="logout-btn" class="btn ghost">Log out</button>
-               </div>`
-            : ''
-        }
+        ${(() => {
+          const c = followCounts(user.username);
+          return `<div class="profile-stats">
+            <span class="profile-stat"><span class="stat-num">${fmtFollow(c.following)}</span> Following</span>
+            <span class="profile-stat"><span class="stat-num">${fmtFollow(c.followers)}</span> Followers</span>
+          </div>`;
+        })()}
       </div>
       <div class="posts" id="user-posts"></div>`;
-    if (isMe) {
-      document.getElementById('edit-btn').addEventListener('click', () => renderEdit(user));
-      document.getElementById('logout-btn').addEventListener('click', logout);
-    }
-    loadUserPosts(user.username);
+    loadUserPosts(user, isMe);
+  }
+
+  function followCounts(username) {
+    if ((username || '').toLowerCase() === 'k5binya') return { followers: 17000, following: 5 };
+    return { followers: 0, following: 0 };
+  }
+
+  function fmtFollow(n) {
+    if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'K';
+    return String(n);
   }
 
   // ---- posts feed (the author's written work, as X-style posts) ----
@@ -162,18 +167,39 @@ import Layout from '../layouts/Layout.astro';
       </article>`;
   }
 
-  async function loadUserPosts(username) {
+  async function loadUserPosts(user, isMe) {
     const el = document.getElementById('user-posts');
     if (!el) return;
+    const menu = isMe
+      ? `<div class="profile-menu-wrap">
+           <button class="profile-menu-btn" aria-label="Profile options">${MENU_ICON}</button>
+           <div class="profile-menu" hidden>
+             <button class="profile-menu-item" data-act="edit">Edit profile</button>
+             <button class="profile-menu-item" data-act="logout">Log out</button>
+           </div>
+         </div>`
+      : '';
+    const head = `<div class="posts-head"><span class="posts-label">Posts</span>${menu}</div>`;
     try {
-      const res = await fetch('/api/posts?user=' + encodeURIComponent(username));
+      const res = await fetch('/api/posts?user=' + encodeURIComponent(user.username));
       const data = await res.json();
       const posts = data.posts || [];
-      el.innerHTML = posts.length
-        ? '<p class="posts-label">Posts</p>' + posts.map(postHtml).join('')
-        : '';
+      el.innerHTML = head + (posts.length ? posts.map(postHtml).join('') : '');
     } catch {
-      el.innerHTML = '';
+      el.innerHTML = head;
+    }
+    const wrap = el.querySelector('.profile-menu-wrap');
+    if (wrap) {
+      const btn = wrap.querySelector('.profile-menu-btn');
+      const m = wrap.querySelector('.profile-menu');
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const hidden = m.hasAttribute('hidden');
+        closeMenus();
+        if (hidden) m.removeAttribute('hidden');
+      });
+      m.querySelector('[data-act="edit"]').addEventListener('click', () => renderEdit(user));
+      m.querySelector('[data-act="logout"]').addEventListener('click', logout);
     }
   }
 
@@ -325,10 +351,10 @@ import Layout from '../layouts/Layout.astro';
   }
 
   function closeMenus() {
-    root.querySelectorAll('.post-menu').forEach((m) => m.setAttribute('hidden', ''));
+    root.querySelectorAll('.post-menu, .profile-menu').forEach((m) => m.setAttribute('hidden', ''));
   }
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.post-menu-wrap')) closeMenus();
+    if (!e.target.closest('.post-menu-wrap') && !e.target.closest('.profile-menu-wrap')) closeMenus();
   });
 
   function editPost(article, id) {
@@ -539,6 +565,19 @@ import Layout from '../layouts/Layout.astro';
     white-space: pre-wrap;
   }
 
+  .profile-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    color: #888;
+  }
+
+  .profile-stat .stat-num {
+    color: #ffce1c;
+    font-weight: 700;
+  }
+
   .actions {
     display: flex;
     gap: 0.75rem;
@@ -646,14 +685,70 @@ import Layout from '../layouts/Layout.astro';
     max-width: 40rem;
   }
 
-  .posts-label {
+  .posts-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin: 0 0 0.25rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid #222;
+  }
+
+  .posts-label {
+    margin: 0;
     font-size: 0.8rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #666;
+  }
+
+  .profile-menu-wrap {
+    position: relative;
+  }
+
+  .profile-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.1rem;
+    transition: color 0.15s ease;
+  }
+
+  .profile-menu-btn:hover {
+    color: #ffce1c;
+  }
+
+  .profile-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 20;
+    min-width: 9rem;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .profile-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: #f5f7fa;
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 0.55rem 0.8rem;
+    cursor: pointer;
+  }
+
+  .profile-menu-item:hover {
+    background: #1a1a1a;
+    color: #ffce1c;
   }
 
   .post {
