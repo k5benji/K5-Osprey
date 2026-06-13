@@ -32,18 +32,16 @@ const CHAT_MODELS = [
 ];
 const FAST_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
-async function runChat(env, messages, opts) {
+async function runChatStream(env, messages, opts) {
   let lastError;
   for (const model of CHAT_MODELS) {
     try {
-      const result = await env.AI.run(model, { messages, ...opts });
-      const text = result?.response?.trim();
-      if (text) return text;
+      return await env.AI.run(model, { messages, stream: true, ...opts });
     } catch (error) {
       lastError = error;
     }
   }
-  throw lastError ?? new Error('No model produced output');
+  throw lastError ?? new Error('No model available');
 }
 
 export async function onRequestPost({ request, env }) {
@@ -108,12 +106,17 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const answer = await runChat(env, [{ role: 'system', content: SYSTEM_PROMPT }, ...messages], {
-      max_tokens: 1024,
-      temperature: 0.6,
-      top_p: 0.9,
+    const stream = await runChatStream(
+      env,
+      [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+      { max_tokens: 1024, temperature: 0.6, top_p: 0.9 }
+    );
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-store',
+      },
     });
-    return json({ answer });
   } catch (error) {
     console.error('Osprey error:', error);
     return json({ error: 'Osprey is silent. Try again.' }, 500);

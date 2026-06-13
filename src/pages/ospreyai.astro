@@ -344,24 +344,83 @@ import Layout from '../layouts/Layout.astro';
     thread.appendChild(pending);
     thread.scrollTop = thread.scrollHeight;
 
+    // trailing pulsing cursor shown while Osprey writes
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+
     try {
       const res = await fetch('/api/oracle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: chat.messages }),
       });
-      const data = await res.json();
-      const answer =
-        res.ok && data.answer ? data.answer : data.error ?? 'Osprey is silent. Try again.';
-      pendingBody.textContent = answer;
 
-      if (res.ok && data.answer) {
+      if (!res.ok || !res.body) {
+        let msg = 'Osprey is silent. Try again.';
+        try {
+          const data = await res.json();
+          if (data.error) msg = data.error;
+        } catch {
+          /* ignore */
+        }
+        pendingBody.textContent = msg;
+        return;
+      }
+
+      // stream tokens
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let answer = '';
+      let started = false;
+
+      const pushToken = (token: string) => {
+        if (!started) {
+          started = true;
+          pendingBody.textContent = '';
+          pendingP.appendChild(cursor);
+        }
+        answer += token;
+        pendingBody.textContent = answer;
+        const nearBottom =
+          thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
+        if (nearBottom) thread.scrollTop = thread.scrollHeight;
+      };
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const payload = trimmed.slice(5).trim();
+          if (!payload || payload === '[DONE]') continue;
+          try {
+            const obj = JSON.parse(payload);
+            if (obj.response) pushToken(obj.response);
+          } catch {
+            /* skip malformed chunk */
+          }
+        }
+      }
+
+      cursor.remove();
+      answer = answer.trim();
+
+      if (answer) {
+        pendingBody.textContent = answer;
         attachSave(pendingP, pendingBody);
-        chat.messages.push({ role: 'assistant', content: data.answer });
+        chat.messages.push({ role: 'assistant', content: answer });
         persist();
         if (isFirst) generateTitle(chat, question);
+      } else {
+        pendingBody.textContent = 'Osprey is silent. Try again.';
       }
     } catch {
+      cursor.remove();
       pendingBody.textContent = 'Osprey is silent. Try again.';
     } finally {
       busy = false;
@@ -695,6 +754,28 @@ import Layout from '../layouts/Layout.astro';
       opacity: 1;
       transform: translateY(-4px);
       box-shadow: 0 0 6px 1px rgba(255, 206, 28, 0.5);
+    }
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-left: 3px;
+    border-radius: 50%;
+    background: #ffce1c;
+    box-shadow: 0 0 6px 1px rgba(255, 206, 28, 0.5);
+    vertical-align: baseline;
+    animation: cursor-pulse 1s infinite ease-in-out;
+  }
+
+  @keyframes cursor-pulse {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
     }
   }
 
