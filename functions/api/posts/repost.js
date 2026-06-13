@@ -1,4 +1,4 @@
-import { getSessionUser, json } from '../../_auth.js';
+import { getSessionUser, json, createNotification } from '../../_auth.js';
 
 export async function onRequestPost({ request, env }) {
   const me = await getSessionUser(request, env);
@@ -32,7 +32,12 @@ export async function onRequestPost({ request, env }) {
   const row = await env.DB.prepare('SELECT COUNT(*) AS count FROM post_reposts WHERE post_id = ?')
     .bind(postId)
     .first();
-  const post = await env.DB.prepare('SELECT base_reposts FROM posts WHERE id = ?').bind(postId).first();
+  const post = await env.DB.prepare('SELECT base_reposts, user_id FROM posts WHERE id = ?')
+    .bind(postId)
+    .first();
+  if (!existing && post) {
+    await createNotification(env, { userId: post.user_id, actorId: me.id, type: 'repost', postId });
+  }
   const base = post?.base_reposts ?? 0;
   return json({ reposted: !existing, repostCount: row.count + base });
 }

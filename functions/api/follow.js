@@ -1,4 +1,4 @@
-import { getSessionUser, json, followStats } from '../_auth.js';
+import { getSessionUser, json, followStats, createNotification } from '../_auth.js';
 
 export async function onRequestPost({ request, env }) {
   const me = await getSessionUser(request, env);
@@ -33,6 +33,7 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare('INSERT INTO follows (follower_id, followee_id) VALUES (?, ?)')
       .bind(me.id, target.id)
       .run();
+    await createNotification(env, { userId: target.id, actorId: me.id, type: 'follow' });
   }
 
   const stats = await followStats(env, target, me.id);

@@ -1,4 +1,4 @@
-import { getSessionUser, formatPost, json } from '../_auth.js';
+import { getSessionUser, formatPost, json, notifyMentions } from '../_auth.js';
 
 const MAX_LEN = 500;
 
@@ -48,6 +48,8 @@ export async function onRequestPost({ request, env }) {
   await env.DB.prepare('INSERT INTO posts (id, user_id, content) VALUES (?, ?, ?)')
     .bind(id, me.id, content)
     .run();
+
+  await notifyMentions(env, { content, actorId: me.id, postId: id });
 
   const row = await env.DB.prepare(
     `SELECT p.id, p.content, p.created_at,

@@ -91,8 +91,11 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10.5 3a7.5 7.5 0 1 0 4.55 13.46l4.74 4.74 1.42-1.42-4.74-4.74A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z"/></svg>
       <span>Search</span>
     </a>
-    <a class="side-nav-item" href="#">
-      <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a6 6 0 0 0-6 6c0 3.6-1 5.3-1.9 6.2L3 15.2V17h18v-1.8l-1.1-1c-.9-.9-1.9-2.6-1.9-6.2a6 6 0 0 0-6-6zm0 20a2.8 2.8 0 0 0 2.8-2.8H9.2A2.8 2.8 0 0 0 12 22z"/></svg>
+    <a class="side-nav-item" href="/notifications">
+      <span class="side-nav-iconwrap">
+        <svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a6 6 0 0 0-6 6c0 3.6-1 5.3-1.9 6.2L3 15.2V17h18v-1.8l-1.1-1c-.9-.9-1.9-2.6-1.9-6.2a6 6 0 0 0-6-6zm0 20a2.8 2.8 0 0 0 2.8-2.8H9.2A2.8 2.8 0 0 0 12 22z"/></svg>
+        <span class="notif-badge" id="notif-badge" hidden></span>
+      </span>
       <span>Notifications</span>
     </a>
     <a class="side-nav-item" href="/ospreyai">
@@ -475,6 +478,19 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   }
 
   loadFeed();
+
+  // notifications unread badge
+  fetch('/api/me')
+    .then((r) => r.json())
+    .then((u) => {
+      if (!u || !u.unreadNotifications) return;
+      const b = document.getElementById('notif-badge');
+      if (b) {
+        b.textContent = u.unreadNotifications > 99 ? '99+' : String(u.unreadNotifications);
+        b.hidden = false;
+      }
+    })
+    .catch(() => {});
 </script>
 
 <style>
@@ -980,6 +996,30 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     width: 1.6rem;
     height: 1.6rem;
     flex-shrink: 0;
+  }
+
+  .side-nav-iconwrap {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .notif-badge {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: #ffce1c;
+    color: #111;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   @media (min-width: 1240px) {

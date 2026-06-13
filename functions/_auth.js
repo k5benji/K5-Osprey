@@ -79,6 +79,33 @@ export async function followStats(env, userRow, viewerId) {
   };
 }
 
+export async function createNotification(env, { userId, actorId, type, postId = null }) {
+  // never notify yourself
+  if (!userId || !actorId || userId === actorId) return;
+  const id = crypto.randomUUID();
+  try {
+    await env.DB.prepare(
+      'INSERT INTO notifications (id, user_id, actor_id, type, post_id) VALUES (?, ?, ?, ?, ?)'
+    )
+      .bind(id, userId, actorId, type, postId)
+      .run();
+  } catch {
+    /* notifications are best-effort */
+  }
+}
+
+// Parse @mentions from text and notify each existing, distinct user (except the actor).
+export async function notifyMentions(env, { content, actorId, postId }) {
+  const found = new Set();
+  const re = /@([a-z0-9_]{3,20})/gi;
+  let m;
+  while ((m = re.exec(content || ''))) found.add(m[1].toLowerCase());
+  for (const username of found) {
+    const u = await env.DB.prepare('SELECT id FROM users WHERE username = ?').bind(username).first();
+    if (u) await createNotification(env, { userId: u.id, actorId, type: 'mention', postId });
+  }
+}
+
 export function formatPost(r) {
   return {
     id: r.id,
