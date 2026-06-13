@@ -10,6 +10,13 @@
 		<title>Osprey K5 Systems</title>
 	</head>
 	<body>
+		<div id="mobile-block">
+			<div class="mobile-block-inner">
+				<h1>Osprey K5 Systems</h1>
+				<p>This terminal is not yet available on mobile.</p>
+				<p class="mb-sub">Please access from a desktop browser.</p>
+			</div>
+		</div>
 		<div id="account-bar">
 			<span id="account-name"></span>
 			<a id="account-chip" href="/profile" aria-label="Your profile">
@@ -70,6 +77,47 @@
 		line-height: 1.6;
 		background: #000;
 		color: #f5f7fa;
+	}
+
+	#mobile-block {
+		display: none;
+	}
+
+	@media (max-width: 768px) {
+		#mobile-block {
+			display: flex !important;
+			position: fixed;
+			inset: 0;
+			z-index: 9999;
+			background: #000;
+			color: #f5f7fa;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			padding: 2rem;
+			box-sizing: border-box;
+		}
+
+		/* hide everything else underneath; #mobile-block wins by id specificity */
+		body > * {
+			display: none !important;
+		}
+
+		.mobile-block-inner h1 {
+			color: #ffce1c;
+			font-size: 1.5rem;
+			margin: 0 0 1rem;
+		}
+
+		.mobile-block-inner p {
+			margin: 0.35rem 0;
+			font-size: 0.95rem;
+		}
+
+		.mobile-block-inner .mb-sub {
+			color: #888;
+			font-size: 0.85rem;
+		}
 	}
 
 	#account-bar {
