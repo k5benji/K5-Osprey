@@ -10,7 +10,33 @@
 		<title>Osprey K5 Systems</title>
 	</head>
 	<body>
+		<a id="account-chip" href="/profile" aria-label="Your profile">
+			<svg class="account-default" viewBox="0 0 24 24" aria-hidden="true">
+				<path
+					fill="currentColor"
+					d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z"
+				/>
+			</svg>
+			<img class="account-img" alt="" hidden />
+		</a>
 		<slot />
+
+		<script>
+			fetch('/api/me')
+				.then((r) => r.json())
+				.then((u) => {
+					if (u && u.avatar) {
+						const img = document.querySelector('.account-img') as HTMLImageElement | null;
+						const def = document.querySelector('.account-default') as SVGElement | null;
+						if (img) {
+							img.src = u.avatar;
+							img.hidden = false;
+						}
+						if (def) def.style.display = 'none';
+					}
+				})
+				.catch(() => {});
+		</script>
 	</body>
 </html>
 
@@ -24,5 +50,43 @@
 		line-height: 1.6;
 		background: #000;
 		color: #f5f7fa;
+	}
+
+	#account-chip {
+		position: fixed;
+		top: 1rem;
+		right: 1rem;
+		z-index: 50;
+		width: 34px;
+		height: 34px;
+		border-radius: 50%;
+		overflow: hidden;
+		border: 1px solid #333;
+		background: #111;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: border-color 0.15s ease;
+	}
+
+	#account-chip:hover {
+		border-color: #ffce1c;
+	}
+
+	.account-default {
+		width: 20px;
+		height: 20px;
+		color: #666;
+		transition: color 0.15s ease;
+	}
+
+	#account-chip:hover .account-default {
+		color: #ffce1c;
+	}
+
+	.account-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 </style>
