@@ -151,6 +151,22 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   const feedEl = document.getElementById('feed')!;
   const composerEl = document.getElementById('composer')!;
   let signedIn = false;
+  let myUsername: string | null = null;
+
+  const MENU_ICON =
+    '<svg viewBox="0 0 24 24" class="post-icon"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></svg>';
+
+  function postMenu(p) {
+    if (!myUsername || p.author.username !== myUsername) return '';
+    return `
+      <div class="post-menu-wrap">
+        <button class="post-menu-btn" data-act="menu" aria-label="More">${MENU_ICON}</button>
+        <div class="post-menu" hidden>
+          <button class="post-menu-item" data-act="edit">Edit post</button>
+          <button class="post-menu-item danger" data-act="delete">Delete post</button>
+        </div>
+      </div>`;
+  }
 
   function esc(s) {
     return (s ?? '').replace(
@@ -200,6 +216,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
           <div class="post-head">
             <span class="post-namegroup"><a class="post-name" href="/u/${esc(a.username)}">${esc(a.displayName || a.username)}</a>${badges(a)}</span>
             <span class="post-meta">@${esc(a.username)} · ${relTime(p.createdAt)}</span>
+            ${postMenu(p)}
           </div>
           <div class="post-body">${esc(p.content)}</div>
           <div class="post-actions">
@@ -288,11 +305,39 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     }
   }
 
+  function closeMenus(except) {
+    feedEl.querySelectorAll('.post-menu').forEach((m) => {
+      if (m !== except) m.setAttribute('hidden', '');
+    });
+  }
+  document.addEventListener('click', (e) => {
+    if (!(e.target as HTMLElement).closest('.post-menu-wrap')) closeMenus(null);
+  });
+
   feedEl.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     const article = target.closest('.post') as HTMLElement | null;
     if (!article) return;
     const id = article.getAttribute('data-id');
+
+    // three-dot menu
+    const menuBtn = target.closest('.post-menu-btn');
+    if (menuBtn) {
+      e.stopPropagation();
+      const menu = article.querySelector('.post-menu');
+      const isHidden = menu.hasAttribute('hidden');
+      closeMenus(null);
+      if (isHidden) menu.removeAttribute('hidden');
+      return;
+    }
+    const item = target.closest('.post-menu-item');
+    if (item) {
+      const act = item.getAttribute('data-act');
+      closeMenus(null);
+      if (act === 'edit') editPost(article, id);
+      else if (act === 'delete') deletePost(article, id);
+      return;
+    }
 
     const actionEl = target.closest('.post-action');
     if (actionEl) {
@@ -305,6 +350,8 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       return;
     }
 
+    // editing UI inside the post should not navigate
+    if (target.closest('.post-edit')) return;
     // a link inside the post (username / avatar) navigates itself
     if (target.closest('a')) return;
 
@@ -312,11 +359,78 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     location.href = '/post/' + id;
   });
 
+  function editPost(article, id) {
+    const bodyEl = article.querySelector('.post-body') as HTMLElement;
+    if (!bodyEl || bodyEl.querySelector('.post-edit')) return;
+    const original = bodyEl.textContent;
+    bodyEl.innerHTML = '';
+    bodyEl.classList.add('editing');
+    const wrap = document.createElement('div');
+    wrap.className = 'post-edit';
+    const ta = document.createElement('textarea');
+    ta.className = 'post-edit-area';
+    ta.value = original;
+    const row = document.createElement('div');
+    row.className = 'post-edit-row';
+    const cancel = document.createElement('button');
+    cancel.className = 'post-edit-cancel';
+    cancel.textContent = 'Cancel';
+    const save = document.createElement('button');
+    save.className = 'post-edit-save';
+    save.textContent = 'Save';
+    row.append(cancel, save);
+    wrap.append(ta, row);
+    bodyEl.append(wrap);
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+    ta.focus();
+    ta.addEventListener('input', () => {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    });
+    cancel.addEventListener('click', () => {
+      bodyEl.textContent = original;
+      bodyEl.classList.remove('editing');
+    });
+    save.addEventListener('click', async () => {
+      const content = ta.value.trim();
+      if (!content) return;
+      save.disabled = true;
+      try {
+        const res = await fetch('/api/posts/edit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ postId: id, content }),
+        });
+        const data = await res.json();
+        bodyEl.textContent = res.ok ? data.content : original;
+      } catch {
+        bodyEl.textContent = original;
+      }
+      bodyEl.classList.remove('editing');
+    });
+  }
+
+  async function deletePost(article, id) {
+    if (!confirm('Delete this post?')) return;
+    try {
+      const res = await fetch('/api/posts/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: id }),
+      });
+      if (res.ok) article.remove();
+    } catch {
+      /* ignore */
+    }
+  }
+
   async function loadFeed() {
     try {
       const res = await fetch('/api/posts');
       const data = await res.json();
       signedIn = !!data.me;
+      myUsername = data.me ? data.me.username : null;
       renderComposer();
       if (!data.posts || data.posts.length === 0) {
         feedEl.innerHTML = '';
@@ -524,6 +638,118 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     color: #f5f7fa;
     white-space: pre-wrap;
     word-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-body.editing {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+
+  /* three-dot menu */
+  .post-menu-wrap {
+    position: relative;
+    margin-left: auto;
+  }
+
+  .post-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.1rem;
+    transition: color 0.15s ease;
+  }
+
+  .post-menu-btn:hover {
+    color: #ffce1c;
+  }
+
+  .post-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 20;
+    min-width: 9rem;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .post-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: #f5f7fa;
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 0.55rem 0.8rem;
+    cursor: pointer;
+  }
+
+  .post-menu-item:hover {
+    background: #1a1a1a;
+    color: #ffce1c;
+  }
+
+  .post-menu-item.danger:hover {
+    color: #ff6b6b;
+  }
+
+  /* inline edit */
+  .post-edit-area {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #f5f7fa;
+    background: transparent;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 0.5rem;
+    resize: none;
+  }
+
+  .post-edit-area:focus {
+    outline: none;
+    border-color: #ffce1c;
+  }
+
+  .post-edit-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .post-edit-save,
+  .post-edit-cancel {
+    font-family: inherit;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .post-edit-save {
+    color: #111;
+    background: #ffce1c;
+    border: 1px solid #ffce1c;
+  }
+
+  .post-edit-cancel {
+    color: #888;
+    background: transparent;
+    border: 1px solid #333;
   }
 
   .post-actions {

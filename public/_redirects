@@ -1,8 +1,9 @@
-/blog/* /writtenwork/:splat 301
-/blog /writtenwork/ 301
-
 # pretty public profile URLs — serve the profile page, keep the /u/<name> path
 /u/* /profile 200
 
 # per-post permalinks — serve the post page, keep the /post/<id> path
-/post/* /post 200
+/post/* /postview 200
+
+# written work is now posts — send old URLs to the matching post
+/writtenwork/* /post/work-:splat 301
+/blog/* /post/work-:splat 301
