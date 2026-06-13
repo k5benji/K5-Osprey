@@ -67,10 +67,12 @@ import RadomeRadar from '../components/RadomeRadar.astro';
         </div>
         <div class="radar-side">
           <RadomeRadar />
-          <p class="current-time">Current time: <span id="local-time"></span></p>
-          <p class="current-time">
-            <a class="built-by-link" href="https://x.com/k5binya" target="_blank" rel="noopener">Built by @k5binya</a>
-          </p>
+          <div class="time-block">
+            <p class="current-time">Current time: <span id="local-time"></span></p>
+            <p class="current-time">
+              <a class="built-by-link" href="https://x.com/k5binya" target="_blank" rel="noopener">Built by @k5binya</a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
@@ -227,7 +229,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   function renderComposer() {
     if (signedIn) {
       composerEl.innerHTML = `
-        <textarea id="post-input" maxlength="500" rows="2" placeholder="What's the signal?"></textarea>
+        <textarea id="post-input" maxlength="500" rows="1" placeholder="What's the signal?"></textarea>
         <div class="composer-row">
           <span class="composer-status" id="composer-status"></span>
           <button id="post-btn" class="post-btn">Post</button>
@@ -323,7 +325,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
       signedIn = !!data.me;
       renderComposer();
       if (!data.posts || data.posts.length === 0) {
-        feedEl.innerHTML = `<p class="feed-note">No transmissions yet. Be the first.</p>`;
+        feedEl.innerHTML = '';
         return;
       }
       feedEl.innerHTML = data.posts.map(postHtml).join('');
@@ -566,14 +568,18 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   .status-row-wrap {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: stretch;
   }
 
   .radar-side {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.4rem;
+    justify-content: space-between;
+  }
+
+  .time-block {
+    text-align: right;
   }
 
   .current-time {
