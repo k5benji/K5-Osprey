@@ -43,7 +43,7 @@ const blogContentsJson = JSON.stringify(blogContents);
 		<input
 			id="search"
 			type="search"
-			placeholder="Search..."
+			placeholder="Search the written work…"
 			class="search-box"
 		/>
 
@@ -138,19 +138,60 @@ const blogContentsJson = JSON.stringify(blogContents);
 </script>
 
 <script>
+  const contents = JSON.parse(
+    document.getElementById("blog-contents")?.textContent || "{}"
+  );
   const searchInput = document.getElementById("search");
   const archivePosts = document.querySelectorAll(".archive-post");
+
+  function escapeHtml(s) {
+    return s.replace(
+      /[&<>"]/g,
+      (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]
+    );
+  }
+
+  function snippetFor(text, query) {
+    const idx = text.toLowerCase().indexOf(query);
+    if (idx < 0) return "";
+    const start = Math.max(0, idx - 50);
+    const end = Math.min(text.length, idx + query.length + 80);
+    const before = (start > 0 ? "… " : "") + text.slice(start, idx);
+    const match = text.slice(idx, idx + query.length);
+    const after = text.slice(idx + query.length, end) + (end < text.length ? " …" : "");
+    return (
+      escapeHtml(before) +
+      '<mark style="background:transparent;color:#ffce1c;font-weight:700;">' +
+      escapeHtml(match) +
+      "</mark>" +
+      escapeHtml(after)
+    );
+  }
 
   searchInput?.addEventListener("input", function () {
     const query = this.value.toLowerCase().trim();
 
     archivePosts.forEach((post) => {
-      const text = post.innerText.toLowerCase();
+      const slug = post.dataset.slug;
+      const body = contents[slug] || "";
+      const title = post.querySelector(".blog-link")?.textContent || "";
+      const snippetEl = post.querySelector(".search-snippet");
 
-      if (!query || text.includes(query)) {
+      if (!query) {
         post.style.display = "";
+        if (snippetEl) snippetEl.innerHTML = "";
+        return;
+      }
+
+      const inBody = body.toLowerCase().includes(query);
+      const inTitle = title.toLowerCase().includes(query);
+
+      if (inBody || inTitle) {
+        post.style.display = "";
+        if (snippetEl) snippetEl.innerHTML = inBody ? snippetFor(body, query) : "";
       } else {
         post.style.display = "none";
+        if (snippetEl) snippetEl.innerHTML = "";
       }
     });
   });
