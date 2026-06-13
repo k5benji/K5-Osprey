@@ -44,6 +44,7 @@ export function publicUser(u) {
     bio: u.bio,
     avatar: avatarUrl(u),
     verified: !!u.verified,
+    engineer: !!u.engineer,
   };
 }
 

@@ -27,13 +27,32 @@ import Layout from '../layouts/Layout.astro';
     return `<div class="avatar avatar-fallback">${esc(initial)}</div>`;
   }
 
+  const SEAL =
+    'M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44C11.866 1.07 11.235.876 10.59.86c-.646.017-1.273.213-1.813.568-.54.355-.969.854-1.24 1.44-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245C1.61 9.726 1.412 10.355 1.394 11c.018.646.215 1.275.57 1.816.354.54.852.972 1.438 1.246-.223.607-.27 1.264-.14 1.897.131.634.437 1.218.882 1.687.47.445 1.053.75 1.687.882.633.13 1.29.083 1.897-.14.273.587.704 1.086 1.245 1.44.541.354 1.172.548 1.817.564.646-.017 1.273-.213 1.813-.568.54-.355.969-.854 1.24-1.44.608.223 1.267.272 1.902.14.635-.13 1.22-.436 1.69-.882.445-.47.749-1.055.878-1.688.13-.633.08-1.29-.144-1.896.587-.274 1.087-.705 1.443-1.245.356-.54.554-1.169.573-1.814zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246-5.683 6.206z';
+
   function badge(user) {
-    if (!user.verified) return '';
-    return (
-      ' <svg class="verified-badge" viewBox="0 0 22 22" title="Verified" aria-label="Verified">' +
-      '<path fill="#ffce1c" fill-rule="evenodd" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44C11.866 1.07 11.235.876 10.59.86c-.646.017-1.273.213-1.813.568-.54.355-.969.854-1.24 1.44-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245C1.61 9.726 1.412 10.355 1.394 11c.018.646.215 1.275.57 1.816.354.54.852.972 1.438 1.246-.223.607-.27 1.264-.14 1.897.131.634.437 1.218.882 1.687.47.445 1.053.75 1.687.882.633.13 1.29.083 1.897-.14.273.587.704 1.086 1.245 1.44.541.354 1.172.548 1.817.564.646-.017 1.273-.213 1.813-.568.54-.355.969-.854 1.24-1.44.608.223 1.267.272 1.902.14.635-.13 1.22-.436 1.69-.882.445-.47.749-1.055.878-1.688.13-.633.08-1.29-.144-1.896.587-.274 1.087-.705 1.443-1.245.356-.54.554-1.169.573-1.814zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246-5.683 6.206z"/>' +
-      '</svg>'
-    );
+    let html = '';
+    if (user.verified) {
+      html +=
+        ' <span class="badge-wrap"><svg class="badge-svg verified-badge" viewBox="0 0 22 22" aria-label="Verified User">' +
+        `<path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/>` +
+        '</svg><span class="tip">Verified User</span></span>';
+    }
+    if (user.engineer) {
+      html +=
+        ' <span class="badge-wrap"><svg class="badge-svg engineer-badge" viewBox="0 0 22 22" aria-label="Engineer of Kastle Five">' +
+        '<defs><linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0%" stop-color="#8a9098"/>' +
+        '<stop offset="35%" stop-color="#f3f6f9"/>' +
+        '<stop offset="50%" stop-color="#ffffff"/>' +
+        '<stop offset="66%" stop-color="#b9bfc5"/>' +
+        '<stop offset="100%" stop-color="#5f656b"/>' +
+        '<animateTransform attributeName="gradientTransform" type="translate" values="-1 -1; 1 1; -1 -1" dur="3.5s" repeatCount="indefinite"/>' +
+        '</linearGradient></defs>' +
+        `<path fill="url(#chrome)" fill-rule="evenodd" d="${SEAL}"/>` +
+        '</svg><span class="tip">Engineer of Kastle Five</span></span>';
+    }
+    return html;
   }
 
   function renderView(user, isMe) {
@@ -242,12 +261,45 @@ import Layout from '../layouts/Layout.astro';
     color: #888;
   }
 
-  .verified-badge {
+  .badge-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .badge-svg {
     display: inline-block;
     width: 1.05em;
     height: 1.05em;
     vertical-align: -0.18em;
     margin-left: 0.1em;
+  }
+
+  .engineer-badge {
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.35));
+  }
+
+  .badge-wrap .tip {
+    position: absolute;
+    bottom: 135%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    background: #111;
+    color: #f5f7fa;
+    border: 1px solid #333;
+    border-radius: 3px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .badge-wrap:hover .tip {
+    opacity: 1;
   }
 
   .bio {
