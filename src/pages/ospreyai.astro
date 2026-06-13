@@ -141,6 +141,17 @@ import Layout from '../layouts/Layout.astro';
     body.appendChild(save);
   }
 
+  function thinkingEl(): HTMLElement {
+    const wrap = document.createElement('span');
+    wrap.className = 'thinking';
+    for (let i = 0; i < 3; i++) {
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      wrap.appendChild(dot);
+    }
+    return wrap;
+  }
+
   function renderThread() {
     thread.textContent = '';
     const chat = currentChat();
@@ -307,12 +318,13 @@ import Layout from '../layouts/Layout.astro';
     persist();
     renderSidebar();
 
-    // no save button while the answer is still loading
-    const pending = messageEl('assistant', '…', false);
-    thread.appendChild(pending);
-    thread.scrollTop = thread.scrollHeight;
+    // animated thinking indicator while the answer loads, no save button yet
+    const pending = messageEl('assistant', '', false);
     const pendingBody = pending.querySelector('.body-text') as HTMLElement;
     const pendingP = pending.querySelector('.body') as HTMLElement;
+    pendingBody.appendChild(thinkingEl());
+    thread.appendChild(pending);
+    thread.scrollTop = thread.scrollHeight;
 
     try {
       const res = await fetch('/api/oracle', {
@@ -601,6 +613,45 @@ import Layout from '../layouts/Layout.astro';
 
   .msg.user .body {
     color: #bbb;
+  }
+
+  .thinking {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 1.6em;
+  }
+
+  .thinking .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffce1c;
+    opacity: 0.25;
+    animation: think 1.3s infinite ease-in-out;
+  }
+
+  .thinking .dot:nth-child(2) {
+    animation-delay: 0.18s;
+  }
+
+  .thinking .dot:nth-child(3) {
+    animation-delay: 0.36s;
+  }
+
+  @keyframes think {
+    0%,
+    70%,
+    100% {
+      opacity: 0.2;
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    35% {
+      opacity: 1;
+      transform: translateY(-4px);
+      box-shadow: 0 0 6px 1px rgba(255, 206, 28, 0.5);
+    }
   }
 
   .save-btn {
