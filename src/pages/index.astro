@@ -207,7 +207,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     if (a.verified)
       h += ` <svg class="badge-svg" viewBox="0 0 22 22" aria-label="Verified User"><title>Verified User</title><path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/></svg>`;
     if (a.engineer)
-      h += `<svg class="badge-svg" viewBox="0 0 22 22" aria-label="Engineer of Kastle Five"><title>Engineer of Kastle Five</title><path fill="url(#chrome)" fill-rule="evenodd" d="${SEAL}"/></svg>`;
+      h += `<svg class="badge-svg" viewBox="0 0 22 22" aria-label="Engineer of Kastle Five"><title>Engineer of Kastle Five</title><path fill="url(#chrome)" d="${SEAL.split('M9.662')[0]}"/><text x="11" y="11.4" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-size="8.5" font-weight="700" fill="#fff">K5</text></svg>`;
     return h;
   }
 
