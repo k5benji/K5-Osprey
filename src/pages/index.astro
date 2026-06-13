@@ -42,7 +42,7 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     </nav>
 
     <header>
-      <h1>Osprey, engineered by Kastle Five systems.</h1>
+      <h1>Osprey<br /><span class="title-sub">Engineered by Kastle Five systems</span></h1>
     </header>
 
     <section id="composer" class="composer"></section>
@@ -474,6 +474,10 @@ import RadomeRadar from '../components/RadomeRadar.astro';
   header h1 {
     margin: 0 0 1.5rem;
   }
+
+  .title-sub {
+    color: #ffce1c;
+  }
 </style>
 
 <style is:global>
@@ -713,15 +717,13 @@ import RadomeRadar from '../components/RadomeRadar.astro';
     line-height: 1.6;
     color: #f5f7fa;
     background: transparent;
-    border: 1px solid #333;
-    border-radius: 4px;
-    padding: 0.5rem;
+    border: none;
+    padding: 0;
     resize: none;
   }
 
   .post-edit-area:focus {
     outline: none;
-    border-color: #ffce1c;
   }
 
   .post-edit-row {
