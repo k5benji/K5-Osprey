@@ -1,0 +1,357 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <main>
+    <div id="profile-root"><p class="muted">Loading…</p></div>
+    <p class="back-link"><a href="/">Return Home</a></p>
+  </main>
+</Layout>
+
+<script>
+  const root = document.getElementById('profile-root');
+
+  function esc(s) {
+    return (s ?? '').replace(
+      /[&<>"]/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]
+    );
+  }
+
+  function avatarBlock(user) {
+    const initial = (user.displayName || user.username || '?').charAt(0).toUpperCase();
+    if (user.avatar) {
+      return `<img class="avatar" src="${esc(user.avatar)}" alt="" />`;
+    }
+    return `<div class="avatar avatar-fallback">${esc(initial)}</div>`;
+  }
+
+  function badge(user) {
+    return user.verified ? ' <span class="verified" title="Verified">✓</span>' : '';
+  }
+
+  function renderView(user, isMe) {
+    root.innerHTML = `
+      <div class="card">
+        ${avatarBlock(user)}
+        <h1 class="display-name">${esc(user.displayName || user.username)}</h1>
+        <p class="handle">@${esc(user.username)}${badge(user)}</p>
+        ${user.bio ? `<p class="bio">${esc(user.bio)}</p>` : ''}
+        ${
+          isMe
+            ? `<div class="actions">
+                 <button id="edit-btn" class="btn">Edit profile</button>
+                 <button id="logout-btn" class="btn ghost">Log out</button>
+               </div>`
+            : ''
+        }
+      </div>`;
+    if (isMe) {
+      document.getElementById('edit-btn').addEventListener('click', () => renderEdit(user));
+      document.getElementById('logout-btn').addEventListener('click', logout);
+    }
+  }
+
+  function renderEdit(user) {
+    root.innerHTML = `
+      <div class="card">
+        <div class="avatar-edit">
+          ${avatarBlock(user)}
+          <label class="avatar-upload">
+            Change picture
+            <input type="file" id="avatar-input" accept="image/*" hidden />
+          </label>
+        </div>
+        <label class="field">Username
+          <input id="f-username" type="text" maxlength="20" value="${esc(user.username)}" />
+        </label>
+        <label class="field">Display name
+          <input id="f-display" type="text" maxlength="40" value="${esc(user.displayName || '')}" />
+        </label>
+        <label class="field">Short description
+          <textarea id="f-bio" rows="3" maxlength="200">${esc(user.bio || '')}</textarea>
+        </label>
+        <p class="form-status" id="form-status" hidden></p>
+        <div class="actions">
+          <button id="save-btn" class="btn">Save</button>
+          <button id="cancel-btn" class="btn ghost">Cancel</button>
+        </div>
+      </div>`;
+
+    document.getElementById('cancel-btn').addEventListener('click', () => renderView(user, true));
+    document.getElementById('save-btn').addEventListener('click', () => save(user));
+
+    const fileInput = document.getElementById('avatar-input');
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      setStatus('Uploading…', false);
+      try {
+        const res = await fetch('/api/avatar', {
+          method: 'POST',
+          headers: { 'Content-Type': file.type },
+          body: file,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed.');
+        user.avatar = data.avatar + '?t=' + Date.now();
+        const img = root.querySelector('.avatar');
+        if (img && img.tagName === 'IMG') img.src = user.avatar;
+        else renderEdit(user);
+        setStatus('Picture updated.', false);
+      } catch (e) {
+        setStatus(e.message, true);
+      }
+    });
+  }
+
+  function setStatus(msg, isError) {
+    const el = document.getElementById('form-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.toggle('error', !!isError);
+    el.hidden = !msg;
+  }
+
+  async function save(user) {
+    const username = document.getElementById('f-username').value.trim().toLowerCase();
+    const displayName = document.getElementById('f-display').value.trim();
+    const bio = document.getElementById('f-bio').value.trim();
+    setStatus('Saving…', false);
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, displayName, bio }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not save.');
+      renderView({ ...data, avatar: user.avatar }, true);
+    } catch (e) {
+      setStatus(e.message, true);
+    }
+  }
+
+  async function logout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    location.href = '/';
+  }
+
+  function renderSignin() {
+    root.innerHTML = `
+      <div class="card center">
+        <h1 class="display-name">Profile</h1>
+        <p class="muted">Sign in to claim a username, add a picture, and a short description.</p>
+        <a class="btn" href="/api/auth/github">Sign in with GitHub</a>
+      </div>`;
+  }
+
+  async function init() {
+    const params = new URLSearchParams(location.search);
+    const viewing = params.get('u');
+
+    let me = null;
+    try {
+      me = await (await fetch('/api/me')).json();
+    } catch {
+      /* ignore */
+    }
+
+    if (viewing) {
+      if (me && me.username === viewing.toLowerCase()) return renderView(me, true);
+      try {
+        const res = await fetch('/api/user?u=' + encodeURIComponent(viewing));
+        if (!res.ok) {
+          root.innerHTML = '<div class="card center"><p class="muted">No such profile.</p></div>';
+          return;
+        }
+        renderView(await res.json(), false);
+      } catch {
+        root.innerHTML = '<div class="card center"><p class="muted">Could not load profile.</p></div>';
+      }
+      return;
+    }
+
+    if (me) renderView(me, true);
+    else renderSignin();
+  }
+
+  init();
+</script>
+
+<style is:global>
+  main {
+    padding: 2rem;
+    max-width: 760px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  .muted {
+    color: #888;
+  }
+
+  .card {
+    max-width: 32rem;
+  }
+
+  .card.center {
+    text-align: center;
+    margin: 4rem auto 0;
+  }
+
+  .avatar {
+    display: block;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #333;
+  }
+
+  .card.center .avatar,
+  .card.center .avatar-fallback {
+    margin: 0 auto;
+  }
+
+  .avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffce1c;
+    background: #111;
+  }
+
+  .display-name {
+    margin: 1rem 0 0.1rem;
+    font-size: 1.6rem;
+  }
+
+  .handle {
+    margin: 0;
+    color: #888;
+  }
+
+  .verified {
+    color: #ffce1c;
+    font-weight: 700;
+  }
+
+  .bio {
+    margin: 1rem 0 0;
+    color: #bbb;
+    white-space: pre-wrap;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .card.center .actions {
+    justify-content: center;
+  }
+
+  .btn {
+    display: inline-block;
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: #111;
+    background: #ffce1c;
+    border: 1px solid #ffce1c;
+    padding: 0.5rem 1.1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .btn:hover {
+    background: transparent;
+    color: #ffce1c;
+  }
+
+  .btn.ghost {
+    color: #888;
+    background: transparent;
+    border-color: #333;
+  }
+
+  .btn.ghost:hover {
+    color: #ffce1c;
+    border-color: #ffce1c;
+  }
+
+  .avatar-edit {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .avatar-upload {
+    font-size: 0.85rem;
+    color: #ffce1c;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+  }
+
+  .avatar-upload:hover {
+    border-bottom-color: #ffce1c;
+  }
+
+  .field {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    color: #888;
+  }
+
+  .field input,
+  .field textarea {
+    display: block;
+    width: 100%;
+    margin-top: 0.35rem;
+    font-family: inherit;
+    font-size: 1rem;
+    color: #f5f7fa;
+    background: transparent;
+    border: 1px solid #333;
+    padding: 0.5rem;
+    resize: vertical;
+  }
+
+  .field input:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: #ffce1c;
+  }
+
+  .form-status {
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    color: #888;
+  }
+
+  .form-status.error {
+    color: #ff6b6b;
+  }
+
+  .back-link {
+    margin-top: 3rem;
+  }
+
+  .back-link a,
+  .back-link a:visited {
+    color: #888;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  .back-link a:hover {
+    color: #ffce1c;
+  }
+</style>
