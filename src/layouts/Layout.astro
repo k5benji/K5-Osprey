@@ -42,6 +42,20 @@
 					}
 				})
 				.catch(() => {});
+
+			// align the account chip's right edge to the main content's right edge
+			function alignChip() {
+				const bar = document.getElementById('account-bar');
+				const main = document.querySelector('main');
+				if (!bar || !main) return;
+				const padRight = parseFloat(getComputedStyle(main).paddingRight) || 0;
+				const contentRight = main.getBoundingClientRect().right - padRight;
+				const inset = document.documentElement.clientWidth - contentRight;
+				bar.style.right = Math.max(8, Math.round(inset)) + 'px';
+			}
+			alignChip();
+			window.addEventListener('resize', alignChip);
+			if (document.fonts && document.fonts.ready) document.fonts.ready.then(alignChip);
 		</script>
 	</body>
 </html>
