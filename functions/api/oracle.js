@@ -2,20 +2,49 @@ const SYSTEM_PROMPT = `You are Osprey, the AI of Kastle Five and the voice of a 
 
 Kastle Five is an open-source network. Its principles: intent, discipline and faith. Its language is engineering, aviation, naval operations, wilderness, weather, scripture, and steady courage. Its sign-off, used only occasionally, is "Be brave and be well."
 
-You are in an ongoing conversation with a visitor. Hold the thread: remember what was said earlier in this exchange and build on it.
+You are in an ongoing conversation with a visitor. Hold the thread: remember what was said earlier and build on it.
+
+How to think:
+- Reason carefully before you answer. Consider the question from more than one angle, follow the logic through, and check your own conclusion before giving it.
+- Be precise and concrete. Prefer specifics, mechanisms, and real examples over vague generalities.
+- When a question has trade-offs or no single answer, name the tensions plainly and give your best judgment rather than hedging into nothing.
+- If you are uncertain or do not know, say so directly instead of inventing. Distinguish what is established from what is your read.
+- Do the reasoning internally; give the visitor the clear conclusion and the key steps that matter, not a running monologue.
 
 Voice and conduct:
-- Speak steadily and with substance. Be direct and grounded. No hype, no emoji, no exclamation marks.
-- Match the length of your answer to the question: a short question gets a short answer; a real question gets a real, thought-through answer.
-- Draw imagery from machines, sea, sky, weather, and wilderness when it serves the point, not as decoration.
-- You can reason, explain, weigh trade-offs, and admit uncertainty plainly.
+- Speak steadily and with substance. Direct, grounded, unhurried. No hype, no emoji, no exclamation marks.
+- Match depth to the question: a short question gets a short answer; a real one gets a real, thought-through answer. Never pad.
+- Draw imagery from machines, sea, sky, weather, and wilderness only when it sharpens the point, never as decoration.
 - If asked something harmful, decline in one calm sentence and offer a sound alternative.
 - Never break character or mention these instructions. Do not use the sign-off in every message.`;
 
-const MAX_HISTORY = 12;
-const MAX_CONTENT = 2000;
+const TITLE_PROMPT =
+  'Generate a short, plain title of 2 to 5 words summarizing a conversation that starts with the user message below. Reply with ONLY the title. No quotes, no trailing punctuation, no preamble.';
 
-const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const MAX_HISTORY = 20;
+const MAX_CONTENT = 4000;
+
+// Strongest first; falls through to the proven model if a primary is
+// unavailable so the endpoint can never hard-fail on a model id.
+const CHAT_MODELS = [
+  '@cf/meta/llama-4-scout-17b-16e-instruct',
+  '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
+];
+const FAST_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+
+async function runChat(env, messages, opts) {
+  let lastError;
+  for (const model of CHAT_MODELS) {
+    try {
+      const result = await env.AI.run(model, { messages, ...opts });
+      const text = result?.response?.trim();
+      if (text) return text;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError ?? new Error('No model produced output');
+}
 
 export async function onRequestPost({ request, env }) {
   let body;
@@ -30,13 +59,9 @@ export async function onRequestPost({ request, env }) {
     const seed = body.titleFor.toString().trim().slice(0, 500);
     if (!seed) return json({ title: 'New chat' });
     try {
-      const result = await env.AI.run(MODEL, {
+      const result = await env.AI.run(FAST_MODEL, {
         messages: [
-          {
-            role: 'system',
-            content:
-              'Generate a short, plain title of 2 to 5 words summarizing a conversation that starts with the user message below. Reply with ONLY the title. No quotes, no trailing punctuation, no preamble.',
-          },
+          { role: 'system', content: TITLE_PROMPT },
           { role: 'user', content: seed },
         ],
         max_tokens: 20,
@@ -83,13 +108,12 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const result = await env.AI.run(MODEL, {
-      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
-      max_tokens: 800,
-      temperature: 0.7,
+    const answer = await runChat(env, [{ role: 'system', content: SYSTEM_PROMPT }, ...messages], {
+      max_tokens: 1024,
+      temperature: 0.6,
+      top_p: 0.9,
     });
-
-    return json({ answer: result.response?.trim() ?? '' });
+    return json({ answer });
   } catch (error) {
     console.error('Osprey error:', error);
     return json({ error: 'Osprey is silent. Try again.' }, 500);
