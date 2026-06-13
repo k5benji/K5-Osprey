@@ -1,0 +1,253 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <main>
+    <header>
+      <h1>Osprey</h1>
+      <p class="tagline">The AI of Kastle Five. Ask it anything.</p>
+    </header>
+
+    <div class="thread" id="thread">
+      <div class="msg osprey">
+        <p class="who">Osprey</p>
+        <p class="body">
+          I am Osprey. Ask me about engineering, the sea, the sky, scripture, or
+          whatever you are turning over. I will hold the thread of our talk.
+        </p>
+      </div>
+    </div>
+
+    <form id="chat-form" class="chat-form">
+      <span class="prompt" aria-hidden="true">&gt;</span>
+      <textarea
+        id="chat-input"
+        rows="1"
+        maxlength="2000"
+        placeholder="Ask something."
+        autocomplete="off"></textarea>
+      <button type="submit" id="chat-send">Send</button>
+    </form>
+
+    <p class="back-link"><a href="/">Return Home</a></p>
+  </main>
+</Layout>
+
+<script>
+  interface Msg {
+    role: 'user' | 'assistant';
+    content: string;
+  }
+
+  const thread = document.getElementById('thread')!;
+  const form = document.getElementById('chat-form') as HTMLFormElement;
+  const input = document.getElementById('chat-input') as HTMLTextAreaElement;
+  const sendBtn = document.getElementById('chat-send') as HTMLButtonElement;
+
+  const history: Msg[] = [];
+  let busy = false;
+
+  function addMessage(role: 'user' | 'osprey', text: string): HTMLElement {
+    const wrap = document.createElement('div');
+    wrap.className = `msg ${role}`;
+
+    const who = document.createElement('p');
+    who.className = 'who';
+    who.textContent = role === 'user' ? 'You' : 'Osprey';
+
+    const body = document.createElement('p');
+    body.className = 'body';
+    body.textContent = text;
+
+    wrap.append(who, body);
+    thread.appendChild(wrap);
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    return body;
+  }
+
+  // grow the textarea with content
+  function autoGrow() {
+    input.style.height = 'auto';
+    input.style.height = `${Math.min(input.scrollHeight, 200)}px`;
+  }
+  input.addEventListener('input', autoGrow);
+
+  // Enter sends, Shift+Enter newlines
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      form.requestSubmit();
+    }
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (busy) return;
+
+    const question = input.value.trim();
+    if (!question) return;
+
+    addMessage('user', question);
+    history.push({ role: 'user', content: question });
+
+    input.value = '';
+    autoGrow();
+    busy = true;
+    sendBtn.disabled = true;
+
+    const answerBody = addMessage('osprey', '…');
+
+    try {
+      const response = await fetch('/api/oracle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history }),
+      });
+      const data = await response.json();
+      const answer =
+        response.ok && data.answer ? data.answer : data.error ?? 'Osprey is silent. Try again.';
+
+      answerBody.textContent = answer;
+      answerBody.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+      if (response.ok && data.answer) {
+        history.push({ role: 'assistant', content: data.answer });
+      }
+    } catch {
+      answerBody.textContent = 'Osprey is silent. Try again.';
+    } finally {
+      busy = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  });
+
+  input.focus();
+</script>
+
+<style>
+  main {
+    padding: 2rem;
+    max-width: 760px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  h1 {
+    margin: 0;
+  }
+
+  .tagline {
+    margin: 0 0 2.5rem;
+    color: #888;
+  }
+
+  .thread {
+    flex: 1;
+  }
+
+  .msg {
+    margin-bottom: 1.75rem;
+  }
+
+  .who {
+    margin: 0 0 0.35rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888;
+  }
+
+  .msg.osprey .who {
+    color: #ffce1c;
+  }
+
+  .body {
+    margin: 0;
+    white-space: pre-wrap;
+    color: #f5f7fa;
+    max-width: 46rem;
+  }
+
+  .msg.user .body {
+    color: #bbb;
+  }
+
+  .chat-form {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    border-top: 1px solid #222;
+    padding-top: 1.25rem;
+    margin-top: 1rem;
+    position: sticky;
+    bottom: 0;
+    background: #000;
+  }
+
+  .prompt {
+    color: #ffce1c;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  #chat-input {
+    flex: 1;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #f5f7fa;
+    background: transparent;
+    border: none;
+    resize: none;
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  #chat-input:focus {
+    outline: none;
+  }
+
+  #chat-input::placeholder {
+    color: #555;
+  }
+
+  #chat-send {
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: #ffce1c;
+    background: transparent;
+    border: 1px solid #ffce1c;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  #chat-send:hover {
+    background: #ffce1c;
+    color: #111;
+  }
+
+  #chat-send:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .back-link {
+    margin-top: 1.5rem;
+  }
+
+  .back-link a,
+  .back-link a:visited {
+    color: #888;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  .back-link a:hover {
+    color: #ffce1c;
+  }
+</style>
