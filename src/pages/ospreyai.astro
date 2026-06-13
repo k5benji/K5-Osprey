@@ -494,6 +494,20 @@ import Layout from '../layouts/Layout.astro';
     overflow-y: auto;
   }
 
+  /* keep scrolling, hide the scrollbar */
+  .thread,
+  .sidebar,
+  #chat-input {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .thread::-webkit-scrollbar,
+  .sidebar::-webkit-scrollbar,
+  #chat-input::-webkit-scrollbar {
+    display: none;
+  }
+
   .chat-main.empty .thread {
     display: none;
   }
