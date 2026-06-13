@@ -411,8 +411,10 @@ import Layout from '../layouts/Layout.astro';
       return;
     }
 
-    if (me) renderView(me, true);
-    else renderSignin();
+    if (me) {
+      if (new URLSearchParams(location.search).has('edit')) renderEdit(me);
+      else renderView(me, true);
+    } else renderSignin();
   }
 
   function closeMenus() {
