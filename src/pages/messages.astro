@@ -252,9 +252,11 @@ import Layout from '../layouts/Layout.astro';
 <style is:global>
   main {
     padding: 2rem;
-    max-width: 640px;
+    max-width: 760px;
     margin: 0 auto;
     min-height: 100vh;
+    /* match the home feed / profile column box model and width */
+    box-sizing: border-box;
   }
 
   /* open-conversation view fills the viewport so the composer sticks to the bottom */
