@@ -173,11 +173,20 @@ import Layout from '../layouts/Layout.astro';
     fbtn.addEventListener('click', async () => {
       if (busy) return;
       busy = true;
-      // replay the chrome sweep animation
-      fbtn.classList.remove('animating');
-      void fbtn.offsetWidth;
-      fbtn.classList.add('animating');
       try {
+        // Confirm before unfollowing (when already following).
+        if (fbtn.classList.contains('following')) {
+          const ok = await window.k5confirm({
+            title: 'Unfollow @' + user.username + '?',
+            body: 'Their posts will no longer show up in your Following feed. You can still view their profile.',
+            confirmText: 'Unfollow',
+          });
+          if (!ok) return;
+        }
+        // replay the chrome sweep animation
+        fbtn.classList.remove('animating');
+        void fbtn.offsetWidth;
+        fbtn.classList.add('animating');
         const res = await fetch('/api/follow', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
