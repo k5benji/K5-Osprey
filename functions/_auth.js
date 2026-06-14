@@ -140,6 +140,10 @@ export function formatPost(r) {
     commentCount: r.comment_count ?? 0,
     liked: !!r.liked,
     reposted: !!r.reposted,
+    reactions: {
+      spark: { count: r.spark_count ?? 0, on: !!r.spark_on },
+      ping: { count: r.ping_count ?? 0, on: !!r.ping_on },
+    },
   };
 }
 

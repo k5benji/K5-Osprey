@@ -8,8 +8,8 @@ export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const userFilter = (url.searchParams.get('user') || '').toLowerCase();
 
-  const where = userFilter ? 'WHERE u.username = ?' : '';
-  const binds = userFilter ? [uid, uid, userFilter] : [uid, uid];
+  const where = userFilter ? 'WHERE u.username = ?2' : '';
+  const binds = userFilter ? [uid, userFilter] : [uid];
 
   const { results } = await env.DB.prepare(
     `SELECT p.id, p.content, p.created_at, p.base_likes, p.base_reposts, p.media_key, p.media_type,
@@ -17,8 +17,12 @@ export async function onRequestGet({ request, env }) {
        (SELECT COUNT(*) FROM post_likes l WHERE l.post_id = p.id) AS like_count,
        (SELECT COUNT(*) FROM post_reposts r WHERE r.post_id = p.id) AS repost_count,
        (SELECT COUNT(*) FROM post_comments c WHERE c.post_id = p.id) AS comment_count,
-       (SELECT COUNT(*) FROM post_likes l WHERE l.post_id = p.id AND l.user_id = ?) AS liked,
-       (SELECT COUNT(*) FROM post_reposts r WHERE r.post_id = p.id AND r.user_id = ?) AS reposted
+       (SELECT COUNT(*) FROM post_reactions x WHERE x.post_id = p.id AND x.type = 'spark') AS spark_count,
+       (SELECT COUNT(*) FROM post_reactions x WHERE x.post_id = p.id AND x.type = 'ping') AS ping_count,
+       (SELECT COUNT(*) FROM post_likes l WHERE l.post_id = p.id AND l.user_id = ?1) AS liked,
+       (SELECT COUNT(*) FROM post_reposts r WHERE r.post_id = p.id AND r.user_id = ?1) AS reposted,
+       (SELECT COUNT(*) FROM post_reactions x WHERE x.post_id = p.id AND x.type = 'spark' AND x.user_id = ?1) AS spark_on,
+       (SELECT COUNT(*) FROM post_reactions x WHERE x.post_id = p.id AND x.type = 'ping' AND x.user_id = ?1) AS ping_on
      FROM posts p JOIN users u ON u.id = p.user_id
      ${where}
      ORDER BY p.created_at DESC, p.id DESC LIMIT 100`
