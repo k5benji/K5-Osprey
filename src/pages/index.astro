@@ -877,17 +877,6 @@ import Layout from '../layouts/Layout.astro';
     align-items: stretch;
   }
 
-  .radar-side {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
-
-  .time-block {
-    text-align: right;
-  }
-
   .current-time {
     margin: 0;
     color: #ffce1c;
@@ -925,18 +914,6 @@ import Layout from '../layouts/Layout.astro';
       bottom: 2rem;
       right: calc(50vw + 380px + 2rem);
       text-align: left;
-    }
-
-    /* radar + time + built-by: bottom-right, just right of the feed, flush right */
-    .radar-side {
-      position: fixed;
-      bottom: 2rem;
-      left: calc(50vw + 380px + 2rem);
-      align-items: flex-end;
-    }
-
-    .radar-side .time-block {
-      text-align: right;
     }
 
     /* the OspreyAI nav item replaces the inline chat link */
