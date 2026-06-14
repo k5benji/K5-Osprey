@@ -571,6 +571,8 @@ import Layout from '../layouts/Layout.astro';
     max-width: 760px;
     margin: 0 auto;
     min-height: 100vh;
+    /* match the home feed's box model so the column lines up exactly */
+    box-sizing: border-box;
   }
 
   #profile-root {
