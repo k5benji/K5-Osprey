@@ -35,7 +35,7 @@ import Layout from '../layouts/Layout.astro';
     </defs>
   </svg>
 
-  <main style="padding: 2rem 2rem 0; max-width: 760px; margin: 0 auto; position: relative; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box;">
+  <main style="padding: 2rem 2rem 0; max-width: 760px; margin: 0 auto; position: relative; min-height: 100vh; box-sizing: border-box;">
     <nav class="topnav">
       <a href="/rss.xml" class="topnav-link">RSS Feed</a>
       <a href="/kastlefive/" class="topnav-link">Architecture of Kastle Five</a>
@@ -560,7 +560,7 @@ import Layout from '../layouts/Layout.astro';
 
   // Refresh just the posts for the current tab (leaves the composer untouched).
   async function refreshFeed() {
-    feedEl.scrollTop = 0;
+    window.scrollTo({ top: 0 });
     try {
       const res = await fetch(feedUrl());
       const data = await res.json();
@@ -641,9 +641,14 @@ import Layout from '../layouts/Layout.astro';
 
   .feed-tabs {
     display: flex;
-    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 30;
     border-bottom: 1px solid #222;
     margin-bottom: 0.75rem;
+    background: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
   }
 
   .feed-tab {
@@ -895,16 +900,7 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .feed {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
     padding-bottom: 2rem;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .feed::-webkit-scrollbar {
-    display: none;
   }
 
   .feed-note {
