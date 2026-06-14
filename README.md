@@ -1,45 +1,51 @@
-# Astro Starter Kit: Basics
+# Osprey
 
-```sh
-npm create astro@latest -- --template basics
-```
+A small social network — posts, threads, replies, likes, reposts, follows,
+direct messages, notifications, and an AI "oracle". Built with
+[Astro](https://astro.build) and deployed on Cloudflare Pages, with the API
+running as Cloudflare Pages Functions backed by a D1 (SQLite) database.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Stack
 
-## 🚀 Project Structure
+- **Frontend** — Astro pages in `src/pages`, components in `src/components`.
+- **API** — Cloudflare Pages Functions in `functions/` (file-based routing;
+  `functions/api/posts/like.js` → `POST /api/posts/like`). Files and folders
+  prefixed with `_` (e.g. `functions/_auth.js`) are shared helpers, not routes.
+- **Database** — Cloudflare D1. Schema lives in `migrations/` and is applied in
+  order (`0001_*` → `0007_*`).
+- **Auth** — Google and GitHub OAuth; sessions are stored in the `sessions`
+  table and carried in an `HttpOnly` `session` cookie.
 
-Inside of your Astro project, you'll see the following folders and files:
+## Project layout
 
 ```text
-/
-├── public/
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+functions/        Cloudflare Pages Functions (the API)
+  _auth.js        shared helpers: sessions, cookies, post/user shaping
+  api/            REST endpoints (posts, follow, messages, search, …)
+migrations/       D1 schema migrations, applied in numeric order
+src/
+  pages/          Astro routes (index, profile, postview, messages, …)
+  components/      shared UI components
+  content/        markdown content (blog posts)
+test/             Vitest unit tests for the function helpers
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Commands
 
-## 🧞 Commands
+All commands run from the project root.
 
-All commands are run from the root of the project, from a terminal:
+| Command              | Action                                   |
+| :------------------- | :--------------------------------------- |
+| `npm install`        | Install dependencies                     |
+| `npm run dev`        | Start the dev server at `localhost:4321` |
+| `npm run build`      | Build the production site to `./dist/`   |
+| `npm run preview`    | Preview the production build locally      |
+| `npm test`           | Run the unit tests once                  |
+| `npm run test:watch` | Run the unit tests in watch mode         |
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Tests
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Unit tests live in `test/` and run with [Vitest](https://vitest.dev). They
+cover the pure and DB-backed helpers in `functions/_auth.js` (cookie parsing,
+JSON responses, user/post shaping, mention notifications, conversation
+creation) using a lightweight in-memory D1 mock — no live database required.
