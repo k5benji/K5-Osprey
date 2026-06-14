@@ -135,6 +135,7 @@ export function formatPost(r) {
       avatar: avatarUrl({ avatar_key: r.avatar_key, avatar_url: r.avatar_url }),
     },
     media: r.media_key ? { url: `/avatars/${r.media_key}`, type: r.media_type || 'image' } : null,
+    threadCount: r.thread_count ?? 0,
     likeCount: (r.like_count ?? 0) + (r.base_likes ?? 0),
     repostCount: (r.repost_count ?? 0) + (r.base_reposts ?? 0),
     commentCount: r.comment_count ?? 0,

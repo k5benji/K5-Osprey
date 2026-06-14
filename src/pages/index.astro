@@ -153,6 +153,8 @@ import Layout from '../layouts/Layout.astro';
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M13 2L4.5 13H11l-1 9 8.5-11H12l1-9z"/></svg>',
     ping:
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 6a6 6 0 0 1 6 6h-2a4 4 0 0 0-4-4V6zM12 2a10 10 0 0 1 10 10h-2A8 8 0 0 0 12 4V2z"/></svg>',
+    thread:
+      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>',
   };
 
   const feedEl = document.getElementById('feed')!;
@@ -234,6 +236,7 @@ import Layout from '../layouts/Layout.astro';
           </div>
           <div class="post-body">${esc(p.content)}</div>
           ${mediaHtml(p.media)}
+          ${p.threadCount > 1 ? `<div class="thread-flag">${IC.thread}<span>Show this thread · ${p.threadCount} parts</span></div>` : ''}
           <div class="post-actions">
             <span class="post-action" data-act="reply">${IC.reply}<span class="cnt">${fmtCount(p.commentCount)}</span></span>
             <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${IC.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
@@ -288,9 +291,11 @@ import Layout from '../layouts/Layout.astro';
               ${IC.media}
               <input type="file" id="post-media-input" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" hidden />
             </label>
+            <button type="button" id="thread-add" class="composer-attach" title="Write a thread — add another part">${IC.thread}</button>
             <button id="post-btn" class="post-btn">Post</button>
           </div>
         </div>
+        <div class="thread-extra" id="thread-extra"></div>
         <div class="composer-preview" id="composer-preview" hidden></div>
         <span class="composer-status" id="composer-status"></span>`;
       const input = document.getElementById('post-input') as HTMLTextAreaElement;
@@ -303,6 +308,7 @@ import Layout from '../layouts/Layout.astro';
       btn.addEventListener('click', submitPost);
       const fileInput = document.getElementById('post-media-input') as HTMLInputElement;
       fileInput.addEventListener('change', () => uploadMedia(fileInput));
+      document.getElementById('thread-add').addEventListener('click', addThreadSegment);
     } else {
       composerEl.innerHTML = `
         <div class="composer-inner">
@@ -362,32 +368,78 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
+  function addThreadSegment() {
+    const wrap = document.getElementById('thread-extra');
+    if (!wrap) return;
+    const seg = document.createElement('div');
+    seg.className = 'thread-seg';
+    const ta = document.createElement('textarea');
+    ta.maxLength = 500;
+    ta.rows = 1;
+    ta.placeholder = 'Add another part…';
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'thread-seg-del';
+    del.setAttribute('aria-label', 'Remove part');
+    del.textContent = '×';
+    seg.append(ta, del);
+    wrap.appendChild(seg);
+    ta.addEventListener('input', () => {
+      ta.style.height = 'auto';
+      ta.style.height = Math.min(ta.scrollHeight, 240) + 'px';
+    });
+    del.addEventListener('click', () => seg.remove());
+    ta.focus();
+  }
+
+  function clearComposer() {
+    const input = document.getElementById('post-input') as HTMLTextAreaElement;
+    input.value = '';
+    input.style.height = 'auto';
+    const extra = document.getElementById('thread-extra');
+    if (extra) extra.innerHTML = '';
+    pendingMedia = null;
+    const fi = document.getElementById('post-media-input') as HTMLInputElement | null;
+    if (fi) fi.value = '';
+    renderPreview();
+  }
+
   async function submitPost() {
     const input = document.getElementById('post-input') as HTMLTextAreaElement;
     const btn = document.getElementById('post-btn') as HTMLButtonElement;
     const status = document.getElementById('composer-status');
     const content = input.value.trim();
-    if (!content && !pendingMedia) return;
+    const extras = Array.from(document.querySelectorAll('#thread-extra textarea'))
+      .map((t) => (t as HTMLTextAreaElement).value.trim())
+      .filter(Boolean);
+    const segments = [content, ...extras].filter(Boolean);
+    if (!segments.length && !pendingMedia) return;
     btn.disabled = true;
     if (status) status.textContent = '';
     try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content,
-          mediaKey: pendingMedia ? pendingMedia.key : null,
-          mediaType: pendingMedia ? pendingMedia.type : null,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not post.');
-      input.value = '';
-      input.style.height = 'auto';
-      pendingMedia = null;
-      const fi = document.getElementById('post-media-input') as HTMLInputElement | null;
-      if (fi) fi.value = '';
-      renderPreview();
+      let data;
+      if (segments.length >= 2) {
+        const res = await fetch('/api/posts/thread', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ segments }),
+        });
+        data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Could not post thread.');
+      } else {
+        const res = await fetch('/api/posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content,
+            mediaKey: pendingMedia ? pendingMedia.key : null,
+            mediaType: pendingMedia ? pendingMedia.type : null,
+          }),
+        });
+        data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Could not post.');
+      }
+      clearComposer();
       const note = feedEl.querySelector('.feed-note');
       if (note) note.remove();
       feedEl.insertAdjacentHTML('afterbegin', postHtml(data.post));
@@ -686,6 +738,67 @@ import Layout from '../layouts/Layout.astro';
   .composer-attach .post-icon {
     width: 1.3rem;
     height: 1.3rem;
+  }
+
+  .thread-extra {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .thread-seg {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid #333;
+  }
+
+  .thread-seg textarea {
+    flex: 1;
+    min-width: 0;
+    resize: none;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f5f7fa;
+    font-family: inherit;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    padding: 0.2rem 0;
+  }
+
+  .thread-seg textarea::placeholder {
+    color: #666;
+  }
+
+  .thread-seg-del {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .thread-seg-del:hover {
+    color: #ff6b6b;
+  }
+
+  .thread-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    color: #ffce1c;
+    font-size: 0.8rem;
+  }
+
+  .thread-flag .post-icon {
+    width: 1rem;
+    height: 1rem;
   }
 
   .composer-attach:hover {

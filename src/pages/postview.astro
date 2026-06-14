@@ -111,6 +111,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
         <div class="post-body solo-body">${esc(p.content)}</div>
         ${mediaHtml(p.media)}
+        ${(p.threadParts && p.threadParts.length) ? p.threadParts.map((t) => `<div class="thread-part">${esc(t)}</div>`).join('') : ''}
         <p class="post-meta solo-date">${fmtDate(p.createdAt)}</p>
         <div class="post-actions solo-actions">
           <button class="post-action act reply" data-act="reply">${IC.reply}<span class="cnt">${fmtCount(p.commentCount)}</span></button>
@@ -410,6 +411,17 @@ import Layout from '../layouts/Layout.astro';
     max-height: 560px;
     border-radius: 14px;
     border: 1px solid #222;
+  }
+
+  .thread-part {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #1a1a1a;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #f5f7fa;
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
 
   .solo-body {

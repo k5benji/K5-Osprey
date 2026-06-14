@@ -8,11 +8,14 @@ export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const userFilter = (url.searchParams.get('user') || '').toLowerCase();
 
-  const where = userFilter ? 'WHERE u.username = ?2' : '';
+  // only show thread roots and standalone posts in feeds (not continuation parts)
+  const rootOnly = '(p.thread_seq IS NULL OR p.thread_seq = 1)';
+  const where = userFilter ? `WHERE u.username = ?2 AND ${rootOnly}` : `WHERE ${rootOnly}`;
   const binds = userFilter ? [uid, userFilter] : [uid];
 
   const { results } = await env.DB.prepare(
     `SELECT p.id, p.content, p.created_at, p.base_likes, p.base_reposts, p.media_key, p.media_type,
+       (SELECT COUNT(*) FROM posts t WHERE t.thread_id = p.id) AS thread_count,
        u.username, u.display_name, u.verified, u.engineer, u.avatar_key, u.avatar_url,
        (SELECT COUNT(*) FROM post_likes l WHERE l.post_id = p.id) AS like_count,
        (SELECT COUNT(*) FROM post_reposts r WHERE r.post_id = p.id) AS repost_count,

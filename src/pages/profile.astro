@@ -233,6 +233,8 @@ import Layout from '../layouts/Layout.astro';
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M13 2L4.5 13H11l-1 9 8.5-11H12l1-9z"/></svg>',
     ping:
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 6a6 6 0 0 1 6 6h-2a4 4 0 0 0-4-4V6zM12 2a10 10 0 0 1 10 10h-2A8 8 0 0 0 12 4V2z"/></svg>',
+    thread:
+      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>',
   };
 
   async function reactToggle(type, postId, article) {
@@ -290,6 +292,7 @@ import Layout from '../layouts/Layout.astro';
           </div>
           <div class="post-body">${esc(p.content)}</div>
           ${mediaHtml(p.media)}
+          ${p.threadCount > 1 ? `<div class="thread-flag">${ICONS.thread}<span>Show this thread · ${p.threadCount} parts</span></div>` : ''}
           <div class="post-actions">
             <span class="post-action" data-act="reply">${ICONS.reply}<span class="cnt">${fmtCount(p.commentCount)}</span></span>
             <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${ICONS.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
@@ -1039,6 +1042,20 @@ import Layout from '../layouts/Layout.astro';
     max-height: 480px;
     border-radius: 14px;
     border: 1px solid #222;
+  }
+
+  .thread-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    color: #ffce1c;
+    font-size: 0.8rem;
+  }
+
+  .thread-flag .post-icon {
+    width: 1rem;
+    height: 1rem;
   }
 
   .post-body.editing {
