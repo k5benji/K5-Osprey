@@ -35,10 +35,6 @@ import Layout from '../layouts/Layout.astro';
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"/></svg>',
     ask:
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M11 2.5l1.8 5.2L18 9.5l-5.2 1.8L11 16.5l-1.8-5.2L4 9.5l5.2-1.8L11 2.5zm7.5 10l.95 2.55L22 16l-2.55.95L18.5 19.5l-.95-2.55L15 16l2.55-.95L18.5 12.5z"/></svg>',
-    spark:
-      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M13 2L4.5 13H11l-1 9 8.5-11H12l1-9z"/></svg>',
-    ping:
-      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 6a6 6 0 0 1 6 6h-2a4 4 0 0 0-4-4V6zM12 2a10 10 0 0 1 10 10h-2A8 8 0 0 0 12 4V2z"/></svg>',
   };
 
   const root = document.getElementById('post-root')!;
@@ -117,8 +113,6 @@ import Layout from '../layouts/Layout.astro';
           <button class="post-action act reply" data-act="reply">${IC.reply}<span class="cnt">${fmtCount(p.commentCount)}</span></button>
           <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${IC.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
           <button class="post-action act like${p.liked ? ' on' : ''}" data-act="like">${IC.like}<span class="cnt">${fmtCount(p.likeCount)}</span></button>
-          <button class="post-action act spark${p.reactions.spark.on ? ' on' : ''}" data-act="spark" title="Spark" aria-label="Spark">${IC.spark}<span class="cnt">${fmtCount(p.reactions.spark.count)}</span></button>
-          <button class="post-action act ping${p.reactions.ping.on ? ' on' : ''}" data-act="ping" title="Ping" aria-label="Ping">${IC.ping}<span class="cnt">${fmtCount(p.reactions.ping.count)}</span></button>
           <span class="post-action ask-osprey" data-act="ask" title="Ask Osprey about this post" aria-label="Ask Osprey about this post">${IC.ask}</span>
           <span class="post-action" data-act="share">${IC.share}</span>
         </div>
@@ -153,8 +147,6 @@ import Layout from '../layouts/Layout.astro';
         location.href = '/ospreyai';
       } else if (act === 'like' || act === 'repost') {
         toggle(act, p.id);
-      } else if (act === 'spark' || act === 'ping') {
-        reactToggle(act, p.id);
       } else if (act === 'reply') {
         const input = document.getElementById('comment-input') as HTMLTextAreaElement | null;
         if (input) input.focus();
@@ -272,28 +264,6 @@ import Layout from '../layouts/Layout.astro';
     const btn = root.querySelector('.act.' + kind);
     btn.classList.toggle('on', kind === 'like' ? data.liked : data.reposted);
     btn.querySelector('.cnt').textContent = fmtCount(kind === 'like' ? data.likeCount : data.repostCount);
-  }
-
-  async function reactToggle(type, id) {
-    try {
-      const res = await fetch('/api/posts/react', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId: id, type }),
-      });
-      if (res.status === 401) {
-        location.href = '/profile';
-        return;
-      }
-      const data = await res.json();
-      if (!res.ok) return;
-      const btn = root.querySelector('.act.' + type);
-      if (!btn) return;
-      btn.classList.toggle('on', data.on);
-      btn.querySelector('.cnt').textContent = fmtCount(data.count);
-    } catch {
-      /* ignore */
-    }
   }
 
   async function init() {
@@ -464,13 +434,8 @@ import Layout from '../layouts/Layout.astro';
     color: #ffce1c;
   }
   .post-action.like.on,
-  .post-action.repost.on,
-  .post-action.ping.on,
-  .post-action.spark.on {
+  .post-action.repost.on {
     color: #ffce1c;
-  }
-  .post-action.spark.on .post-icon path {
-    fill: url(#chrome);
   }
   .post-icon {
     width: 1.2rem;

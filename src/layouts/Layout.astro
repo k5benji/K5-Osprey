@@ -74,6 +74,20 @@ const isAI = path.startsWith('/ospreyai');
 				<span class="nav-account-name" id="nav-account-name"></span>
 			</a>
 		</nav>
+
+		<div class="build-info" id="build-info">
+			<p class="current-time">Current time: <span id="local-time"></span></p>
+			<p class="build-number status-row">
+				<span>Site Status:</span>
+				<span class="status-dot" aria-hidden="true"></span>
+				<span>Active</span>
+			</p>
+			<p class="build-number">Osprey Kastle Five Build 0.8.1</p>
+			<p class="current-time">
+				<a class="built-by-link" href="https://x.com/k5binya" target="_blank" rel="noopener">Built by @k5binya</a>
+			</p>
+		</div>
+
 		<slot />
 
 		<script>
@@ -157,6 +171,19 @@ const isAI = path.startsWith('/ospreyai');
 			document.addEventListener('visibilitychange', () => {
 				if (!document.hidden) pollBadges();
 			});
+
+			// status-block clock
+			const timeEl = document.getElementById('local-time');
+			function tick() {
+				if (!timeEl) return;
+				timeEl.textContent = new Date().toLocaleTimeString(undefined, {
+					hour: '2-digit',
+					minute: '2-digit',
+					second: '2-digit',
+				});
+			}
+			tick();
+			setInterval(tick, 1000);
 
 			// Don't re-navigate to the page you're already on (avoids stacking
 			// duplicate history entries). Home re-click refreshes the feed instead.
@@ -350,6 +377,56 @@ const isAI = path.startsWith('/ospreyai');
 		flex-shrink: 0;
 	}
 
+	/* ---- status block (wide screens only) ---- */
+	.build-info {
+		display: none;
+	}
+
+	.current-time,
+	.build-number {
+		margin: 0;
+		color: #ffce1c;
+		font-size: 0.75rem;
+		opacity: 0.8;
+	}
+
+	.status-row {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	.status-dot {
+		display: inline-block;
+		width: 5px;
+		height: 5px;
+		border-radius: 50%;
+		background: #ffce1c;
+		box-shadow: 0 0 4px 1px rgba(255, 206, 28, 0.6);
+		animation: status-blink 2.5s ease-in-out infinite;
+		flex-shrink: 0;
+	}
+
+	@keyframes status-blink {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.4;
+		}
+	}
+
+	.built-by-link,
+	.built-by-link:visited {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.built-by-link:hover {
+		text-decoration: underline;
+	}
+
 	@media (min-width: 1240px) {
 		.side-nav {
 			display: flex;
@@ -360,6 +437,16 @@ const isAI = path.startsWith('/ospreyai');
 			left: calc(50vw + 380px + 2rem);
 			z-index: 40;
 			white-space: nowrap;
+		}
+
+		/* status block: bottom-left, 2rem off the feed (mirrors the nav) */
+		.build-info {
+			display: block;
+			position: fixed;
+			bottom: 2rem;
+			right: calc(50vw + 380px + 2rem);
+			text-align: left;
+			z-index: 40;
 		}
 	}
 </style>

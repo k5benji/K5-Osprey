@@ -231,33 +231,9 @@ import Layout from '../layouts/Layout.astro';
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M11 2.5l1.8 5.2L18 9.5l-5.2 1.8L11 16.5l-1.8-5.2L4 9.5l5.2-1.8L11 2.5zm7.5 10l.95 2.55L22 16l-2.55.95L18.5 19.5l-.95-2.55L15 16l2.55-.95L18.5 12.5z"/></svg>',
     spark:
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M13 2L4.5 13H11l-1 9 8.5-11H12l1-9z"/></svg>',
-    ping:
-      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 6a6 6 0 0 1 6 6h-2a4 4 0 0 0-4-4V6zM12 2a10 10 0 0 1 10 10h-2A8 8 0 0 0 12 4V2z"/></svg>',
     thread:
-      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>',
+      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M12 3a3 3 0 0 0-1 5.83v6.34a3 3 0 1 0 2 0V8.83A3 3 0 0 0 12 3z"/></svg>',
   };
-
-  async function reactToggle(type, postId, article) {
-    try {
-      const res = await fetch('/api/posts/react', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId, type }),
-      });
-      if (res.status === 401) {
-        location.href = '/profile';
-        return;
-      }
-      const data = await res.json();
-      if (!res.ok) return;
-      const btn = article.querySelector('.act.' + type);
-      if (!btn) return;
-      btn.classList.toggle('on', data.on);
-      btn.querySelector('.cnt').textContent = fmtCount(data.count);
-    } catch {
-      /* ignore */
-    }
-  }
 
   function askOsprey(content) {
     try {
@@ -297,8 +273,6 @@ import Layout from '../layouts/Layout.astro';
             <span class="post-action" data-act="reply">${ICONS.reply}<span class="cnt">${fmtCount(p.commentCount)}</span></span>
             <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${ICONS.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
             <button class="post-action act like${p.liked ? ' on' : ''}" data-act="like">${ICONS.like}<span class="cnt">${fmtCount(p.likeCount)}</span></button>
-            <button class="post-action act spark${p.reactions.spark.on ? ' on' : ''}" data-act="spark" title="Spark" aria-label="Spark">${ICONS.spark}<span class="cnt">${fmtCount(p.reactions.spark.count)}</span></button>
-            <button class="post-action act ping${p.reactions.ping.on ? ' on' : ''}" data-act="ping" title="Ping" aria-label="Ping">${ICONS.ping}<span class="cnt">${fmtCount(p.reactions.ping.count)}</span></button>
             <span class="post-action ask-osprey" data-act="ask" title="Ask Osprey about this post" aria-label="Ask Osprey about this post">${ICONS.ask}</span>
             <span class="post-action" data-act="share">${ICONS.share}</span>
           </div>
@@ -572,7 +546,6 @@ import Layout from '../layouts/Layout.astro';
     if (actionEl) {
       const act = actionEl.getAttribute('data-act');
       if (act === 'like' || act === 'repost') togglePost(act, id, article);
-      else if (act === 'spark' || act === 'ping') reactToggle(act, id, article);
       else if (act === 'share') navigator.clipboard?.writeText(location.origin + '/post/' + id).catch(() => {});
       else if (act === 'reply') openPost(id);
       else if (act === 'ask') {
@@ -1165,7 +1138,7 @@ import Layout from '../layouts/Layout.astro';
   .post-actions {
     display: flex;
     justify-content: space-between;
-    max-width: 27rem;
+    max-width: 22rem;
     margin-top: 0.6rem;
     color: #888;
   }
@@ -1189,14 +1162,8 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .post-action.like.on,
-  .post-action.repost.on,
-  .post-action.ping.on,
-  .post-action.spark.on {
+  .post-action.repost.on {
     color: #ffce1c;
-  }
-
-  .post-action.spark.on .post-icon path {
-    fill: url(#chrome);
   }
 
   .post-icon {

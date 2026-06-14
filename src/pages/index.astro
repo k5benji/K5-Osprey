@@ -58,21 +58,6 @@ import Layout from '../layouts/Layout.astro';
       <p class="oracle-link">
         <a href="/ospreyai"><span class="oracle-prompt" aria-hidden="true">&gt;</span> Chat with Osprey AI</a>
       </p>
-
-      <div class="status-row-wrap">
-        <div class="build-info">
-          <p class="current-time">Current time: <span id="local-time"></span></p>
-          <p class="build-number status-row">
-            <span>Site Status:</span>
-            <span class="status-dot" aria-hidden="true"></span>
-            <span>Active</span>
-          </p>
-          <p class="build-number">Osprey Kastle Five Build 0.8.1</p>
-          <p class="current-time">
-            <a class="built-by-link" href="https://x.com/k5binya" target="_blank" rel="noopener">Built by @k5binya</a>
-          </p>
-        </div>
-      </div>
     </footer>
   </main>
 
@@ -120,19 +105,6 @@ import Layout from '../layouts/Layout.astro';
     boot.remove();
   }
 
-  // ---------- clock ----------
-  const timeEl = document.getElementById('local-time');
-  function tick() {
-    if (!timeEl) return;
-    timeEl.textContent = new Date().toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-  }
-  tick();
-  setInterval(tick, 1000);
-
   // ---------- live feed ----------
   const SEAL =
     'M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44C11.866 1.07 11.235.876 10.59.86c-.646.017-1.273.213-1.813.568-.54.355-.969.854-1.24 1.44-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245C1.61 9.726 1.412 10.355 1.394 11c.018.646.215 1.275.57 1.816.354.54.852.972 1.438 1.246-.223.607-.27 1.264-.14 1.897.131.634.437 1.218.882 1.687.47.445 1.053.75 1.687.882.633.13 1.29.083 1.897-.14.273.587.704 1.086 1.245 1.44.541.354 1.172.548 1.817.564.646-.017 1.273-.213 1.813-.568.54-.355.969-.854 1.24-1.44.608.223 1.267.272 1.902.14.635-.13 1.22-.436 1.69-.882.445-.47.749-1.055.878-1.688.13-.633.08-1.29-.144-1.896.587-.274 1.087-.705 1.443-1.245.356-.54.554-1.169.573-1.814zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246-5.683 6.206z';
@@ -149,12 +121,8 @@ import Layout from '../layouts/Layout.astro';
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v9.6l4.3-4.3 3.2 3.2 4-4L20 15V6H4zm4.5 1.5a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5z"/></svg>',
     ask:
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M11 2.5l1.8 5.2L18 9.5l-5.2 1.8L11 16.5l-1.8-5.2L4 9.5l5.2-1.8L11 2.5zm7.5 10l.95 2.55L22 16l-2.55.95L18.5 19.5l-.95-2.55L15 16l2.55-.95L18.5 12.5z"/></svg>',
-    spark:
-      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M13 2L4.5 13H11l-1 9 8.5-11H12l1-9z"/></svg>',
-    ping:
-      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 6a6 6 0 0 1 6 6h-2a4 4 0 0 0-4-4V6zM12 2a10 10 0 0 1 10 10h-2A8 8 0 0 0 12 4V2z"/></svg>',
     thread:
-      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>',
+      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M12 3a3 3 0 0 0-1 5.83v6.34a3 3 0 1 0 2 0V8.83A3 3 0 0 0 12 3z"/></svg>',
   };
 
   const feedEl = document.getElementById('feed')!;
@@ -241,8 +209,6 @@ import Layout from '../layouts/Layout.astro';
             <span class="post-action" data-act="reply">${IC.reply}<span class="cnt">${fmtCount(p.commentCount)}</span></span>
             <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${IC.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
             <button class="post-action act like${p.liked ? ' on' : ''}" data-act="like">${IC.like}<span class="cnt">${fmtCount(p.likeCount)}</span></button>
-            <button class="post-action act spark${p.reactions.spark.on ? ' on' : ''}" data-act="spark" title="Spark" aria-label="Spark">${IC.spark}<span class="cnt">${fmtCount(p.reactions.spark.count)}</span></button>
-            <button class="post-action act ping${p.reactions.ping.on ? ' on' : ''}" data-act="ping" title="Ping" aria-label="Ping">${IC.ping}<span class="cnt">${fmtCount(p.reactions.ping.count)}</span></button>
             <span class="post-action ask-osprey" data-act="ask" title="Ask Osprey about this post" aria-label="Ask Osprey about this post">${IC.ask}</span>
             <span class="post-action" data-act="share">${IC.share}</span>
           </div>
@@ -257,28 +223,6 @@ import Layout from '../layouts/Layout.astro';
       /* ignore */
     }
     location.href = '/ospreyai';
-  }
-
-  async function reactToggle(type, postId, article) {
-    try {
-      const res = await fetch('/api/posts/react', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId, type }),
-      });
-      if (res.status === 401) {
-        location.href = '/profile';
-        return;
-      }
-      const data = await res.json();
-      if (!res.ok) return;
-      const btn = article.querySelector('.act.' + type);
-      if (!btn) return;
-      btn.classList.toggle('on', data.on);
-      btn.querySelector('.cnt').textContent = fmtCount(data.count);
-    } catch {
-      /* ignore */
-    }
   }
 
   function renderComposer() {
@@ -521,8 +465,6 @@ import Layout from '../layouts/Layout.astro';
       const act = actionEl.getAttribute('data-act');
       if (act === 'like' || act === 'repost') {
         toggle(act, id, article);
-      } else if (act === 'spark' || act === 'ping') {
-        reactToggle(act, id, article);
       } else if (act === 'share') {
         navigator.clipboard?.writeText(location.origin + '/post/' + id).catch(() => {});
       } else if (act === 'reply' && id) {
@@ -1140,7 +1082,7 @@ import Layout from '../layouts/Layout.astro';
   .post-actions {
     display: flex;
     justify-content: space-between;
-    max-width: 27rem;
+    max-width: 22rem;
     margin-top: 0.6rem;
     color: #888;
   }
@@ -1164,15 +1106,8 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .post-action.like.on,
-  .post-action.repost.on,
-  .post-action.ping.on,
-  .post-action.spark.on {
+  .post-action.repost.on {
     color: #ffce1c;
-  }
-
-  /* active spark fills with the animated chrome gradient */
-  .post-action.spark.on .post-icon path {
-    fill: url(#chrome);
   }
 
   .post-icon {
@@ -1208,75 +1143,10 @@ import Layout from '../layouts/Layout.astro';
     font-weight: 700;
   }
 
-  .status-row-wrap {
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-  }
-
-  .current-time {
-    margin: 0;
-    color: #ffce1c;
-    font-size: 0.75rem;
-    opacity: 0.8;
-  }
-
-  .built-by-link,
-  .built-by-link:visited {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .built-by-link:hover {
-    text-decoration: underline;
-  }
-
-  .build-number {
-    margin: 0;
-    color: #ffce1c;
-    font-size: 0.75rem;
-    opacity: 0.8;
-  }
-
-  .status-row {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
   @media (min-width: 1240px) {
-    /* status block: bottom-left, just left of the feed, flush left */
-    .build-info {
-      position: fixed;
-      bottom: 2rem;
-      right: calc(50vw + 380px + 2rem);
-      text-align: left;
-    }
-
     /* the OspreyAI nav item replaces the inline chat link */
     .oracle-link {
       display: none;
-    }
-  }
-
-  .status-dot {
-    display: inline-block;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #ffce1c;
-    box-shadow: 0 0 4px 1px rgba(255, 206, 28, 0.6);
-    animation: status-blink 2.5s ease-in-out infinite;
-    flex-shrink: 0;
-  }
-
-  @keyframes status-blink {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.4;
     }
   }
 
