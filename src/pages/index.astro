@@ -243,7 +243,11 @@ import Layout from '../layouts/Layout.astro';
       input.addEventListener('input', grow);
       btn.addEventListener('click', submitPost);
     } else {
-      composerEl.innerHTML = `<a class="post-btn" href="/profile">Sign in to post</a>`;
+      composerEl.innerHTML = `
+        <div class="composer-inner">
+          <span class="composer-prompt">What's the signal?</span>
+          <a class="post-btn" href="/profile">Sign in to post</a>
+        </div>`;
     }
   }
 
@@ -519,6 +523,14 @@ import Layout from '../layouts/Layout.astro';
     resize: none;
     overflow-y: auto;
     padding: 0;
+  }
+
+  .composer-prompt {
+    flex: 1;
+    min-width: 0;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #666;
   }
 
   #post-input:focus {
