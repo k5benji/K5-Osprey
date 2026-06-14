@@ -42,6 +42,11 @@ import Layout from '../layouts/Layout.astro';
       <a href="/outpost/" class="topnav-link">Outpost</a>
     </nav>
 
+    <div class="feed-tabs" role="tablist" aria-label="Feed">
+      <button type="button" class="feed-tab active" data-feed="foryou" role="tab" aria-selected="true">For you</button>
+      <button type="button" class="feed-tab" data-feed="following" role="tab" aria-selected="false">Following</button>
+    </div>
+
     <section id="composer" class="composer"></section>
 
     <div id="feed" class="feed">
@@ -548,15 +553,26 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
-  async function loadFeed() {
+  let currentFeed = 'foryou';
+  function feedUrl() {
+    return currentFeed === 'following' ? '/api/posts?feed=following' : '/api/posts';
+  }
+
+  // Refresh just the posts for the current tab (leaves the composer untouched).
+  async function refreshFeed() {
+    feedEl.scrollTop = 0;
     try {
-      const res = await fetch('/api/posts');
+      const res = await fetch(feedUrl());
       const data = await res.json();
-      signedIn = !!data.me;
-      myUsername = data.me ? data.me.username : null;
-      renderComposer();
+      if (currentFeed === 'following' && !data.me) {
+        feedEl.innerHTML = '<p class="feed-note">Sign in to see posts from people you follow.</p>';
+        return;
+      }
       if (!data.posts || data.posts.length === 0) {
-        feedEl.innerHTML = '';
+        feedEl.innerHTML =
+          currentFeed === 'following'
+            ? '<p class="feed-note">No posts yet from people you follow. <a class="feed-note-link" href="/search">Find people to follow</a></p>'
+            : '';
         return;
       }
       feedEl.innerHTML = data.posts.map(postHtml).join('');
@@ -565,19 +581,40 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
-  loadFeed();
-
-  // Home nav re-click refreshes the feed (without disturbing the composer)
-  window.addEventListener('k5-refresh-feed', async () => {
-    feedEl.scrollTop = 0;
+  // Initial load also establishes sign-in state and builds the composer.
+  async function loadFeed() {
     try {
       const res = await fetch('/api/posts');
       const data = await res.json();
-      feedEl.innerHTML = (data.posts || []).map(postHtml).join('');
+      signedIn = !!data.me;
+      myUsername = data.me ? data.me.username : null;
+      renderComposer();
+      feedEl.innerHTML =
+        data.posts && data.posts.length ? data.posts.map(postHtml).join('') : '';
     } catch {
-      /* ignore */
+      feedEl.innerHTML = `<p class="feed-note">Could not load the feed.</p>`;
     }
+  }
+
+  const feedTabs = Array.from(document.querySelectorAll('.feed-tab'));
+  feedTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const mode = tab.getAttribute('data-feed');
+      if (mode === currentFeed) return;
+      currentFeed = mode;
+      feedTabs.forEach((t) => {
+        const on = t === tab;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      refreshFeed();
+    });
   });
+
+  loadFeed();
+
+  // Home nav re-click refreshes the feed (without disturbing the composer)
+  window.addEventListener('k5-refresh-feed', refreshFeed);
 </script>
 
 <style>
@@ -600,6 +637,47 @@ import Layout from '../layouts/Layout.astro';
 
   .topnav-link:hover {
     color: #ffce1c;
+  }
+
+  .feed-tabs {
+    display: flex;
+    flex-shrink: 0;
+    border-bottom: 1px solid #222;
+    margin-bottom: 0.75rem;
+  }
+
+  .feed-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: #888;
+    padding: 0.85rem 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.15s ease;
+  }
+
+  .feed-tab:hover {
+    color: #f5f7fa;
+  }
+
+  .feed-tab.active {
+    color: #f5f7fa;
+    font-weight: 700;
+  }
+
+  .feed-tab.active::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    transform: translateX(-50%);
+    width: 3.5rem;
+    height: 3px;
+    border-radius: 3px;
+    background: #ffce1c;
   }
 </style>
 
@@ -832,6 +910,16 @@ import Layout from '../layouts/Layout.astro';
   .feed-note {
     color: #888;
     font-size: 0.9rem;
+  }
+
+  .feed-note-link {
+    color: #ffce1c;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 206, 28, 0.4);
+  }
+
+  .feed-note-link:hover {
+    border-bottom-color: #ffce1c;
   }
 
   /* yellow "thinking" dots, same as the Osprey AI loader */

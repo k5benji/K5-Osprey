@@ -7,11 +7,24 @@ export async function onRequestGet({ request, env }) {
   const uid = me ? me.id : '';
   const url = new URL(request.url);
   const userFilter = (url.searchParams.get('user') || '').toLowerCase();
+  const feed = (url.searchParams.get('feed') || '').toLowerCase();
 
   // only show thread roots and standalone posts in feeds (not continuation parts)
   const rootOnly = '(p.thread_seq IS NULL OR p.thread_seq = 1)';
-  const where = userFilter ? `WHERE u.username = ?2 AND ${rootOnly}` : `WHERE ${rootOnly}`;
-  const binds = userFilter ? [uid, userFilter] : [uid];
+
+  let where, binds;
+  if (userFilter) {
+    where = `WHERE u.username = ?2 AND ${rootOnly}`;
+    binds = [uid, userFilter];
+  } else if (feed === 'following') {
+    // Following feed needs a signed-in user; otherwise it's empty.
+    if (!me) return json({ posts: [], me: null });
+    where = `WHERE ${rootOnly} AND (p.user_id IN (SELECT followee_id FROM follows WHERE follower_id = ?1) OR p.user_id = ?1)`;
+    binds = [uid];
+  } else {
+    where = `WHERE ${rootOnly}`;
+    binds = [uid];
+  }
 
   const { results } = await env.DB.prepare(
     `SELECT p.id, p.content, p.created_at, p.base_likes, p.base_reposts, p.media_key, p.media_type,
