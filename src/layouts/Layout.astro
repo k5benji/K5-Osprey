@@ -83,24 +83,43 @@ const isAI = path.startsWith('/ospreyai');
 				return h;
 			}
 
+			const defaultAvatar =
+				'<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z"/></svg>';
+
+			function applyMe(u) {
+				const navAcc = document.getElementById('nav-account');
+				const navAv = document.getElementById('nav-account-avatar');
+				const navNm = document.getElementById('nav-account-name');
+				if (!navAcc || !navAv || !navNm) return;
+				if (u) {
+					navAv.innerHTML = u.avatar ? `<img src="${navEsc(u.avatar)}" alt="" />` : defaultAvatar;
+					navNm.innerHTML = '@' + navEsc(u.username) + navBadges(u);
+				} else {
+					navAv.innerHTML = defaultAvatar;
+					navNm.textContent = 'Sign in';
+				}
+				navAcc.hidden = false;
+			}
+
+			// Render the chip instantly from the cached user (no flash on navigation),
+			// then refresh from the network.
+			try {
+				const cached = sessionStorage.getItem('k5-me');
+				if (cached) applyMe(JSON.parse(cached));
+			} catch {
+				/* ignore */
+			}
+
 			fetch('/api/me')
 				.then((r) => r.json())
 				.then((u) => {
-					// nav account chip (below Settings)
-					const navAcc = document.getElementById('nav-account');
-					const navAv = document.getElementById('nav-account-avatar');
-					const navNm = document.getElementById('nav-account-name');
-					if (!navAcc || !navAv || !navNm) return;
-					const defaultAvatar =
-						'<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z"/></svg>';
-					if (u) {
-						navAv.innerHTML = u.avatar ? `<img src="${navEsc(u.avatar)}" alt="" />` : defaultAvatar;
-						navNm.innerHTML = '@' + navEsc(u.username) + navBadges(u);
-					} else {
-						navAv.innerHTML = defaultAvatar;
-						navNm.textContent = 'Sign in';
+					applyMe(u);
+					try {
+						if (u) sessionStorage.setItem('k5-me', JSON.stringify(u));
+						else sessionStorage.removeItem('k5-me');
+					} catch {
+						/* ignore */
 					}
-					navAcc.hidden = false;
 				})
 				.catch(() => {});
 
