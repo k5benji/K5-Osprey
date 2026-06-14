@@ -410,16 +410,24 @@ import Layout from '../layouts/Layout.astro';
       if (!res.ok) return;
       const btn = article.querySelector('.act.' + kind);
       const cnt = btn.querySelector('.cnt');
-      if (kind === 'like') {
-        btn.classList.toggle('on', data.liked);
-        cnt.textContent = fmtCount(data.likeCount);
-      } else {
-        btn.classList.toggle('on', data.reposted);
-        cnt.textContent = fmtCount(data.repostCount);
-      }
+      const nowOn = kind === 'like' ? data.liked : data.reposted;
+      btn.classList.toggle('on', nowOn);
+      cnt.textContent = fmtCount(kind === 'like' ? data.likeCount : data.repostCount);
+      if (nowOn) popIcon(btn);
     } catch {
       /* ignore */
     }
+  }
+
+  // little scale pop on the icon when an action turns on
+  function popIcon(btn) {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const icon = btn.querySelector('.post-icon');
+    if (!icon || !icon.animate) return;
+    icon.animate(
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.4)' }, { transform: 'scale(1)' }],
+      { duration: 320, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
+    );
   }
 
   function closeMenus(except) {

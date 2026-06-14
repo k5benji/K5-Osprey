@@ -335,6 +335,53 @@ const isAI = path.startsWith('/ospreyai');
 </style>
 
 <style is:global>
+	/* ---- smooth motion ---- */
+	@keyframes k5-fade {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+
+	@keyframes k5-rise {
+		from { opacity: 0; transform: translateY(10px); }
+		to { opacity: 1; transform: none; }
+	}
+
+	/* gentle fade-in for the main column on every page */
+	main {
+		animation: k5-fade 0.3s ease both;
+	}
+
+	/* list items (feed posts, notifications, conversations, comments, search
+	   results) rise in, with a short stagger on the first few */
+	.post,
+	.notif,
+	.conv,
+	.comment,
+	.res-user,
+	.res-post {
+		animation: k5-rise 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+	}
+	.post:nth-of-type(2), .notif:nth-of-type(2), .conv:nth-of-type(2),
+	.res-user:nth-of-type(2), .res-post:nth-of-type(2) { animation-delay: 0.04s; }
+	.post:nth-of-type(3), .notif:nth-of-type(3), .conv:nth-of-type(3),
+	.res-user:nth-of-type(3), .res-post:nth-of-type(3) { animation-delay: 0.08s; }
+	.post:nth-of-type(4), .notif:nth-of-type(4), .conv:nth-of-type(4),
+	.res-user:nth-of-type(4), .res-post:nth-of-type(4) { animation-delay: 0.12s; }
+	.post:nth-of-type(5), .notif:nth-of-type(5), .conv:nth-of-type(5),
+	.res-user:nth-of-type(5), .res-post:nth-of-type(5) { animation-delay: 0.16s; }
+	.post:nth-of-type(n+6), .notif:nth-of-type(n+6), .conv:nth-of-type(n+6),
+	.res-user:nth-of-type(n+6), .res-post:nth-of-type(n+6) { animation-delay: 0.2s; }
+
+	/* respect users who prefer reduced motion */
+	@media (prefers-reduced-motion: reduce) {
+		*, *::before, *::after {
+			animation-duration: 0.001ms !important;
+			animation-delay: 0s !important;
+			transition-duration: 0.001ms !important;
+			scroll-behavior: auto !important;
+		}
+	}
+
 	/* ---- global side nav (wide screens only) ---- */
 	.side-nav {
 		display: none;
