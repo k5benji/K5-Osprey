@@ -101,6 +101,7 @@ import Layout from '../layouts/Layout.astro';
         <button class="profile-menu-btn" aria-label="Profile options">${MENU_ICON}</button>
         <div class="profile-menu" hidden>${menuItems}</div>
       </div>`;
+    const messageBtn = isMe ? '' : `<a class="message-btn" href="/messages?with=${esc(user.username)}">Message</a>`;
     const followBtn = isMe
       ? ''
       : `<button class="follow-btn${user.isFollowing ? ' following' : ''}" type="button"><span class="follow-shine"></span><span class="follow-label">${user.isFollowing ? 'Following' : 'Follow'}</span></button>`;
@@ -117,6 +118,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="follow-group">
         ${menu}
+        ${messageBtn}
         ${followBtn}
       </div>
       <div class="posts" id="user-posts"></div>`;
@@ -840,6 +842,25 @@ import Layout from '../layouts/Layout.astro';
     align-items: center;
     gap: 0.5rem;
     z-index: 30;
+  }
+
+  .message-btn {
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #f5f7fa;
+    background: transparent;
+    border: 1px solid #333;
+    border-radius: 999px;
+    padding: 0.45rem 1.3rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .message-btn:hover {
+    color: #ffce1c;
+    border-color: #ffce1c;
   }
 
   .follow-btn {

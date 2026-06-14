@@ -3,6 +3,7 @@ const path = Astro.url.pathname;
 const isHome = path === '/';
 const isSearch = path.startsWith('/search');
 const isNotif = path.startsWith('/notifications');
+const isMessages = path.startsWith('/messages');
 const isAI = path.startsWith('/ospreyai');
 ---
 
@@ -52,6 +53,13 @@ const isAI = path.startsWith('/ospreyai');
 					<span class="notif-badge" id="notif-badge" hidden></span>
 				</span>
 				<span>Notifications</span>
+			</a>
+			<a class={`side-nav-item${isMessages ? ' active' : ''}`} href="/messages">
+				<span class="side-nav-iconwrap">
+					<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm.4 2L12 11.2 19.6 6H4.4zM20 7.5l-7.43 5.06a1 1 0 0 1-1.14 0L4 7.5V18h16V7.5z"/></svg>
+					<span class="notif-badge" id="msg-badge" hidden></span>
+				</span>
+				<span>Messages</span>
 			</a>
 			<a class={`side-nav-item${isAI ? ' active' : ''}`} href="/ospreyai">
 				<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 3a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h1v3.2a1 1 0 0 0 1.6.8L13 17h6a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/></svg>
@@ -129,16 +137,25 @@ const isAI = path.startsWith('/ospreyai');
 				if (!b) return;
 				b.hidden = !(n > 0);
 			}
-			function pollNotifs() {
+			function setMsgBadge(n) {
+				const b = document.getElementById('msg-badge');
+				if (!b) return;
+				b.hidden = !(n > 0);
+			}
+			function pollBadges() {
 				fetch('/api/notifications/count')
 					.then((r) => r.json())
 					.then((d) => setNotifBadge(d.count || 0))
 					.catch(() => {});
+				fetch('/api/messages/count')
+					.then((r) => r.json())
+					.then((d) => setMsgBadge(d.count || 0))
+					.catch(() => {});
 			}
-			pollNotifs();
-			setInterval(pollNotifs, 12000);
+			pollBadges();
+			setInterval(pollBadges, 12000);
 			document.addEventListener('visibilitychange', () => {
-				if (!document.hidden) pollNotifs();
+				if (!document.hidden) pollBadges();
 			});
 
 			// Don't re-navigate to the page you're already on (avoids stacking

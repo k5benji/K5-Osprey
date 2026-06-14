@@ -106,6 +106,22 @@ export async function notifyMentions(env, { content, actorId, postId }) {
   }
 }
 
+// Find or create the canonical 1:1 conversation between two user ids.
+export async function getOrCreateConversation(env, id1, id2) {
+  const [a, b] = id1 < id2 ? [id1, id2] : [id2, id1];
+  const existing = await env.DB.prepare(
+    'SELECT id FROM conversations WHERE user_a = ? AND user_b = ?'
+  )
+    .bind(a, b)
+    .first();
+  if (existing) return existing.id;
+  const id = crypto.randomUUID();
+  await env.DB.prepare('INSERT INTO conversations (id, user_a, user_b) VALUES (?, ?, ?)')
+    .bind(id, a, b)
+    .run();
+  return id;
+}
+
 export function formatPost(r) {
   return {
     id: r.id,
