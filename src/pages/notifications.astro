@@ -229,12 +229,18 @@ import Layout from '../layouts/Layout.astro';
     word-wrap: break-word;
   }
 
-  .notif-empty {
+  :global(.notif-empty) {
     color: #888;
   }
 
-  .notif-empty a {
+  :global(.notif-empty a) {
     color: #ffce1c;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 206, 28, 0.4);
+  }
+
+  :global(.notif-empty a:hover) {
+    border-bottom-color: #ffce1c;
   }
 
   .back-link {
