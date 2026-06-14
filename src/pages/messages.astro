@@ -16,7 +16,8 @@ import Layout from '../layouts/Layout.astro';
     </defs>
   </svg>
 
-  <main>
+  <main id="messages-main">
+    <h1 class="page-title">Messages</h1>
     <div id="messages-root">
       <div class="feed-loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
     </div>
@@ -28,6 +29,7 @@ import Layout from '../layouts/Layout.astro';
     'M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44C11.866 1.07 11.235.876 10.59.86c-.646.017-1.273.213-1.813.568-.54.355-.969.854-1.24 1.44-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245C1.61 9.726 1.412 10.355 1.394 11c.018.646.215 1.275.57 1.816.354.54.852.972 1.438 1.246-.223.607-.27 1.264-.14 1.897.131.634.437 1.218.882 1.687.47.445 1.053.75 1.687.882.633.13 1.29.083 1.897-.14.273.587.704 1.086 1.245 1.44.541.354 1.172.548 1.817.564.646-.017 1.273-.213 1.813-.568.54-.355.969-.854 1.24-1.44.608.223 1.267.272 1.902.14.635-.13 1.22-.436 1.69-.882.445-.47.749-1.055.878-1.688.13-.633.08-1.29-.144-1.896.587-.274 1.087-.705 1.443-1.245.356-.54.554-1.169.573-1.814zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246-5.683 6.206z';
 
   const root = document.getElementById('messages-root');
+  const mainEl = document.getElementById('messages-main');
 
   function esc(s) {
     return (s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -62,12 +64,13 @@ import Layout from '../layouts/Layout.astro';
   // ---------- conversation list ----------
   async function showList() {
     stopPoll();
+    mainEl.classList.remove('thread-open');
     let me = null;
     try {
       me = await (await fetch('/api/me')).json();
     } catch {}
     if (!me) {
-      root.innerHTML = '<h1 class="page-title">Messages</h1><p class="msg-empty">Sign in to use messages. <a href="/profile">Go to sign in</a></p>';
+      root.innerHTML = '<p class="msg-empty">Sign in to use messages. <a href="/profile">Go to sign in</a></p>';
       return;
     }
     await renderList();
@@ -97,11 +100,9 @@ import Layout from '../layouts/Layout.astro';
       if (!res.ok) return;
       const data = await res.json();
       const convs = data.conversations || [];
-      root.innerHTML =
-        '<h1 class="page-title">Messages</h1>' +
-        (convs.length
-          ? '<div class="conv-list">' + convs.map(convRow).join('') + '</div>'
-          : '<p class="msg-empty">No conversations yet. Open someone’s profile and hit Message.</p>');
+      root.innerHTML = convs.length
+        ? '<div class="conv-list">' + convs.map(convRow).join('') + '</div>'
+        : '<p class="msg-empty">No conversations yet. Open someone’s profile and hit Message.</p>';
     } catch {
       /* ignore */
     }
@@ -123,7 +124,8 @@ import Layout from '../layouts/Layout.astro';
       me = await (await fetch('/api/me')).json();
     } catch {}
     if (!me) {
-      root.innerHTML = '<h1 class="page-title">Messages</h1><p class="msg-empty">Sign in to use messages. <a href="/profile">Go to sign in</a></p>';
+      mainEl.classList.remove('thread-open');
+      root.innerHTML = '<p class="msg-empty">Sign in to use messages. <a href="/profile">Go to sign in</a></p>';
       return;
     }
     let data;
@@ -131,14 +133,17 @@ import Layout from '../layouts/Layout.astro';
       const res = await fetch('/api/messages/thread?with=' + encodeURIComponent(withUser));
       data = await res.json();
       if (!res.ok) {
-        root.innerHTML = `<h1 class="page-title">Messages</h1><p class="msg-empty">${esc(data.error || 'Could not open conversation.')}</p>`;
+        mainEl.classList.remove('thread-open');
+        root.innerHTML = `<p class="msg-empty">${esc(data.error || 'Could not open conversation.')}</p>`;
         return;
       }
     } catch {
-      root.innerHTML = '<h1 class="page-title">Messages</h1><p class="msg-empty">Could not open conversation.</p>';
+      mainEl.classList.remove('thread-open');
+      root.innerHTML = '<p class="msg-empty">Could not open conversation.</p>';
       return;
     }
 
+    mainEl.classList.add('thread-open');
     const u = data.other;
     root.innerHTML = `
       <div class="thread-head">
@@ -249,13 +254,23 @@ import Layout from '../layouts/Layout.astro';
     padding: 2rem;
     max-width: 640px;
     margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  /* open-conversation view fills the viewport so the composer sticks to the bottom */
+  main.thread-open {
     height: 100vh;
+    min-height: 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
   }
 
-  #messages-root {
+  main.thread-open .page-title {
+    display: none;
+  }
+
+  main.thread-open #messages-root {
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -263,7 +278,7 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .page-title {
-    margin: 0 0 1.25rem;
+    margin: 0 0 1.5rem;
     font-size: 1.5rem;
   }
 
