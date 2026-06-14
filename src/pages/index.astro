@@ -311,6 +311,11 @@ import Layout from '../layouts/Layout.astro';
     if (!(e.target as HTMLElement).closest('.post-menu-wrap')) closeMenus(null);
   });
 
+  // Navigate to a post, bypassing any stale browser cache for /post/<id>.
+  function openPost(id) {
+    location.href = '/post/' + encodeURIComponent(id) + '?r=' + Date.now();
+  }
+
   feedEl.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     const article = target.closest('.post') as HTMLElement | null;
@@ -344,7 +349,7 @@ import Layout from '../layouts/Layout.astro';
       } else if (act === 'share') {
         navigator.clipboard?.writeText(location.origin + '/post/' + id).catch(() => {});
       } else if (act === 'reply' && id) {
-        location.href = '/post/' + id;
+        openPost(id);
       }
       return;
     }
@@ -356,7 +361,7 @@ import Layout from '../layouts/Layout.astro';
 
     // clicking anywhere else on the post opens it
     if (!id) return;
-    location.href = '/post/' + id;
+    openPost(id);
   });
 
   function editPost(article, id) {

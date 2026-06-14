@@ -250,6 +250,8 @@ import Layout from '../layouts/Layout.astro';
   async function init() {
     const m = location.pathname.match(/^\/post\/([^/?#]+)/);
     const id = m ? decodeURIComponent(m[1]) : '';
+    // drop the cache-busting query the feed adds, so the address bar stays clean
+    if (location.search) history.replaceState(null, '', location.pathname);
     if (!id) {
       root.innerHTML = '<p class="feed-note">Post not found.</p>';
       return;

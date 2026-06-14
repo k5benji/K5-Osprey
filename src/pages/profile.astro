@@ -520,13 +520,17 @@ import Layout from '../layouts/Layout.astro';
       const act = actionEl.getAttribute('data-act');
       if (act === 'like' || act === 'repost') togglePost(act, id, article);
       else if (act === 'share') navigator.clipboard?.writeText(location.origin + '/post/' + id).catch(() => {});
-      else if (act === 'reply') location.href = '/post/' + id;
+      else if (act === 'reply') openPost(id);
       return;
     }
     if (target.closest('.post-edit')) return;
     if (target.closest('a')) return;
-    location.href = '/post/' + id;
+    openPost(id);
   });
+
+  function openPost(id) {
+    location.href = '/post/' + encodeURIComponent(id) + '?r=' + Date.now();
+  }
 
   init();
 </script>
