@@ -422,14 +422,18 @@ import Layout from '../layouts/Layout.astro';
     myUsername = me ? me.username : null;
 
     if (viewing) {
-      if (me && me.username === viewing.toLowerCase()) return renderView(me, true);
+      // Always render the user named in the URL. Only use `me` to decide
+      // whether this is our own profile (Edit vs Follow) — never substitute
+      // `me`'s data, so viewing someone else can never show our own profile.
       try {
         const res = await fetch('/api/user?u=' + encodeURIComponent(viewing));
         if (!res.ok) {
           root.innerHTML = '<div class="card center"><p class="muted">No such profile.</p></div>';
           return;
         }
-        renderView(await res.json(), false);
+        const data = await res.json();
+        const isMe = !!(me && me.username && me.username === data.username);
+        renderView(data, isMe);
       } catch {
         root.innerHTML = '<div class="card center"><p class="muted">Could not load profile.</p></div>';
       }
