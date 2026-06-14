@@ -531,6 +531,18 @@ import Layout from '../layouts/Layout.astro';
   }
 
   loadFeed();
+
+  // Home nav re-click refreshes the feed (without disturbing the composer)
+  window.addEventListener('k5-refresh-feed', async () => {
+    feedEl.scrollTop = 0;
+    try {
+      const res = await fetch('/api/posts');
+      const data = await res.json();
+      feedEl.innerHTML = (data.posts || []).map(postHtml).join('');
+    } catch {
+      /* ignore */
+    }
+  });
 </script>
 
 <style>

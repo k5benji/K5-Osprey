@@ -126,6 +126,29 @@ const isProfile = path.startsWith('/profile') || path.startsWith('/u/');
 				if (!document.hidden) pollNotifs();
 			});
 
+			// Don't re-navigate to the page you're already on (avoids stacking
+			// duplicate history entries). Home re-click refreshes the feed instead.
+			const norm = (p) => p.replace(/\/+$/, '') || '/';
+			document.querySelector('.side-nav')?.addEventListener('click', (e) => {
+				const a = (e.target as HTMLElement).closest('a.side-nav-item') as HTMLAnchorElement | null;
+				if (!a) return;
+				const href = a.getAttribute('href') || '';
+				if (href === '#') {
+					e.preventDefault();
+					return;
+				}
+				const url = new URL(href, location.origin);
+				const samePath = norm(url.pathname) === norm(location.pathname);
+				if (norm(url.pathname) === '/' && norm(location.pathname) === '/') {
+					e.preventDefault();
+					window.dispatchEvent(new CustomEvent('k5-refresh-feed'));
+					return;
+				}
+				if (samePath && url.search === location.search) {
+					e.preventDefault();
+				}
+			});
+
 			// Settings (profile edit) active state — query params aren't known at build time
 			if (
 				location.pathname.replace(/\/$/, '') === '/profile' &&
