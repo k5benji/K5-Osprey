@@ -243,16 +243,16 @@ import Layout from '../layouts/Layout.astro';
       composerEl.innerHTML = `
         <div class="composer-inner">
           <textarea id="post-input" maxlength="500" rows="1" placeholder="What's the signal?"></textarea>
-          <button id="post-btn" class="post-btn">Post</button>
+          <div class="composer-actions-row">
+            <label class="composer-attach" title="Add photo or video">
+              ${IC.media}
+              <input type="file" id="post-media-input" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" hidden />
+            </label>
+            <button id="post-btn" class="post-btn">Post</button>
+          </div>
         </div>
         <div class="composer-preview" id="composer-preview" hidden></div>
-        <div class="composer-tools">
-          <label class="composer-attach" title="Add photo or video">
-            ${IC.media}
-            <input type="file" id="post-media-input" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" hidden />
-          </label>
-          <span class="composer-status" id="composer-status"></span>
-        </div>`;
+        <span class="composer-status" id="composer-status"></span>`;
       const input = document.getElementById('post-input') as HTMLTextAreaElement;
       const btn = document.getElementById('post-btn') as HTMLButtonElement;
       const grow = () => {
@@ -624,11 +624,11 @@ import Layout from '../layouts/Layout.astro';
     color: #666;
   }
 
-  .composer-tools {
+  .composer-actions-row {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
+    gap: 0.85rem;
+    flex-shrink: 0;
   }
 
   .composer-attach {
