@@ -181,7 +181,12 @@ import Layout from '../layouts/Layout.astro';
 
   async function deleteComment(commentId, el) {
     if (!commentId) return;
-    if (!confirm('Delete this reply?')) return;
+    const ok = await window.k5confirm({
+      title: 'Delete reply?',
+      body: "This can't be undone.",
+      confirmText: 'Delete',
+    });
+    if (!ok) return;
     try {
       const res = await fetch('/api/posts/comment', {
         method: 'DELETE',

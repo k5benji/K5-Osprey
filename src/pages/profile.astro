@@ -506,7 +506,12 @@ import Layout from '../layouts/Layout.astro';
   }
 
   async function deletePost(article, id) {
-    if (!confirm('Delete this post?')) return;
+    const ok = await window.k5confirm({
+      title: 'Delete post?',
+      body: "This can't be undone. It'll be removed from your profile and the feed.",
+      confirmText: 'Delete',
+    });
+    if (!ok) return;
     try {
       const res = await fetch('/api/posts/delete', {
         method: 'POST',

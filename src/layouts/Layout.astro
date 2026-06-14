@@ -96,6 +96,15 @@ const isAI = path.startsWith('/ospreyai');
 			</svg>
 		</div>
 
+		<div class="k5-modal" id="k5-modal" hidden>
+			<div class="k5-modal-panel" role="dialog" aria-modal="true" aria-labelledby="k5-modal-title">
+				<h2 class="k5-modal-title" id="k5-modal-title">Are you sure?</h2>
+				<p class="k5-modal-body" id="k5-modal-body"></p>
+				<button type="button" class="k5-modal-confirm" id="k5-modal-confirm">Confirm</button>
+				<button type="button" class="k5-modal-cancel" id="k5-modal-cancel">Cancel</button>
+			</div>
+		</div>
+
 		<slot />
 
 		<script>
@@ -224,6 +233,41 @@ const isAI = path.startsWith('/ospreyai');
 				document.querySelector('.side-nav-item[href="/profile?edit=1"]')?.classList.add('active');
 				document.querySelector('.side-nav-item[href="/profile"]')?.classList.remove('active');
 			}
+
+			// Global confirm modal — returns a Promise<boolean>. Used for destructive
+			// actions (delete post / reply) in place of the native confirm() dialog.
+			const k5Modal = document.getElementById('k5-modal');
+			const k5ModalTitle = document.getElementById('k5-modal-title');
+			const k5ModalBody = document.getElementById('k5-modal-body');
+			const k5ModalConfirm = document.getElementById('k5-modal-confirm');
+			const k5ModalCancel = document.getElementById('k5-modal-cancel');
+			(window as any).k5confirm = function (opts) {
+				opts = opts || {};
+				k5ModalTitle.textContent = opts.title || 'Are you sure?';
+				k5ModalBody.textContent = opts.body || '';
+				k5ModalBody.style.display = opts.body ? '' : 'none';
+				k5ModalConfirm.textContent = opts.confirmText || 'Confirm';
+				return new Promise((resolve) => {
+					function cleanup(result) {
+						k5Modal.setAttribute('hidden', '');
+						k5ModalConfirm.removeEventListener('click', onConfirm);
+						k5ModalCancel.removeEventListener('click', onCancel);
+						k5Modal.removeEventListener('click', onBackdrop);
+						document.removeEventListener('keydown', onKey);
+						resolve(result);
+					}
+					function onConfirm() { cleanup(true); }
+					function onCancel() { cleanup(false); }
+					function onBackdrop(e) { if (e.target === k5Modal) cleanup(false); }
+					function onKey(e) { if (e.key === 'Escape') cleanup(false); }
+					k5ModalConfirm.addEventListener('click', onConfirm);
+					k5ModalCancel.addEventListener('click', onCancel);
+					k5Modal.addEventListener('click', onBackdrop);
+					document.addEventListener('keydown', onKey);
+					k5Modal.removeAttribute('hidden');
+					k5ModalConfirm.focus();
+				});
+			};
 		</script>
 	</body>
 </html>
@@ -299,6 +343,100 @@ const isAI = path.startsWith('/ospreyai');
 	/* ---- global site title (wide screens only) ---- */
 	.site-title {
 		display: none;
+	}
+
+	/* ---- global confirm modal ---- */
+	.k5-modal {
+		position: fixed;
+		inset: 0;
+		z-index: 1000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1.5rem;
+		background: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(5px);
+		-webkit-backdrop-filter: blur(5px);
+		animation: k5-modal-fade 0.15s ease;
+	}
+
+	.k5-modal[hidden] {
+		display: none;
+	}
+
+	@keyframes k5-modal-fade {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+
+	.k5-modal-panel {
+		width: 100%;
+		max-width: 320px;
+		padding: 1.75rem 1.5rem 1.25rem;
+		text-align: center;
+		border-radius: 20px;
+		border: 1px solid rgba(255, 206, 28, 0.32);
+		background: rgba(22, 22, 18, 0.72);
+		backdrop-filter: blur(22px) saturate(160%);
+		-webkit-backdrop-filter: blur(22px) saturate(160%);
+		box-shadow:
+			0 24px 70px rgba(0, 0, 0, 0.6),
+			0 0 40px rgba(255, 206, 28, 0.06),
+			inset 0 1px 0 rgba(255, 255, 255, 0.06);
+		animation: k5-modal-pop 0.18s ease;
+	}
+
+	@keyframes k5-modal-pop {
+		from { transform: scale(0.94); opacity: 0; }
+		to { transform: scale(1); opacity: 1; }
+	}
+
+	.k5-modal-title {
+		margin: 0 0 0.5rem;
+		font-size: 1.25rem;
+		color: #f5f7fa;
+	}
+
+	.k5-modal-body {
+		margin: 0 0 1.5rem;
+		font-size: 0.9rem;
+		line-height: 1.5;
+		color: #aeaeae;
+	}
+
+	.k5-modal-confirm,
+	.k5-modal-cancel {
+		display: block;
+		width: 100%;
+		padding: 0.8rem;
+		border-radius: 999px;
+		font-family: inherit;
+		font-size: 0.95rem;
+		cursor: pointer;
+		transition: filter 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+	}
+
+	.k5-modal-confirm {
+		margin-bottom: 0.6rem;
+		border: none;
+		background: #ffce1c;
+		color: #0a0a0a;
+		font-weight: 700;
+	}
+
+	.k5-modal-confirm:hover {
+		filter: brightness(1.08);
+	}
+
+	.k5-modal-cancel {
+		border: 1px solid #3a3a3a;
+		background: transparent;
+		color: #f5f7fa;
+	}
+
+	.k5-modal-cancel:hover {
+		background: rgba(255, 255, 255, 0.06);
+		border-color: #555;
 	}
 
 	.side-nav-item {
