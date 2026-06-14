@@ -230,6 +230,13 @@ const isAI = path.startsWith('/ospreyai');
 </html>
 
 <style>
+	html {
+		/* Always reserve the scrollbar gutter so pages that scroll (profile)
+		   and pages that don't (home feed scrolls internally) center their
+		   columns in the same width — keeps the column aligned with the rails. */
+		scrollbar-gutter: stable;
+	}
+
 	html,
 	body {
 		margin: 0;
