@@ -18,7 +18,7 @@ const isAI = path.startsWith('/ospreyai');
 
 		<title>Osprey K5 Systems</title>
 	</head>
-	<body>
+	<body class={isAI ? 'page-ai' : undefined}>
 		<div id="mobile-block">
 			<div class="mobile-block-inner">
 				<h1>Osprey K5 Systems</h1>
@@ -447,6 +447,14 @@ const isAI = path.startsWith('/ospreyai');
 			right: calc(50vw + 380px + 2rem);
 			text-align: left;
 			z-index: 40;
+		}
+
+		/* AI page has its own left sidebar layout (no centered column),
+		   so sit the status block in that left column, first letter aligned
+		   with the chat-list text, instead of overlapping the chat. */
+		.page-ai .build-info {
+			right: auto;
+			left: 1.5rem;
 		}
 	}
 </style>
