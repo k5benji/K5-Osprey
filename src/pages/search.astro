@@ -98,18 +98,17 @@ import Layout from '../layouts/Layout.astro';
   function render(data, q) {
     const users = data.users || [];
     const posts = data.posts || [];
+    const trending = !!data.trending;
     if (!users.length && !posts.length) {
-      root.innerHTML = `<p class="res-empty">No results for "${esc(q)}".</p>`;
+      root.innerHTML = trending ? '' : `<p class="res-empty">No results for "${esc(q)}".</p>`;
       return;
     }
-    let html = '';
-    if (users.length) {
-      html += '<p class="res-section">People</p>' + users.map(userRow).join('');
-    }
-    if (posts.length) {
-      html += '<p class="res-section">Posts</p>' + posts.map(postRow).join('');
-    }
-    root.innerHTML = html;
+    const usersLabel = trending ? 'Who to follow' : 'People';
+    const postsLabel = trending ? 'Trending' : 'Posts';
+    const usersBlock = users.length ? `<p class="res-section">${usersLabel}</p>` + users.map(userRow).join('') : '';
+    const postsBlock = posts.length ? `<p class="res-section">${postsLabel}</p>` + posts.map(postRow).join('') : '';
+    // trending: posts first; search: people first
+    root.innerHTML = trending ? postsBlock + usersBlock : usersBlock + postsBlock;
   }
 
   root.addEventListener('click', (e) => {
@@ -120,16 +119,12 @@ import Layout from '../layouts/Layout.astro';
   });
 
   let timer = null;
-  let lastQ = '';
+  let lastQ = null;
   async function run() {
     const q = input.value.trim();
     lastQ = q;
-    if (!q) {
-      root.innerHTML = '';
-      return;
-    }
     try {
-      const res = await fetch('/api/search?q=' + encodeURIComponent(q));
+      const res = await fetch('/api/search' + (q ? '?q=' + encodeURIComponent(q) : ''));
       const data = await res.json();
       if (input.value.trim() !== lastQ) return; // stale
       render(data, q);
@@ -143,12 +138,10 @@ import Layout from '../layouts/Layout.astro';
     timer = setTimeout(run, 250);
   });
 
-  // support /search?q=... deep links
+  // support /search?q=... deep links; otherwise show trending suggestions
   const initial = new URLSearchParams(location.search).get('q');
-  if (initial) {
-    input.value = initial;
-    run();
-  }
+  if (initial) input.value = initial;
+  run();
 </script>
 
 <style>
