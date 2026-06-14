@@ -227,7 +227,18 @@ import Layout from '../layouts/Layout.astro';
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/></svg>',
     share:
       '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"/></svg>',
+    ask:
+      '<svg viewBox="0 0 24 24" class="post-icon"><path fill="currentColor" d="M11 2.5l1.8 5.2L18 9.5l-5.2 1.8L11 16.5l-1.8-5.2L4 9.5l5.2-1.8L11 2.5zm7.5 10l.95 2.55L22 16l-2.55.95L18.5 19.5l-.95-2.55L15 16l2.55-.95L18.5 12.5z"/></svg>',
   };
+
+  function askOsprey(content) {
+    try {
+      sessionStorage.setItem('k5-ask', 'Tell me about this post:\n\n"' + content + '"');
+    } catch {
+      /* ignore */
+    }
+    location.href = '/ospreyai';
+  }
 
   function fmtCount(n) {
     if (!n) return '';
@@ -257,6 +268,7 @@ import Layout from '../layouts/Layout.astro';
             <span class="post-action" data-act="reply">${ICONS.reply}<span class="cnt">${fmtCount(p.commentCount)}</span></span>
             <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${ICONS.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
             <button class="post-action act like${p.liked ? ' on' : ''}" data-act="like">${ICONS.like}<span class="cnt">${fmtCount(p.likeCount)}</span></button>
+            <span class="post-action ask-osprey" data-act="ask" title="Ask Osprey about this post" aria-label="Ask Osprey about this post">${ICONS.ask}</span>
             <span class="post-action" data-act="share">${ICONS.share}</span>
           </div>
         </div>
@@ -531,6 +543,10 @@ import Layout from '../layouts/Layout.astro';
       if (act === 'like' || act === 'repost') togglePost(act, id, article);
       else if (act === 'share') navigator.clipboard?.writeText(location.origin + '/post/' + id).catch(() => {});
       else if (act === 'reply') openPost(id);
+      else if (act === 'ask') {
+        const bodyEl = article.querySelector('.post-body');
+        askOsprey(bodyEl ? bodyEl.textContent : '');
+      }
       return;
     }
     if (target.closest('.post-edit')) return;

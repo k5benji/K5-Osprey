@@ -436,6 +436,21 @@ import Layout from '../layouts/Layout.astro';
   renderSidebar();
   showEmpty();
   input.focus();
+
+  // pre-load a question from "Ask Osprey about this post"
+  try {
+    const ask = sessionStorage.getItem('k5-ask');
+    if (ask) {
+      sessionStorage.removeItem('k5-ask');
+      input.value = ask;
+      input.dispatchEvent(new Event('input'));
+      input.focus();
+      input.setSelectionRange(0, 0);
+      input.scrollTop = 0;
+    }
+  } catch {
+    /* ignore */
+  }
 </script>
 
 <style is:global>
