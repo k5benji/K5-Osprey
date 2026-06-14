@@ -206,6 +206,13 @@ import Layout from '../layouts/Layout.astro';
     return String(n);
   }
 
+  function mediaHtml(m) {
+    if (!m || !m.url) return '';
+    if (m.type === 'video')
+      return `<video class="post-media" src="${esc(m.url)}" controls playsinline preload="metadata"></video>`;
+    return `<img class="post-media" src="${esc(m.url)}" alt="" loading="lazy" />`;
+  }
+
   // ---- posts feed (the author's written work, as X-style posts) ----
   const ICONS = {
     reply:
@@ -243,6 +250,7 @@ import Layout from '../layouts/Layout.astro';
             ${postMenu(p)}
           </div>
           <div class="post-body">${esc(p.content)}</div>
+          ${mediaHtml(p.media)}
           <div class="post-actions">
             <span class="post-action" data-act="reply">${ICONS.reply}<span class="cnt">${fmtCount(p.commentCount)}</span></span>
             <button class="post-action act repost${p.reposted ? ' on' : ''}" data-act="repost">${ICONS.repost}<span class="cnt">${fmtCount(p.repostCount)}</span></button>
@@ -956,6 +964,15 @@ import Layout from '../layouts/Layout.astro';
     -webkit-line-clamp: 8;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  .post-media {
+    display: block;
+    margin-top: 0.6rem;
+    max-width: 100%;
+    max-height: 480px;
+    border-radius: 14px;
+    border: 1px solid #222;
   }
 
   .post-body.editing {

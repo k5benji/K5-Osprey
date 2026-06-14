@@ -12,7 +12,7 @@ export async function onRequestGet({ request, env }) {
   const binds = userFilter ? [uid, uid, userFilter] : [uid, uid];
 
   const { results } = await env.DB.prepare(
-    `SELECT p.id, p.content, p.created_at, p.base_likes, p.base_reposts,
+    `SELECT p.id, p.content, p.created_at, p.base_likes, p.base_reposts, p.media_key, p.media_type,
        u.username, u.display_name, u.verified, u.engineer, u.avatar_key, u.avatar_url,
        (SELECT COUNT(*) FROM post_likes l WHERE l.post_id = p.id) AS like_count,
        (SELECT COUNT(*) FROM post_reposts r WHERE r.post_id = p.id) AS repost_count,
@@ -43,17 +43,21 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'Invalid request.' }, 400);
   }
   const content = (body.content ?? '').toString().trim().slice(0, MAX_LEN);
-  if (!content) return json({ error: 'Write something first.' }, 400);
+  const mediaKey = (body.mediaKey ?? '').toString() || null;
+  const mediaType = body.mediaType === 'video' ? 'video' : body.mediaType === 'image' ? 'image' : null;
+  if (!content && !mediaKey) return json({ error: 'Write something or add media first.' }, 400);
 
   const id = crypto.randomUUID();
-  await env.DB.prepare('INSERT INTO posts (id, user_id, content) VALUES (?, ?, ?)')
-    .bind(id, me.id, content)
+  await env.DB.prepare(
+    'INSERT INTO posts (id, user_id, content, media_key, media_type) VALUES (?, ?, ?, ?, ?)'
+  )
+    .bind(id, me.id, content, mediaKey, mediaKey ? mediaType : null)
     .run();
 
   await notifyMentions(env, { content, actorId: me.id, postId: id });
 
   const row = await env.DB.prepare(
-    `SELECT p.id, p.content, p.created_at,
+    `SELECT p.id, p.content, p.created_at, p.media_key, p.media_type,
        u.username, u.display_name, u.verified, u.engineer, u.avatar_key, u.avatar_url
      FROM posts p JOIN users u ON u.id = p.user_id WHERE p.id = ?`
   )
