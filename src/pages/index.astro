@@ -571,7 +571,7 @@ import Layout from '../layouts/Layout.astro';
       if (!data.posts || data.posts.length === 0) {
         feedEl.innerHTML =
           currentFeed === 'following'
-            ? '<p class="feed-note">No posts yet from people you follow. <a class="feed-note-link" href="/search">Find people to follow</a></p>'
+            ? '<p class="feed-note">Follow a user and come back here to see their content.</p>'
             : '';
         return;
       }
