@@ -453,12 +453,14 @@ const isAI = path.startsWith('/ospreyai');
 			white-space: nowrap;
 		}
 
-		/* status block: bottom-left, 2rem off the feed (mirrors the nav) */
+		/* status block: bottom-left. Left edge anchored to the title's left edge
+		   (title is a 190px-wide SVG, right edge 2rem off the feed) so the first
+		   letters line up in a column with "Osprey,". */
 		.build-info {
 			display: block;
 			position: fixed;
 			bottom: 2rem;
-			right: calc(50vw + 380px + 2rem);
+			left: calc(50vw - 380px - 2rem - 190px);
 			text-align: left;
 			z-index: 40;
 		}
