@@ -557,6 +557,13 @@ import Layout from '../layouts/Layout.astro';
     overflow: hidden;
   }
 
+  /* keep chat content clear of the global nav rail (shown at >=1240px) */
+  @media (min-width: 1240px) {
+    .chat-main {
+      padding-right: calc(50vw - 380px);
+    }
+  }
+
   .chat-main.empty {
     justify-content: center;
     align-items: center;
