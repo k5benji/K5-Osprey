@@ -633,6 +633,18 @@ import Layout from '../layouts/Layout.astro';
 
   .chat-main.empty .empty-sub {
     display: block;
+    animation: powered-pulse 3.2s ease-in-out infinite;
+  }
+
+  @keyframes powered-pulse {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-main.empty .empty-sub {
+      animation: none;
+    }
   }
 
   .composer {
