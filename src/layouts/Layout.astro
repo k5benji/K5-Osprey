@@ -88,6 +88,15 @@ const isAI = path.startsWith('/ospreyai');
 			</p>
 		</div>
 
+		<div class="site-title" id="site-title">
+			<svg viewBox="0 0 190 120" width="190" role="img" aria-label="Osprey, engineered by Kastle Five systems.">
+				<title>Osprey, engineered by Kastle Five systems.</title>
+				<text x="0" y="47" textLength="190" lengthAdjust="spacingAndGlyphs" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="54" fill="#ffce1c">Osprey,</text>
+				<text x="0" y="84" textLength="190" lengthAdjust="spacingAndGlyphs" font-family="Helvetica, Arial, sans-serif" font-weight="400" font-size="28" fill="#f5f7fa">engineered by</text>
+				<text x="0" y="110" textLength="190" lengthAdjust="spacingAndGlyphs" font-family="Helvetica, Arial, sans-serif" font-weight="400" font-size="20" fill="#f5f7fa">Kastle Five systems.</text>
+			</svg>
+		</div>
+
 		<slot />
 
 		<script>
@@ -281,6 +290,11 @@ const isAI = path.startsWith('/ospreyai');
 		display: none;
 	}
 
+	/* ---- global site title (wide screens only) ---- */
+	.site-title {
+		display: none;
+	}
+
 	.side-nav-item {
 		display: flex;
 		align-items: center;
@@ -455,6 +469,20 @@ const isAI = path.startsWith('/ospreyai');
 		.page-ai .build-info {
 			right: auto;
 			left: 1.5rem;
+		}
+
+		/* site title: top of the left rail, 2rem off the feed (mirrors the nav) */
+		.site-title {
+			display: block;
+			position: fixed;
+			top: 6rem;
+			right: calc(50vw + 380px + 2rem);
+			z-index: 40;
+		}
+
+		/* AI page has its own header idea — hide the global title there */
+		.page-ai .site-title {
+			display: none;
 		}
 	}
 </style>

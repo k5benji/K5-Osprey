@@ -42,10 +42,6 @@ import Layout from '../layouts/Layout.astro';
       <a href="/outpost/" class="topnav-link">Outpost</a>
     </nav>
 
-    <header>
-      <h1><span class="title-main">Osprey,</span><br /><span class="title-sub">engineered by Kastle Five systems.</span></h1>
-    </header>
-
     <section id="composer" class="composer"></section>
 
     <div id="feed" class="feed">
@@ -596,10 +592,6 @@ import Layout from '../layouts/Layout.astro';
     flex-shrink: 0;
   }
 
-  header {
-    flex-shrink: 0;
-  }
-
   .topnav-link,
   .topnav-link:visited {
     color: #888;
@@ -608,21 +600,6 @@ import Layout from '../layouts/Layout.astro';
 
   .topnav-link:hover {
     color: #ffce1c;
-  }
-
-  header h1 {
-    margin: 0 0 1.5rem;
-    line-height: 1;
-  }
-
-  .title-main {
-    color: #ffce1c;
-  }
-
-  .title-sub {
-    color: #f5f7fa;
-    display: inline-block;
-    margin-top: 0.05em;
   }
 </style>
 
