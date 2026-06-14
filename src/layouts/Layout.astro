@@ -1,6 +1,7 @@
 ---
 const path = Astro.url.pathname;
 const isHome = path === '/';
+const isSearch = path.startsWith('/search');
 const isNotif = path.startsWith('/notifications');
 const isAI = path.startsWith('/ospreyai');
 const isProfile = path.startsWith('/profile') || path.startsWith('/u/');
@@ -42,7 +43,7 @@ const isProfile = path.startsWith('/profile') || path.startsWith('/u/');
 				<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.6 2 11.3h3V21h5v-6h4v6h5v-9.7h3z"/></svg>
 				<span>Home</span>
 			</a>
-			<a class="side-nav-item" href="#">
+			<a class={`side-nav-item${isSearch ? ' active' : ''}`} href="/search">
 				<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10.5 3a7.5 7.5 0 1 0 4.55 13.46l4.74 4.74 1.42-1.42-4.74-4.74A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z"/></svg>
 				<span>Search</span>
 			</a>

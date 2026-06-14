@@ -1,0 +1,326 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#8a9098"></stop>
+        <stop offset="35%" stop-color="#f3f6f9"></stop>
+        <stop offset="50%" stop-color="#ffffff"></stop>
+        <stop offset="66%" stop-color="#b9bfc5"></stop>
+        <stop offset="100%" stop-color="#5f656b"></stop>
+        <animateTransform attributeName="gradientTransform" type="translate" values="-1 -1; 1 1; -1 -1" dur="3.5s" repeatCount="indefinite"></animateTransform>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <main>
+    <h1 class="page-title">Search</h1>
+    <div class="search-bar">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10.5 3a7.5 7.5 0 1 0 4.55 13.46l4.74 4.74 1.42-1.42-4.74-4.74A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z"/></svg>
+      <input id="search-input" type="text" placeholder="Search posts and people" autocomplete="off" autofocus />
+    </div>
+    <div id="search-results"></div>
+  </main>
+</Layout>
+
+<script>
+  const SEAL =
+    'M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44C11.866 1.07 11.235.876 10.59.86c-.646.017-1.273.213-1.813.568-.54.355-.969.854-1.24 1.44-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245C1.61 9.726 1.412 10.355 1.394 11c.018.646.215 1.275.57 1.816.354.54.852.972 1.438 1.246-.223.607-.27 1.264-.14 1.897.131.634.437 1.218.882 1.687.47.445 1.053.75 1.687.882.633.13 1.29.083 1.897-.14.273.587.704 1.086 1.245 1.44.541.354 1.172.548 1.817.564.646-.017 1.273-.213 1.813-.568.54-.355.969-.854 1.24-1.44.608.223 1.267.272 1.902.14.635-.13 1.22-.436 1.69-.882.445-.47.749-1.055.878-1.688.13-.633.08-1.29-.144-1.896.587-.274 1.087-.705 1.443-1.245.356-.54.554-1.169.573-1.814zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246-5.683 6.206z';
+
+  const root = document.getElementById('search-results');
+  const input = document.getElementById('search-input') as HTMLInputElement;
+
+  function esc(s) {
+    return (s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  }
+  function badges(a) {
+    let h = '';
+    if (a.verified) h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title><path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/></svg>`;
+    if (a.engineer) h += `<svg class="badge-svg" viewBox="0 0 22 22"><title>Engineer of Kastle Five</title><path fill="url(#chrome)" d="${SEAL.split('M9.662')[0]}"/><text x="11" y="11.4" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-size="8.5" font-weight="700" fill="#fff">K5</text></svg>`;
+    return h;
+  }
+  function avatarHtml(a) {
+    if (a.avatar) return `<img class="res-avatar" src="${esc(a.avatar)}" alt="" />`;
+    const initial = (a.displayName || a.username || '?').charAt(0).toUpperCase();
+    return `<span class="res-avatar fallback">${esc(initial)}</span>`;
+  }
+  function relTime(iso) {
+    const d = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T') + 'Z');
+    const s = Math.max(1, Math.floor((Date.now() - d.getTime()) / 1000));
+    if (s < 60) return s + 's';
+    if (s < 3600) return Math.floor(s / 60) + 'm';
+    if (s < 86400) return Math.floor(s / 3600) + 'h';
+    return Math.floor(s / 86400) + 'd';
+  }
+  function fmtCount(n) {
+    if (!n) return '';
+    if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'K';
+    return String(n);
+  }
+  function mediaHtml(m) {
+    if (!m || !m.url) return '';
+    if (m.type === 'video') return `<video class="res-media" src="${esc(m.url)}" preload="metadata" muted></video>`;
+    return `<img class="res-media" src="${esc(m.url)}" alt="" loading="lazy" />`;
+  }
+
+  function userRow(u) {
+    return `
+      <a class="res-user" href="/u/${esc(u.username)}">
+        ${avatarHtml(u)}
+        <div class="res-user-text">
+          <div class="res-name">${esc(u.displayName || u.username)}${badges(u)}</div>
+          <div class="res-handle">@${esc(u.username)}</div>
+          ${u.bio ? `<div class="res-bio">${esc(u.bio)}</div>` : ''}
+        </div>
+      </a>`;
+  }
+
+  function postRow(p) {
+    const a = p.author;
+    return `
+      <article class="res-post" data-id="${esc(p.id)}">
+        <span class="res-avatar-wrap">${avatarHtml(a)}</span>
+        <div class="res-post-main">
+          <div class="res-post-head">
+            <span class="res-name">${esc(a.displayName || a.username)}${badges(a)}</span>
+            <span class="res-handle">@${esc(a.username)} · ${relTime(p.createdAt)}</span>
+          </div>
+          <div class="res-post-body">${esc(p.content)}</div>
+          ${mediaHtml(p.media)}
+          <div class="res-post-meta">${fmtCount(p.commentCount) ? fmtCount(p.commentCount) + ' replies · ' : ''}${fmtCount(p.likeCount) ? fmtCount(p.likeCount) + ' likes' : ''}</div>
+        </div>
+      </article>`;
+  }
+
+  function render(data, q) {
+    const users = data.users || [];
+    const posts = data.posts || [];
+    if (!users.length && !posts.length) {
+      root.innerHTML = `<p class="res-empty">No results for "${esc(q)}".</p>`;
+      return;
+    }
+    let html = '';
+    if (users.length) {
+      html += '<p class="res-section">People</p>' + users.map(userRow).join('');
+    }
+    if (posts.length) {
+      html += '<p class="res-section">Posts</p>' + posts.map(postRow).join('');
+    }
+    root.innerHTML = html;
+  }
+
+  root.addEventListener('click', (e) => {
+    const art = (e.target as HTMLElement).closest('.res-post') as HTMLElement | null;
+    if (!art) return;
+    const id = art.getAttribute('data-id');
+    if (id) location.href = '/post/' + encodeURIComponent(id) + '?r=' + Date.now();
+  });
+
+  let timer = null;
+  let lastQ = '';
+  async function run() {
+    const q = input.value.trim();
+    lastQ = q;
+    if (!q) {
+      root.innerHTML = '';
+      return;
+    }
+    try {
+      const res = await fetch('/api/search?q=' + encodeURIComponent(q));
+      const data = await res.json();
+      if (input.value.trim() !== lastQ) return; // stale
+      render(data, q);
+    } catch {
+      root.innerHTML = '<p class="res-empty">Search failed. Try again.</p>';
+    }
+  }
+
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(run, 250);
+  });
+
+  // support /search?q=... deep links
+  const initial = new URLSearchParams(location.search).get('q');
+  if (initial) {
+    input.value = initial;
+    run();
+  }
+</script>
+
+<style>
+  main {
+    padding: 2rem;
+    max-width: 640px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  .page-title {
+    margin: 0 0 1.25rem;
+    font-size: 1.5rem;
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #0e0e0e;
+    border: 1px solid #222;
+    border-radius: 999px;
+    padding: 0.6rem 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .search-bar:focus-within {
+    border-color: #ffce1c;
+  }
+
+  .search-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+    color: #888;
+    flex-shrink: 0;
+  }
+
+  #search-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f5f7fa;
+    font-family: inherit;
+    font-size: 1rem;
+  }
+
+  #search-input::placeholder {
+    color: #666;
+  }
+
+  .res-section {
+    margin: 0 0 0.25rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid #222;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+  }
+
+  .res-section:not(:first-child) {
+    margin-top: 1.75rem;
+  }
+
+  .res-empty {
+    color: #888;
+  }
+
+  .res-user {
+    display: flex;
+    gap: 0.85rem;
+    padding: 0.85rem 0.5rem;
+    border-bottom: 1px solid #1a1a1a;
+    text-decoration: none;
+    color: #f5f7fa;
+    transition: background-color 0.15s ease;
+  }
+
+  .res-user:hover,
+  .res-post:hover {
+    background: #0b0b0b;
+  }
+
+  .res-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #333;
+    background: #111;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffce1c;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .res-name {
+    font-weight: 700;
+  }
+
+  .res-handle {
+    color: #888;
+    font-size: 0.9rem;
+  }
+
+  .res-bio {
+    color: #bbb;
+    font-size: 0.9rem;
+    margin-top: 0.2rem;
+  }
+
+  .res-post {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.95rem 0.5rem;
+    border-bottom: 1px solid #1a1a1a;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .res-avatar-wrap .res-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .res-post-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .res-post-head {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+
+  .res-post-body {
+    margin-top: 0.15rem;
+    color: #f5f7fa;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .res-media {
+    display: block;
+    margin-top: 0.5rem;
+    max-width: 100%;
+    max-height: 280px;
+    border-radius: 12px;
+    border: 1px solid #222;
+  }
+
+  .res-post-meta {
+    margin-top: 0.4rem;
+    color: #888;
+    font-size: 0.85rem;
+  }
+
+  .badge-svg {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    margin-left: 0.05em;
+  }
+</style>
