@@ -36,6 +36,16 @@ const isAI = path.startsWith('/ospreyai');
 					<stop offset="100%" stop-color="#5f656b"></stop>
 					<animateTransform attributeName="gradientTransform" type="translate" values="-1 -1; 1 1; -1 -1" dur="3.5s" repeatCount="indefinite"></animateTransform>
 				</linearGradient>
+				<!-- @sia "first official user" badge: pastel-pink holographic foil.
+				     Iridescent pastel sweep (reflected) — distinct from the chrome sheen. -->
+				<linearGradient id="sia-pink" x1="0" y1="0" x2="1" y2="1" spreadMethod="reflect">
+					<stop offset="0%" stop-color="#ffb6d5"></stop>
+					<stop offset="30%" stop-color="#e7b8ff"></stop>
+					<stop offset="50%" stop-color="#fff2f8"></stop>
+					<stop offset="70%" stop-color="#ffc9b0"></stop>
+					<stop offset="100%" stop-color="#ffb6d5"></stop>
+					<animateTransform attributeName="gradientTransform" type="translate" values="-0.6 -0.6; 0.6 0.6; -0.6 -0.6" dur="4.5s" repeatCount="indefinite"></animateTransform>
+				</linearGradient>
 			</defs>
 		</svg>
 		<nav class="side-nav" aria-label="Primary">
@@ -116,7 +126,7 @@ const isAI = path.startsWith('/ospreyai');
 			function navBadges(u) {
 				let h = '';
 				if (u.username === 'sia')
-					h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>First official user</title><path fill="#ff4d8d" d="${SEAL.split('M9.662')[0]}"/><text x="11" y="11.4" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="700" fill="#fff">#1</text></svg>`;
+					h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title><path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/></svg> <svg class="badge-svg" viewBox="0 0 22 22"><title>First official user</title><path fill="url(#sia-pink)" d="${SEAL.split('M9.662')[0]}"/><text x="11" y="11.4" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="700" fill="#9d2463">#1</text></svg>`;
 				else if (u.verified)
 					h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title><path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/></svg>`;
 				if (u.engineer)

@@ -38,7 +38,7 @@ import Layout from '../layouts/Layout.astro';
   }
   function badges(a) {
     let h = '';
-    if (a.username === 'sia') h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>First official user</title><path fill="#ff4d8d" d="${SEAL.split('M9.662')[0]}"/><text x="11" y="11.4" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="700" fill="#fff">#1</text></svg>`;
+    if (a.username === 'sia') h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title><path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/></svg> <svg class="badge-svg" viewBox="0 0 22 22"><title>First official user</title><path fill="url(#sia-pink)" d="${SEAL.split('M9.662')[0]}"/><text x="11" y="11.4" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="700" fill="#9d2463">#1</text></svg>`;
     else if (a.verified) h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title><path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/></svg>`;
     if (a.engineer) h += `<svg class="badge-svg" viewBox="0 0 22 22"><title>Engineer of Kastle Five</title><path fill="url(#chrome)" d="${SEAL.split('M9.662')[0]}"/><text x="11" y="11.4" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-size="8.5" font-weight="700" fill="#fff">K5</text></svg>`;
     return h;
