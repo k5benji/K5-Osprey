@@ -92,7 +92,7 @@ import Layout from '../layouts/Layout.astro';
   function postBadges(a) {
     let h = '';
     if (a.username === 'sia')
-      h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title>${YELLOW_SEAL}</svg> <svg class="badge-svg" viewBox="0 0 22 22"><title>First official user</title>${SIA_BADGE}</svg>`;
+      h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title>${YELLOW_SEAL}</svg><svg class="badge-svg" viewBox="0 0 22 22"><title>First official user</title>${SIA_BADGE}</svg>`;
     else if (a.verified)
       h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title>${YELLOW_SEAL}</svg>`;
     if (a.engineer)
