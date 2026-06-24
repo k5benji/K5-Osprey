@@ -464,9 +464,10 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .side-btn {
-    text-align: left;
+    text-align: center;
     font-family: inherit;
     font-size: 0.9rem;
+    font-weight: 600;
     color: var(--text);
     background: var(--field-bg);
     border: 1px solid var(--glass-border);
@@ -477,8 +478,19 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .side-btn.btn-accent {
-    text-align: center;
     border: none;
+    box-shadow: none;
+  }
+
+  .side-btn.btn-accent:hover {
+    transform: translateY(-1px);
+    box-shadow: none;
+    filter: brightness(1.05);
+  }
+
+  .side-btn.btn-accent:active {
+    transform: translateY(0);
+    filter: brightness(0.97);
   }
 
   .saved-btn:hover {
@@ -613,11 +625,11 @@ import Layout from '../layouts/Layout.astro';
   /* ---- composer form ---- */
   .chat-form {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 0.6rem;
     width: 100%;
-    border-radius: 999px;
-    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    border-radius: 26px;
+    padding: 0.4rem 0.4rem 0.4rem 1rem;
   }
 
   .chat-main.empty .chat-form {
@@ -627,7 +639,7 @@ import Layout from '../layouts/Layout.astro';
   .prompt {
     color: var(--accent-strong);
     font-weight: 800;
-    padding-bottom: 0.55rem;
+    line-height: 1;
   }
 
   #chat-input {

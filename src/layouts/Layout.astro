@@ -4,24 +4,13 @@ const isHome = path === '/';
 ---
 
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
 		<link rel="icon" href="data:," />
 		<title>Osprey</title>
-		<!-- Set the theme before first paint to avoid a flash. Default: light. -->
-		<script is:inline>
-			(function () {
-				try {
-					var t = localStorage.getItem('osprey-theme');
-					document.documentElement.dataset.theme = t === 'dark' ? 'dark' : 'light';
-				} catch (e) {
-					document.documentElement.dataset.theme = 'light';
-				}
-			})();
-		</script>
 	</head>
 	<body>
 		<!-- Hidden gradient defs for verification / engineer badges. -->
@@ -52,10 +41,6 @@ const isHome = path === '/';
 				<span class="brand-word">Osprey</span>
 			</a>
 			<div class="topbar-right">
-				<button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle dark mode">
-					<svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-13a1 1 0 0 1 1 1v1.5a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 14a1 1 0 0 1 1 1v1.5a1 1 0 1 1-2 0V19a1 1 0 0 1 1-1zM4 12a1 1 0 0 1 1-1h1.5a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1zm13.5 0a1 1 0 0 1 1-1H20a1 1 0 1 1 0 2h-1.5a1 1 0 0 1-1-1zM6.34 6.34a1 1 0 0 1 1.41 0l1.06 1.06a1 1 0 0 1-1.41 1.41L6.34 7.76a1 1 0 0 1 0-1.42zm8.85 8.85a1 1 0 0 1 1.41 0l1.06 1.06a1 1 0 1 1-1.41 1.41l-1.06-1.06a1 1 0 0 1 0-1.41zM17.66 6.34a1 1 0 0 1 0 1.42l-1.06 1.06a1 1 0 1 1-1.41-1.41l1.06-1.06a1 1 0 0 1 1.41 0zM8.81 15.19a1 1 0 0 1 0 1.41l-1.06 1.06a1 1 0 1 1-1.41-1.41l1.06-1.06a1 1 0 0 1 1.41 0z"/></svg>
-					<svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-				</button>
 				<a class="acct" id="acct" href="/profile">
 					<span class="acct-label" id="acct-label">Sign in</span>
 				</a>
@@ -67,17 +52,6 @@ const isHome = path === '/';
 		</div>
 
 		<script>
-			// ---- theme toggle ----
-			const root = document.documentElement;
-			const toggle = document.getElementById('theme-toggle');
-			toggle?.addEventListener('click', () => {
-				const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-				root.dataset.theme = next;
-				try {
-					localStorage.setItem('osprey-theme', next);
-				} catch {}
-			});
-
 			// ---- account chip ----
 			const acct = document.getElementById('acct');
 			const acctLabel = document.getElementById('acct-label');
@@ -109,9 +83,6 @@ const isHome = path === '/';
 				--radius-sm: 12px;
 				--topbar-h: 60px;
 				--font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-			}
-
-			html[data-theme='light'] {
 				--bg: #ffffff;
 				--text: #14161a;
 				--muted: #6b7280;
@@ -123,20 +94,6 @@ const isHome = path === '/';
 				--blob-a: rgba(255, 206, 28, 0.28);
 				--blob-b: rgba(120, 170, 255, 0.14);
 				--blob-c: rgba(255, 150, 200, 0.12);
-			}
-
-			html[data-theme='dark'] {
-				--bg: #0b0c0f;
-				--text: #f1f3f6;
-				--muted: #9aa1ab;
-				--glass-bg: rgba(28, 30, 36, 0.5);
-				--glass-border: rgba(255, 255, 255, 0.09);
-				--glass-highlight: rgba(255, 255, 255, 0.1);
-				--glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
-				--field-bg: rgba(255, 255, 255, 0.05);
-				--blob-a: rgba(255, 206, 28, 0.16);
-				--blob-b: rgba(80, 130, 255, 0.16);
-				--blob-c: rgba(255, 90, 160, 0.12);
 			}
 
 			* {
@@ -243,41 +200,13 @@ const isHome = path === '/';
 				gap: 0.55rem;
 			}
 
-			.icon-btn {
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				width: 38px;
-				height: 38px;
-				border-radius: 50%;
-				border: 1px solid var(--glass-border);
-				background: var(--field-bg);
-				color: var(--text);
-				cursor: pointer;
-				transition: transform 0.15s ease, background 0.15s ease;
-			}
-
-			.icon-btn:hover {
-				transform: translateY(-1px);
-				background: var(--glass-bg);
-			}
-
-			.icon-btn svg {
-				width: 19px;
-				height: 19px;
-			}
-
-			html[data-theme='light'] .icon-moon,
-			html[data-theme='dark'] .icon-sun {
-				display: none;
-			}
-
 			.acct {
 				display: inline-flex;
 				align-items: center;
+				justify-content: center;
 				gap: 0.5rem;
 				height: 38px;
-				padding: 0 0.85rem 0 0.5rem;
+				padding: 0 1rem;
 				border-radius: 999px;
 				border: 1px solid var(--glass-border);
 				background: var(--field-bg);
@@ -293,8 +222,9 @@ const isHome = path === '/';
 				background: var(--glass-bg);
 			}
 
-			.acct-label {
-				padding: 0 0.35rem;
+			/* tighten the left side when an avatar is present */
+			.acct:has(.acct-avatar) {
+				padding-left: 0.45rem;
 			}
 
 			.acct-avatar {
