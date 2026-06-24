@@ -1,31 +1,30 @@
 ---
 const path = Astro.url.pathname;
 const isHome = path === '/';
-const isSearch = path.startsWith('/search');
-const isNotif = path.startsWith('/notifications');
-const isMessages = path.startsWith('/messages');
-const isAI = path.startsWith('/ospreyai');
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
-
 		<link rel="icon" href="data:," />
-
-		<title>Osprey K5 Systems</title>
+		<title>Osprey</title>
+		<!-- Set the theme before first paint to avoid a flash. Default: light. -->
+		<script is:inline>
+			(function () {
+				try {
+					var t = localStorage.getItem('osprey-theme');
+					document.documentElement.dataset.theme = t === 'dark' ? 'dark' : 'light';
+				} catch (e) {
+					document.documentElement.dataset.theme = 'light';
+				}
+			})();
+		</script>
 	</head>
-	<body class={isAI ? 'page-ai' : undefined}>
-		<div id="mobile-block">
-			<div class="mobile-block-inner">
-				<h1>Osprey K5 Systems</h1>
-				<p>This terminal is not yet available on mobile.</p>
-				<p class="mb-sub">Please access from a desktop browser.</p>
-			</div>
-		</div>
+	<body>
+		<!-- Hidden gradient defs for verification / engineer badges. -->
 		<svg width="0" height="0" style="position: absolute" aria-hidden="true">
 			<defs>
 				<linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">
@@ -36,8 +35,6 @@ const isAI = path.startsWith('/ospreyai');
 					<stop offset="100%" stop-color="#5f656b"></stop>
 					<animateTransform attributeName="gradientTransform" type="translate" values="-1 -1; 1 1; -1 -1" dur="3.5s" repeatCount="indefinite"></animateTransform>
 				</linearGradient>
-				<!-- @sia "first official user" badge: pastel-pink holographic foil.
-				     Iridescent pastel sweep (reflected) — distinct from the chrome sheen. -->
 				<linearGradient id="sia-pink" x1="0" y1="0" x2="1" y2="1" spreadMethod="reflect">
 					<stop offset="0%" stop-color="#ffb6d5"></stop>
 					<stop offset="30%" stop-color="#e7b8ff"></stop>
@@ -48,685 +45,329 @@ const isAI = path.startsWith('/ospreyai');
 				</linearGradient>
 			</defs>
 		</svg>
-		<nav class="side-nav" aria-label="Primary">
-			<a class={`side-nav-item${isHome ? ' active' : ''}`} href="/">
-				<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3.172a1.5 1.5 0 0 0-.97.358L4.28 9.22A2 2 0 0 0 3.5 10.79V19a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4.5a1.5 1.5 0 0 1 1.5-1.5h2a1.5 1.5 0 0 1 1.5 1.5V20a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-8.21a2 2 0 0 0-.78-1.59l-6.75-5.69A1.5 1.5 0 0 0 12 3.172z"/></svg>
-				<span>Home</span>
-			</a>
-			<a class={`side-nav-item${isSearch ? ' active' : ''}`} href="/search">
-				<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10.5 3a7.5 7.5 0 1 0 4.55 13.46l4.74 4.74 1.42-1.42-4.74-4.74A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z"/></svg>
-				<span>Search</span>
-			</a>
-			<a class={`side-nav-item${isNotif ? ' active' : ''}`} href="/notifications">
-				<span class="side-nav-iconwrap">
-					<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a6 6 0 0 0-6 6c0 3.6-1 5.3-1.9 6.2L3 15.2V17h18v-1.8l-1.1-1c-.9-.9-1.9-2.6-1.9-6.2a6 6 0 0 0-6-6zm0 20a2.8 2.8 0 0 0 2.8-2.8H9.2A2.8 2.8 0 0 0 12 22z"/></svg>
-					<span class="notif-badge" id="notif-badge" hidden></span>
-				</span>
-				<span>Notifications</span>
-			</a>
-			<a class={`side-nav-item${isMessages ? ' active' : ''}`} href="/messages">
-				<span class="side-nav-iconwrap">
-					<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="3.5"/><path d="M4 7.8l6.86 4.57a2 2 0 0 0 2.28 0L20 7.8"/></svg>
-					<span class="notif-badge" id="msg-badge" hidden></span>
-				</span>
-				<span>Messages</span>
-			</a>
-			<a class={`side-nav-item${isAI ? ' active' : ''}`} href="/ospreyai">
-				<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 3a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h1v3.2a1 1 0 0 0 1.6.8L13 17h6a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/></svg>
-				<span>OspreyAI</span>
-			</a>
-			<a class="side-nav-item" href="/profile?edit=1">
-				<svg class="side-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54A.48.48 0 0 0 14.5 2h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.49.49 0 0 0 .12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.04.24.24.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.12-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
-				<span>Settings</span>
-			</a>
-			<a class="side-nav-item side-nav-account" href="/profile" id="nav-account" hidden>
-				<span class="nav-account-avatar" id="nav-account-avatar"></span>
-				<span class="nav-account-name" id="nav-account-name"></span>
-			</a>
-		</nav>
 
-		<div class="build-info" id="build-info">
-			<p class="current-time">Current time: <span id="local-time"></span></p>
-			<p class="build-number status-row">
-				<span>Site Status:</span>
-				<span class="status-dot" aria-hidden="true"></span>
-				<span>Active</span>
-			</p>
-			<p class="build-number">Osprey Kastle Five Build 0.8.1</p>
-			<p class="current-time">
-				<a class="built-by-link" href="https://x.com/k5binya" target="_blank" rel="noopener">Built by @k5binya</a>
-			</p>
-		</div>
-
-		<div class="site-title" id="site-title">
-			<svg viewBox="0 0 190 80" width="190" role="img" aria-label="Osprey, engineered by Kastle Five systems.">
-				<title>Osprey, engineered by Kastle Five systems.</title>
-				<text x="0" y="47" textLength="190" lengthAdjust="spacingAndGlyphs" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="45" fill="#ffce1c">OSPREY,</text>
-				<text x="0" y="72" textLength="190" lengthAdjust="spacingAndGlyphs" font-family="Helvetica, Arial, sans-serif" font-weight="400" font-size="12" fill="#f5f7fa">engineered by Kastle Five systems.</text>
-			</svg>
-		</div>
-
-		<div class="k5-modal" id="k5-modal" hidden>
-			<div class="k5-modal-panel" role="dialog" aria-modal="true" aria-labelledby="k5-modal-title">
-				<h2 class="k5-modal-title" id="k5-modal-title">Are you sure?</h2>
-				<p class="k5-modal-body" id="k5-modal-body"></p>
-				<button type="button" class="k5-modal-confirm" id="k5-modal-confirm">Confirm</button>
-				<button type="button" class="k5-modal-cancel" id="k5-modal-cancel">Cancel</button>
+		<header class="topbar glass">
+			<a class="brand" href="/" aria-label="Osprey home">
+				<span class="brand-mark" aria-hidden="true"></span>
+				<span class="brand-word">Osprey</span>
+			</a>
+			<div class="topbar-right">
+				<button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle dark mode">
+					<svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-13a1 1 0 0 1 1 1v1.5a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 14a1 1 0 0 1 1 1v1.5a1 1 0 1 1-2 0V19a1 1 0 0 1 1-1zM4 12a1 1 0 0 1 1-1h1.5a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1zm13.5 0a1 1 0 0 1 1-1H20a1 1 0 1 1 0 2h-1.5a1 1 0 0 1-1-1zM6.34 6.34a1 1 0 0 1 1.41 0l1.06 1.06a1 1 0 0 1-1.41 1.41L6.34 7.76a1 1 0 0 1 0-1.42zm8.85 8.85a1 1 0 0 1 1.41 0l1.06 1.06a1 1 0 1 1-1.41 1.41l-1.06-1.06a1 1 0 0 1 0-1.41zM17.66 6.34a1 1 0 0 1 0 1.42l-1.06 1.06a1 1 0 1 1-1.41-1.41l1.06-1.06a1 1 0 0 1 1.41 0zM8.81 15.19a1 1 0 0 1 0 1.41l-1.06 1.06a1 1 0 1 1-1.41-1.41l1.06-1.06a1 1 0 0 1 1.41 0z"/></svg>
+					<svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+				</button>
+				<a class="acct" id="acct" href="/profile">
+					<span class="acct-label" id="acct-label">Sign in</span>
+				</a>
 			</div>
-		</div>
+		</header>
 
-		<slot />
+		<div class={`page${isHome ? ' page-home' : ''}`}>
+			<slot />
+		</div>
 
 		<script>
-			const SEAL =
-				'M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44C11.866 1.07 11.235.876 10.59.86c-.646.017-1.273.213-1.813.568-.54.355-.969.854-1.24 1.44-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245C1.61 9.726 1.412 10.355 1.394 11c.018.646.215 1.275.57 1.816.354.54.852.972 1.438 1.246-.223.607-.27 1.264-.14 1.897.131.634.437 1.218.882 1.687.47.445 1.053.75 1.687.882.633.13 1.29.083 1.897-.14.273.587.704 1.086 1.245 1.44.541.354 1.172.548 1.817.564.646-.017 1.273-.213 1.813-.568.54-.355.969-.854 1.24-1.44.608.223 1.267.272 1.902.14.635-.13 1.22-.436 1.69-.882.445-.47.749-1.055.878-1.688.13-.633.08-1.29-.144-1.896.587-.274 1.087-.705 1.443-1.245.356-.54.554-1.169.573-1.814zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246-5.683 6.206z';
-			function navEsc(s) {
-				return (s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-			}
-			function navBadges(u) {
-				let h = '';
-				if (u.username === 'sia')
-					h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title><path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/></svg><svg class="badge-svg" viewBox="0 0 22 22"><title>First official user</title><path fill="url(#sia-pink)" d="${SEAL.split('M9.662')[0]}"/><text x="11" y="11.4" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="700" fill="#9d2463">#1</text></svg>`;
-				else if (u.verified)
-					h += ` <svg class="badge-svg" viewBox="0 0 22 22"><title>Verified User</title><path fill="#ffce1c" fill-rule="evenodd" d="${SEAL}"/></svg>`;
-				if (u.engineer)
-					h += `<svg class="badge-svg" viewBox="0 0 22 22"><title>Engineer of Kastle Five</title><path fill="url(#chrome)" d="${SEAL.split('M9.662')[0]}"/><text x="11" y="11.4" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif" font-size="8.5" font-weight="700" fill="#fff">K5</text></svg>`;
-				return h;
-			}
+			// ---- theme toggle ----
+			const root = document.documentElement;
+			const toggle = document.getElementById('theme-toggle');
+			toggle?.addEventListener('click', () => {
+				const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+				root.dataset.theme = next;
+				try {
+					localStorage.setItem('osprey-theme', next);
+				} catch {}
+			});
 
-			const defaultAvatar =
-				'<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.5-8 5.5V21h16v-1.5c0-3-3.6-5.5-8-5.5z"/></svg>';
-
-			function applyMe(u) {
-				const navAcc = document.getElementById('nav-account');
-				const navAv = document.getElementById('nav-account-avatar');
-				const navNm = document.getElementById('nav-account-name');
-				if (!navAcc || !navAv || !navNm) return;
-				if (u) {
-					navAv.innerHTML = u.avatar ? `<img src="${navEsc(u.avatar)}" alt="" />` : defaultAvatar;
-					navNm.innerHTML = '@' + navEsc(u.username) + navBadges(u);
-				} else {
-					navAv.innerHTML = defaultAvatar;
-					navNm.textContent = 'Sign in';
-				}
-				navAcc.hidden = false;
+			// ---- account chip ----
+			const acct = document.getElementById('acct');
+			const acctLabel = document.getElementById('acct-label');
+			function esc(s: string) {
+				return (s ?? '').replace(
+					/[&<>"]/g,
+					(c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string
+				);
 			}
-
-			// Render the chip instantly from the cached user (no flash on navigation),
-			// then refresh from the network.
-			try {
-				const cached = sessionStorage.getItem('k5-me');
-				if (cached) applyMe(JSON.parse(cached));
-			} catch {
-				/* ignore */
-			}
-
 			fetch('/api/me')
 				.then((r) => r.json())
-				.then((u) => {
-					applyMe(u);
-					try {
-						if (u) sessionStorage.setItem('k5-me', JSON.stringify(u));
-						else sessionStorage.removeItem('k5-me');
-					} catch {
-						/* ignore */
-					}
+				.then((me) => {
+					if (!me || !acct || !acctLabel) return;
+					const initial = (me.displayName || me.username || '?').charAt(0).toUpperCase();
+					const avatar = me.avatar
+						? `<span class="acct-avatar" style="background-image:url('${esc(me.avatar)}')"></span>`
+						: `<span class="acct-avatar fallback">${esc(initial)}</span>`;
+					acctLabel.outerHTML = avatar + `<span class="acct-name">${esc(me.displayName || me.username)}</span>`;
 				})
 				.catch(() => {});
-
-			// notifications unread dot — polled for near-real-time updates
-			function setNotifBadge(n) {
-				const b = document.getElementById('notif-badge');
-				if (!b) return;
-				b.hidden = !(n > 0);
-			}
-			function setMsgBadge(n) {
-				const b = document.getElementById('msg-badge');
-				if (!b) return;
-				b.hidden = !(n > 0);
-			}
-			function pollBadges() {
-				fetch('/api/notifications/count')
-					.then((r) => r.json())
-					.then((d) => setNotifBadge(d.count || 0))
-					.catch(() => {});
-				fetch('/api/messages/count')
-					.then((r) => r.json())
-					.then((d) => setMsgBadge(d.count || 0))
-					.catch(() => {});
-			}
-			pollBadges();
-			setInterval(pollBadges, 12000);
-			document.addEventListener('visibilitychange', () => {
-				if (!document.hidden) pollBadges();
-			});
-
-			// status-block clock
-			const timeEl = document.getElementById('local-time');
-			function tick() {
-				if (!timeEl) return;
-				timeEl.textContent = new Date().toLocaleTimeString(undefined, {
-					hour: '2-digit',
-					minute: '2-digit',
-					second: '2-digit',
-				});
-			}
-			tick();
-			setInterval(tick, 1000);
-
-			// Don't re-navigate to the page you're already on (avoids stacking
-			// duplicate history entries). Home re-click refreshes the feed instead.
-			const norm = (p) => p.replace(/\/+$/, '') || '/';
-			document.querySelector('.side-nav')?.addEventListener('click', (e) => {
-				const a = (e.target as HTMLElement).closest('a.side-nav-item') as HTMLAnchorElement | null;
-				if (!a) return;
-				const href = a.getAttribute('href') || '';
-				if (href === '#') {
-					e.preventDefault();
-					return;
-				}
-				const url = new URL(href, location.origin);
-				const samePath = norm(url.pathname) === norm(location.pathname);
-				if (norm(url.pathname) === '/' && norm(location.pathname) === '/') {
-					e.preventDefault();
-					window.dispatchEvent(new CustomEvent('k5-refresh-feed'));
-					return;
-				}
-				if (samePath && url.search === location.search) {
-					e.preventDefault();
-				}
-			});
-
-			// Settings (profile edit) active state — query params aren't known at build time
-			if (
-				location.pathname.replace(/\/$/, '') === '/profile' &&
-				new URLSearchParams(location.search).has('edit')
-			) {
-				document.querySelector('.side-nav-item[href="/profile?edit=1"]')?.classList.add('active');
-				document.querySelector('.side-nav-item[href="/profile"]')?.classList.remove('active');
-			}
-
-			// Global confirm modal — returns a Promise<boolean>. Used for destructive
-			// actions (delete post / reply) in place of the native confirm() dialog.
-			const k5Modal = document.getElementById('k5-modal');
-			const k5ModalTitle = document.getElementById('k5-modal-title');
-			const k5ModalBody = document.getElementById('k5-modal-body');
-			const k5ModalConfirm = document.getElementById('k5-modal-confirm');
-			const k5ModalCancel = document.getElementById('k5-modal-cancel');
-			(window as any).k5confirm = function (opts) {
-				opts = opts || {};
-				k5ModalTitle.textContent = opts.title || 'Are you sure?';
-				k5ModalBody.textContent = opts.body || '';
-				k5ModalBody.style.display = opts.body ? '' : 'none';
-				k5ModalConfirm.textContent = opts.confirmText || 'Confirm';
-				return new Promise((resolve) => {
-					function cleanup(result) {
-						k5Modal.setAttribute('hidden', '');
-						k5ModalConfirm.removeEventListener('click', onConfirm);
-						k5ModalCancel.removeEventListener('click', onCancel);
-						k5Modal.removeEventListener('click', onBackdrop);
-						document.removeEventListener('keydown', onKey);
-						resolve(result);
-					}
-					function onConfirm() { cleanup(true); }
-					function onCancel() { cleanup(false); }
-					function onBackdrop(e) { if (e.target === k5Modal) cleanup(false); }
-					function onKey(e) { if (e.key === 'Escape') cleanup(false); }
-					k5ModalConfirm.addEventListener('click', onConfirm);
-					k5ModalCancel.addEventListener('click', onCancel);
-					k5Modal.addEventListener('click', onBackdrop);
-					document.addEventListener('keydown', onKey);
-					k5Modal.removeAttribute('hidden');
-					k5ModalConfirm.focus();
-				});
-			};
 		</script>
+
+		<style is:global>
+			:root {
+				--accent: #ffce1c;
+				--accent-strong: #f5b800;
+				--accent-ink: #4a3a00;
+				--radius: 18px;
+				--radius-sm: 12px;
+				--topbar-h: 60px;
+				--font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+			}
+
+			html[data-theme='light'] {
+				--bg: #ffffff;
+				--text: #14161a;
+				--muted: #6b7280;
+				--glass-bg: rgba(255, 255, 255, 0.55);
+				--glass-border: rgba(20, 22, 26, 0.08);
+				--glass-highlight: rgba(255, 255, 255, 0.75);
+				--glass-shadow: 0 10px 34px rgba(20, 22, 26, 0.1);
+				--field-bg: rgba(255, 255, 255, 0.7);
+				--blob-a: rgba(255, 206, 28, 0.28);
+				--blob-b: rgba(120, 170, 255, 0.14);
+				--blob-c: rgba(255, 150, 200, 0.12);
+			}
+
+			html[data-theme='dark'] {
+				--bg: #0b0c0f;
+				--text: #f1f3f6;
+				--muted: #9aa1ab;
+				--glass-bg: rgba(28, 30, 36, 0.5);
+				--glass-border: rgba(255, 255, 255, 0.09);
+				--glass-highlight: rgba(255, 255, 255, 0.1);
+				--glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+				--field-bg: rgba(255, 255, 255, 0.05);
+				--blob-a: rgba(255, 206, 28, 0.16);
+				--blob-b: rgba(80, 130, 255, 0.16);
+				--blob-c: rgba(255, 90, 160, 0.12);
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			html,
+			body {
+				margin: 0;
+				height: 100%;
+			}
+
+			body {
+				min-height: 100vh;
+				font-family: var(--font);
+				color: var(--text);
+				background: var(--bg);
+				-webkit-font-smoothing: antialiased;
+				display: flex;
+				flex-direction: column;
+				overflow-x: hidden;
+			}
+
+			/* Soft liquid background so the frosted panels actually read. */
+			body::before {
+				content: '';
+				position: fixed;
+				inset: -20vmax;
+				z-index: -1;
+				background:
+					radial-gradient(38vmax 38vmax at 12% 8%, var(--blob-a), transparent 60%),
+					radial-gradient(42vmax 42vmax at 88% 18%, var(--blob-b), transparent 62%),
+					radial-gradient(40vmax 40vmax at 70% 95%, var(--blob-c), transparent 60%);
+				filter: saturate(1.1);
+				animation: drift 28s ease-in-out infinite alternate;
+			}
+
+			@keyframes drift {
+				to {
+					transform: translate3d(0, -3%, 0) scale(1.06);
+				}
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				body::before {
+					animation: none;
+				}
+			}
+
+			a {
+				color: inherit;
+			}
+
+			/* ---- liquid glass ---- */
+			.glass {
+				background: var(--glass-bg);
+				-webkit-backdrop-filter: blur(22px) saturate(1.7);
+				backdrop-filter: blur(22px) saturate(1.7);
+				border: 1px solid var(--glass-border);
+				box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+			}
+
+			/* ---- top bar ---- */
+			.topbar {
+				position: sticky;
+				top: 0;
+				z-index: 50;
+				height: var(--topbar-h);
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 0 1.1rem;
+				border-radius: 0;
+				border-left: none;
+				border-right: none;
+				border-top: none;
+			}
+
+			.brand {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.55rem;
+				text-decoration: none;
+				font-weight: 800;
+				font-size: 1.25rem;
+				letter-spacing: -0.02em;
+			}
+
+			.brand-mark {
+				width: 18px;
+				height: 18px;
+				border-radius: 6px;
+				background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+				box-shadow: 0 2px 10px rgba(255, 206, 28, 0.5);
+			}
+
+			.brand-word {
+				color: var(--text);
+			}
+
+			.topbar-right {
+				display: flex;
+				align-items: center;
+				gap: 0.55rem;
+			}
+
+			.icon-btn {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 38px;
+				height: 38px;
+				border-radius: 50%;
+				border: 1px solid var(--glass-border);
+				background: var(--field-bg);
+				color: var(--text);
+				cursor: pointer;
+				transition: transform 0.15s ease, background 0.15s ease;
+			}
+
+			.icon-btn:hover {
+				transform: translateY(-1px);
+				background: var(--glass-bg);
+			}
+
+			.icon-btn svg {
+				width: 19px;
+				height: 19px;
+			}
+
+			html[data-theme='light'] .icon-moon,
+			html[data-theme='dark'] .icon-sun {
+				display: none;
+			}
+
+			.acct {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				height: 38px;
+				padding: 0 0.85rem 0 0.5rem;
+				border-radius: 999px;
+				border: 1px solid var(--glass-border);
+				background: var(--field-bg);
+				text-decoration: none;
+				font-size: 0.9rem;
+				font-weight: 600;
+				color: var(--text);
+				transition: transform 0.15s ease, background 0.15s ease;
+			}
+
+			.acct:hover {
+				transform: translateY(-1px);
+				background: var(--glass-bg);
+			}
+
+			.acct-label {
+				padding: 0 0.35rem;
+			}
+
+			.acct-avatar {
+				width: 26px;
+				height: 26px;
+				border-radius: 50%;
+				background-size: cover;
+				background-position: center;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				font-weight: 700;
+				font-size: 0.85rem;
+				color: var(--accent-ink);
+			}
+
+			.acct-avatar.fallback {
+				background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+			}
+
+			.acct-name {
+				max-width: 11ch;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			/* ---- page shell ---- */
+			.page {
+				flex: 1;
+				min-height: 0;
+				display: flex;
+				flex-direction: column;
+			}
+
+			/* shared focus ring + buttons used across pages */
+			:focus-visible {
+				outline: 2px solid var(--accent);
+				outline-offset: 2px;
+			}
+
+			.btn-accent {
+				background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+				color: var(--accent-ink);
+				border: none;
+				font-weight: 700;
+				border-radius: 999px;
+				cursor: pointer;
+				box-shadow: 0 4px 16px rgba(255, 206, 28, 0.4);
+				transition: transform 0.15s ease, box-shadow 0.15s ease;
+			}
+
+			.btn-accent:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 6px 20px rgba(255, 206, 28, 0.5);
+			}
+
+			.badge-svg {
+				width: 1em;
+				height: 1em;
+				vertical-align: -0.14em;
+				margin-left: 0.06em;
+			}
+
+			::-webkit-scrollbar {
+				width: 10px;
+				height: 10px;
+			}
+
+			::-webkit-scrollbar-thumb {
+				background: var(--glass-border);
+				border-radius: 999px;
+			}
+		</style>
 	</body>
 </html>
-
-<style>
-	html {
-		/* Always reserve the scrollbar gutter so pages that scroll (profile)
-		   and pages that don't (home feed scrolls internally) center their
-		   columns in the same width — keeps the column aligned with the rails. */
-		scrollbar-gutter: stable;
-	}
-
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-		font-family: Helvetica, Arial, sans-serif;
-		line-height: 1.6;
-		background: #000;
-		color: #f5f7fa;
-	}
-
-	#mobile-block {
-		display: none;
-	}
-
-	@media (max-width: 768px) {
-		#mobile-block {
-			display: flex !important;
-			position: fixed;
-			inset: 0;
-			z-index: 9999;
-			background: #000;
-			color: #f5f7fa;
-			align-items: center;
-			justify-content: center;
-			text-align: center;
-			padding: 2rem;
-			box-sizing: border-box;
-		}
-
-		/* hide everything else underneath; #mobile-block wins by id specificity */
-		body > * {
-			display: none !important;
-		}
-
-		.mobile-block-inner h1 {
-			color: #ffce1c;
-			font-size: 1.5rem;
-			margin: 0 0 1rem;
-		}
-
-		.mobile-block-inner p {
-			margin: 0.35rem 0;
-			font-size: 0.95rem;
-		}
-
-		.mobile-block-inner .mb-sub {
-			color: #888;
-			font-size: 0.85rem;
-		}
-	}
-
-</style>
-
-<style is:global>
-	/* ---- smooth motion ---- */
-	@keyframes k5-fade {
-		from { opacity: 0; }
-		to { opacity: 1; }
-	}
-
-	@keyframes k5-rise {
-		from { opacity: 0; transform: translateY(10px); }
-		to { opacity: 1; transform: none; }
-	}
-
-	/* gentle fade-in for the main column on every page */
-	main {
-		animation: k5-fade 0.3s ease both;
-	}
-
-	/* list items (feed posts, notifications, conversations, comments, search
-	   results) rise in, with a short stagger on the first few */
-	.post,
-	.notif,
-	.conv,
-	.comment,
-	.res-user,
-	.res-post {
-		animation: k5-rise 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-	}
-	.post:nth-of-type(2), .notif:nth-of-type(2), .conv:nth-of-type(2),
-	.res-user:nth-of-type(2), .res-post:nth-of-type(2) { animation-delay: 0.04s; }
-	.post:nth-of-type(3), .notif:nth-of-type(3), .conv:nth-of-type(3),
-	.res-user:nth-of-type(3), .res-post:nth-of-type(3) { animation-delay: 0.08s; }
-	.post:nth-of-type(4), .notif:nth-of-type(4), .conv:nth-of-type(4),
-	.res-user:nth-of-type(4), .res-post:nth-of-type(4) { animation-delay: 0.12s; }
-	.post:nth-of-type(5), .notif:nth-of-type(5), .conv:nth-of-type(5),
-	.res-user:nth-of-type(5), .res-post:nth-of-type(5) { animation-delay: 0.16s; }
-	.post:nth-of-type(n+6), .notif:nth-of-type(n+6), .conv:nth-of-type(n+6),
-	.res-user:nth-of-type(n+6), .res-post:nth-of-type(n+6) { animation-delay: 0.2s; }
-
-	/* respect users who prefer reduced motion */
-	@media (prefers-reduced-motion: reduce) {
-		*, *::before, *::after {
-			animation-duration: 0.001ms !important;
-			animation-delay: 0s !important;
-			transition-duration: 0.001ms !important;
-			scroll-behavior: auto !important;
-		}
-	}
-
-	/* ---- global three-dot loader (yellow "thinking" dots) ---- */
-	.feed-loading {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 6px;
-		padding: 2rem 0;
-	}
-
-	.feed-loading .dot {
-		width: 7px;
-		height: 7px;
-		border-radius: 50%;
-		background: #ffce1c;
-		opacity: 0.25;
-		animation: think 1.3s infinite ease-in-out;
-	}
-
-	.feed-loading .dot:nth-child(2) {
-		animation-delay: 0.18s;
-	}
-
-	.feed-loading .dot:nth-child(3) {
-		animation-delay: 0.36s;
-	}
-
-	@keyframes think {
-		0%, 70%, 100% {
-			opacity: 0.2;
-			transform: translateY(0);
-			box-shadow: none;
-		}
-		35% {
-			opacity: 1;
-			transform: translateY(-4px);
-			box-shadow: 0 0 6px 1px rgba(255, 206, 28, 0.5);
-		}
-	}
-
-	/* ---- global side nav (wide screens only) ---- */
-	.side-nav {
-		display: none;
-	}
-
-	/* ---- global site title (wide screens only) ---- */
-	.site-title {
-		display: none;
-	}
-
-	/* ---- global confirm modal ---- */
-	.k5-modal {
-		position: fixed;
-		inset: 0;
-		z-index: 1000;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 1.5rem;
-		background: rgba(0, 0, 0, 0.5);
-		backdrop-filter: blur(5px);
-		-webkit-backdrop-filter: blur(5px);
-		animation: k5-modal-fade 0.15s ease;
-	}
-
-	.k5-modal[hidden] {
-		display: none;
-	}
-
-	@keyframes k5-modal-fade {
-		from { opacity: 0; }
-		to { opacity: 1; }
-	}
-
-	.k5-modal-panel {
-		width: 100%;
-		max-width: 320px;
-		padding: 1.75rem 1.5rem 1.25rem;
-		text-align: center;
-		border-radius: 20px;
-		border: 1px solid rgba(255, 206, 28, 0.3);
-		background: rgba(0, 0, 0, 0.55);
-		backdrop-filter: blur(24px);
-		-webkit-backdrop-filter: blur(24px);
-		box-shadow:
-			0 24px 70px rgba(0, 0, 0, 0.7),
-			inset 0 1px 0 rgba(255, 255, 255, 0.05);
-		animation: k5-modal-pop 0.18s ease;
-	}
-
-	@keyframes k5-modal-pop {
-		from { transform: scale(0.94); opacity: 0; }
-		to { transform: scale(1); opacity: 1; }
-	}
-
-	.k5-modal-title {
-		margin: 0 0 0.5rem;
-		font-size: 1.25rem;
-		color: #f5f7fa;
-	}
-
-	.k5-modal-body {
-		margin: 0 0 1.5rem;
-		font-size: 0.9rem;
-		line-height: 1.5;
-		color: #aeaeae;
-	}
-
-	.k5-modal-confirm,
-	.k5-modal-cancel {
-		display: block;
-		width: 100%;
-		padding: 0.8rem;
-		border-radius: 999px;
-		font-family: inherit;
-		font-size: 0.95rem;
-		cursor: pointer;
-		transition: filter 0.15s ease, background 0.15s ease, border-color 0.15s ease;
-	}
-
-	.k5-modal-confirm {
-		margin-bottom: 0.6rem;
-		border: none;
-		background: #ffce1c;
-		color: #0a0a0a;
-		font-weight: 700;
-	}
-
-	.k5-modal-confirm:hover {
-		filter: brightness(1.08);
-	}
-
-	.k5-modal-cancel {
-		border: 1px solid #3a3a3a;
-		background: transparent;
-		color: #f5f7fa;
-	}
-
-	.k5-modal-cancel:hover {
-		background: rgba(255, 255, 255, 0.06);
-		border-color: #555;
-	}
-
-	.side-nav-item {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		padding: 0.55rem 1.1rem;
-		border-radius: 999px;
-		color: #f5f7fa;
-		text-decoration: none;
-		font-size: 1.15rem;
-		line-height: 1;
-		transition: background-color 0.15s ease, color 0.15s ease;
-	}
-
-	.side-nav-item:hover {
-		background: #111;
-		color: #ffce1c;
-	}
-
-	.side-nav-item.active {
-		font-weight: 700;
-	}
-
-	.side-nav-icon {
-		width: 1.6rem;
-		height: 1.6rem;
-		flex-shrink: 0;
-	}
-
-	.side-nav-iconwrap {
-		position: relative;
-		display: inline-flex;
-	}
-
-	.notif-badge {
-		position: absolute;
-		top: -1px;
-		right: -1px;
-		width: 7px;
-		height: 7px;
-		border-radius: 50%;
-		background: #ffce1c;
-		box-shadow: 0 0 4px 1px rgba(255, 206, 28, 0.6);
-		animation: notif-glow 3s ease-in-out infinite;
-	}
-
-	@keyframes notif-glow {
-		0%,
-		100% {
-			opacity: 0.65;
-			box-shadow: 0 0 3px 0 rgba(255, 206, 28, 0.45);
-		}
-		50% {
-			opacity: 1;
-			box-shadow: 0 0 7px 2px rgba(255, 206, 28, 0.85);
-		}
-	}
-
-	.nav-account-avatar {
-		width: 1.6rem;
-		height: 1.6rem;
-		flex-shrink: 0;
-		border-radius: 50%;
-		overflow: hidden;
-		border: 1px solid #333;
-		background: #111;
-		color: #666;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.nav-account-avatar img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.nav-account-avatar svg {
-		width: 1rem;
-		height: 1rem;
-	}
-
-	.nav-account-name {
-		display: inline-flex;
-		align-items: center;
-		color: #ffce1c;
-		font-weight: 700;
-	}
-
-	.nav-account-name .badge-svg {
-		width: 0.95em;
-		height: 0.95em;
-		margin-left: 0.15em;
-		flex-shrink: 0;
-	}
-
-	/* ---- status block (wide screens only) ---- */
-	.build-info {
-		display: none;
-	}
-
-	.current-time,
-	.build-number {
-		margin: 0;
-		color: #ffce1c;
-		font-size: 0.75rem;
-		opacity: 0.8;
-	}
-
-	.status-row {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-	}
-
-	.status-dot {
-		display: inline-block;
-		width: 5px;
-		height: 5px;
-		border-radius: 50%;
-		background: #ffce1c;
-		box-shadow: 0 0 4px 1px rgba(255, 206, 28, 0.6);
-		animation: status-blink 2.5s ease-in-out infinite;
-		flex-shrink: 0;
-	}
-
-	@keyframes status-blink {
-		0%,
-		100% {
-			opacity: 1;
-		}
-		50% {
-			opacity: 0.4;
-		}
-	}
-
-	.built-by-link,
-	.built-by-link:visited {
-		color: inherit;
-		text-decoration: none;
-	}
-
-	.built-by-link:hover {
-		text-decoration: underline;
-	}
-
-	@media (min-width: 1240px) {
-		.side-nav {
-			display: flex;
-			flex-direction: column;
-			gap: 0.35rem;
-			position: fixed;
-			top: 6rem;
-			left: calc(50vw + 380px + 2rem);
-			z-index: 40;
-			white-space: nowrap;
-		}
-
-		/* status block: bottom-left. Left edge anchored to the title's left edge
-		   (title is a 190px-wide SVG, right edge 2rem off the feed) so the first
-		   letters line up in a column with "Osprey,". */
-		.build-info {
-			display: block;
-			position: fixed;
-			bottom: 2rem;
-			left: calc(50vw - 380px - 2rem - 190px);
-			text-align: left;
-			z-index: 40;
-		}
-
-		/* AI page has its own left sidebar layout (no centered column),
-		   so sit the status block in that left column, first letter aligned
-		   with the chat-list text, instead of overlapping the chat. */
-		.page-ai .build-info {
-			right: auto;
-			left: 1.5rem;
-		}
-
-		/* site title: top of the left rail, 2rem off the feed (mirrors the nav).
-		   top tuned so the "O" cap-top lines up with the "RSS Feed" topnav text. */
-		.site-title {
-			display: block;
-			position: fixed;
-			top: 2.25rem;
-			right: calc(50vw + 380px + 2rem);
-			z-index: 40;
-		}
-
-		/* AI page has its own header idea — hide the global title there */
-		.page-ai .site-title {
-			display: none;
-		}
-	}
-</style>

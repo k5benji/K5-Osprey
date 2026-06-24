@@ -8,4 +8,7 @@ export default defineConfig({
   integrations: [sitemap()],
   adapter: cloudflare(),
   output: 'static',
+  redirects: {
+    '/ospreyai': '/',
+  },
 });

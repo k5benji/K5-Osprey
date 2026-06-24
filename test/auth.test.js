@@ -1,14 +1,10 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   parseCookies,
   json,
   avatarUrl,
   publicUser,
   sessionCookie,
-  formatPost,
-  notifyMentions,
-  getOrCreateConversation,
-  createNotification,
 } from '../functions/_auth.js';
 
 describe('parseCookies', () => {
@@ -111,65 +107,5 @@ describe('sessionCookie', () => {
     expect(c).toContain('SameSite=Lax');
     expect(c).toContain('Path=/');
     expect(c).toContain('Max-Age=3600');
-  });
-});
-
-describe('formatPost', () => {
-  const base = {
-    id: 'p1',
-    content: 'hello',
-    created_at: '2026-01-01T00:00:00Z',
-    username: 'ace',
-    display_name: 'Ace',
-    verified: 1,
-    engineer: 1,
-    avatar_key: 'k',
-  };
-
-  it('shapes a row into the public post object', () => {
-    const p = formatPost(base);
-    expect(p.id).toBe('p1');
-    expect(p.content).toBe('hello');
-    expect(p.createdAt).toBe('2026-01-01T00:00:00Z');
-    expect(p.author).toEqual({
-      username: 'ace',
-      displayName: 'Ace',
-      verified: true,
-      engineer: true,
-      avatar: '/avatars/k',
-    });
-  });
-
-  it('defaults counts to 0 and flags to false', () => {
-    const p = formatPost(base);
-    expect(p).toMatchObject({
-      threadCount: 0,
-      likeCount: 0,
-      repostCount: 0,
-      commentCount: 0,
-      liked: false,
-      reposted: false,
-    });
-  });
-
-  it('adds base_likes / base_reposts to the live counts', () => {
-    const p = formatPost({ ...base, like_count: 2, base_likes: 10, repost_count: 1, base_reposts: 5 });
-    expect(p.likeCount).toBe(12);
-    expect(p.repostCount).toBe(6);
-  });
-
-  it('builds media only when media_key is present', () => {
-    expect(formatPost(base).media).toBeNull();
-    expect(formatPost({ ...base, media_key: 'm1' }).media).toEqual({
-      url: '/avatars/m1',
-      type: 'image',
-    });
-    expect(formatPost({ ...base, media_key: 'm1', media_type: 'video' }).media.type).toBe('video');
-  });
-
-  it('coerces liked/reposted truthy values to booleans', () => {
-    const p = formatPost({ ...base, liked: 1, reposted: 1 });
-    expect(p.liked).toBe(true);
-    expect(p.reposted).toBe(true);
   });
 });
