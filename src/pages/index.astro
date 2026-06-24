@@ -276,9 +276,9 @@ import Layout from '../layouts/Layout.astro';
         persist();
         openSaved();
       });
-      body.appendChild(remove);
 
-      wrap.appendChild(body);
+      // remove sits below the bubble, matching the "Save text" control
+      wrap.append(body, remove);
       thread.appendChild(wrap);
     }
     thread.scrollTop = 0;
@@ -803,7 +803,16 @@ import Layout from '../layouts/Layout.astro';
     color: var(--muted);
   }
 
+  .saved-item {
+    max-width: min(680px, 92%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
   .saved-item .body {
+    align-self: stretch;
     background: var(--glass-bg);
   }
 
