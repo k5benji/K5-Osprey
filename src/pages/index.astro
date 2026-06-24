@@ -349,7 +349,7 @@ import Layout from '../layouts/Layout.astro';
     // Always show the thinking indicator for a beat before the answer appears,
     // so a fast model still reads as deliberate rather than blurting an answer.
     const thinkStart = Date.now();
-    const MIN_THINK = 700 + Math.floor(Math.random() * 500); // 0.7–1.2s
+    const MIN_THINK = 1200 + Math.floor(Math.random() * 600); // 1.2–1.8s
     const wait = (ms: number) => new Promise((r) => setTimeout(r, Math.max(0, ms)));
     let revealTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -853,12 +853,12 @@ import Layout from '../layouts/Layout.astro';
 
   .cursor {
     display: inline-block;
-    width: 7px;
+    width: 2px;
     height: 1.05em;
     margin-left: 2px;
     vertical-align: -0.15em;
     background: var(--accent-strong);
-    border-radius: 2px;
+    border-radius: 1px;
     animation: cursor-pulse 1s steps(1) infinite;
   }
 
