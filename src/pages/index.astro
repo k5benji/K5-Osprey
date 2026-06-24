@@ -128,20 +128,23 @@ import Layout from '../layouts/Layout.astro';
     textEl.textContent = text;
     body.appendChild(textEl);
 
-    if (role === 'assistant' && withSave) attachSave(body, textEl);
-
     wrap.append(who, body);
+
+    if (role === 'assistant' && withSave) attachSave(wrap, textEl);
+
     return wrap;
   }
 
-  function attachSave(body: HTMLElement, textEl: HTMLElement) {
+  // The save control sits below the bubble, as a sibling of .body (not inside it).
+  function attachSave(wrap: HTMLElement, textEl: HTMLElement) {
+    if (wrap.querySelector(':scope > .save-btn')) return;
     const save = document.createElement('button');
     save.className = 'save-btn';
     const existing = saved.find((s) => s.content === (textEl.textContent ?? ''));
     if (existing) markSaved(save, existing.id);
     else markUnsaved(save);
     save.addEventListener('click', () => toggleSave(save, textEl.textContent ?? ''));
-    body.appendChild(save);
+    wrap.appendChild(save);
   }
 
   function markSaved(btn: HTMLElement, id: string) {
@@ -171,15 +174,22 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
-  function thinkingEl(): HTMLElement {
-    const wrap = document.createElement('span');
-    wrap.className = 'thinking';
-    for (let i = 0; i < 3; i++) {
-      const dot = document.createElement('span');
-      dot.className = 'dot';
-      wrap.appendChild(dot);
-    }
-    return wrap;
+  // Chrome-yellow "Thinking" indicator with a live elapsed timer.
+  function thinkingEl(startedAt: number): { el: HTMLElement; stop: () => void } {
+    const el = document.createElement('span');
+    el.className = 'thinking';
+    const label = document.createElement('span');
+    label.className = 'thinking-label';
+    label.textContent = 'Thinking';
+    const time = document.createElement('span');
+    time.className = 'thinking-time';
+    el.append(label, time);
+    const tick = () => {
+      time.textContent = ((Date.now() - startedAt) / 1000).toFixed(1) + 's';
+    };
+    tick();
+    const timer = setInterval(tick, 100);
+    return { el, stop: () => clearInterval(timer) };
   }
 
   function renderThread() {
@@ -336,11 +346,19 @@ import Layout from '../layouts/Layout.astro';
     persist();
     renderSidebar();
 
-    // animated thinking indicator while the answer loads, no save button yet
+    // Always show the thinking indicator for a beat before the answer appears,
+    // so a fast model still reads as deliberate rather than blurting an answer.
+    const thinkStart = Date.now();
+    const MIN_THINK = 700 + Math.floor(Math.random() * 500); // 0.7–1.2s
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, Math.max(0, ms)));
+    let revealTimer: ReturnType<typeof setTimeout> | undefined;
+
+    // chrome-yellow "Thinking 0.0s" indicator until the answer is revealed
     const pending = messageEl('assistant', '', false);
     const pendingBody = pending.querySelector('.body-text') as HTMLElement;
     const pendingP = pending.querySelector('.body') as HTMLElement;
-    pendingBody.appendChild(thinkingEl());
+    const think = thinkingEl(thinkStart);
+    pendingBody.appendChild(think.el);
     thread.appendChild(pending);
     thread.scrollTop = thread.scrollHeight;
 
@@ -363,6 +381,7 @@ import Layout from '../layouts/Layout.astro';
         } catch {
           /* ignore */
         }
+        think.stop();
         pendingBody.textContent = msg;
         return;
       }
@@ -374,13 +393,28 @@ import Layout from '../layouts/Layout.astro';
       let answer = '';
       let started = false;
 
+      // Swap the thinking dots for the answer + cursor. Held back until the
+      // minimum think time has passed, so tokens buffer behind the dots first.
+      const reveal = () => {
+        if (started) return;
+        started = true;
+        think.stop();
+        pendingBody.textContent = answer;
+        pendingP.appendChild(cursor);
+        thread.scrollTop = thread.scrollHeight;
+      };
       const pushToken = (token: string) => {
-        if (!started) {
-          started = true;
-          pendingBody.textContent = '';
-          pendingP.appendChild(cursor);
-        }
         answer += token;
+        if (!started) {
+          const elapsed = Date.now() - thinkStart;
+          // Keep showing "Thinking" until BOTH the minimum window has passed
+          // AND the first token has arrived — whichever is later.
+          if (elapsed < MIN_THINK) {
+            if (revealTimer === undefined) revealTimer = setTimeout(reveal, MIN_THINK - elapsed);
+            return;
+          }
+          reveal();
+        }
         pendingBody.textContent = answer;
         const nearBottom =
           thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
@@ -407,12 +441,18 @@ import Layout from '../layouts/Layout.astro';
         }
       }
 
+      // If the whole answer arrived faster than the think window, keep the dots
+      // up until it elapses, then reveal — so thinking is always visible.
+      clearTimeout(revealTimer);
+      await wait(MIN_THINK - (Date.now() - thinkStart));
+      reveal();
+
       cursor.remove();
       answer = answer.trim();
 
       if (answer) {
         pendingBody.textContent = answer;
-        attachSave(pendingP, pendingBody);
+        attachSave(pending, pendingBody);
         chat.messages.push({ role: 'assistant', content: answer });
         persist();
         if (isFirst) generateTitle(chat, question);
@@ -420,9 +460,13 @@ import Layout from '../layouts/Layout.astro';
         pendingBody.textContent = 'Osprey is silent. Try again.';
       }
     } catch {
+      clearTimeout(revealTimer);
+      think.stop();
       cursor.remove();
       pendingBody.textContent = 'Osprey is silent. Try again.';
     } finally {
+      clearTimeout(revealTimer);
+      think.stop();
       busy = false;
       sendBtn.disabled = false;
       thread.scrollTop = thread.scrollHeight;
@@ -446,9 +490,7 @@ import Layout from '../layouts/Layout.astro';
     display: flex;
     gap: 1rem;
     padding: 1rem;
-    max-width: 1280px;
     width: 100%;
-    margin: 0 auto;
   }
 
   /* ---- sidebar ---- */
@@ -480,12 +522,15 @@ import Layout from '../layouts/Layout.astro';
   .side-btn.btn-accent {
     border: none;
     box-shadow: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    color: var(--accent-ink);
+    font-weight: 700;
+    transition: transform 0.18s ease, filter 0.18s ease;
   }
 
   .side-btn.btn-accent:hover {
     transform: translateY(-1px);
-    box-shadow: none;
-    filter: brightness(1.05);
+    filter: brightness(1.04) saturate(1.05);
   }
 
   .side-btn.btn-accent:active {
@@ -618,7 +663,7 @@ import Layout from '../layouts/Layout.astro';
 
   .empty-sub {
     margin: 0.5rem 0 0;
-    color: var(--muted);
+    color: var(--accent-strong);
     font-size: 0.92rem;
   }
 
@@ -667,8 +712,10 @@ import Layout from '../layouts/Layout.astro';
   }
 
   #chat-send:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: default;
+    transform: none;
+    filter: none;
   }
 
   /* ---- messages ---- */
@@ -699,32 +746,27 @@ import Layout from '../layouts/Layout.astro';
 
   .body {
     margin: 0;
-    padding: 0.8rem 1.05rem;
-    border-radius: 18px;
+    padding: 0.7rem 1rem;
+    border-radius: 12px;
     line-height: 1.6;
     white-space: pre-wrap;
     word-wrap: break-word;
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(18px) saturate(1.5);
-    backdrop-filter: blur(18px) saturate(1.5);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
     border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+    box-shadow: 0 1px 2px rgba(20, 22, 26, 0.05);
   }
 
   .msg.user .body {
-    background: linear-gradient(135deg, rgba(255, 206, 28, 0.92), rgba(245, 184, 0, 0.92));
+    background: var(--accent);
     color: var(--accent-ink);
-    border-color: rgba(245, 184, 0, 0.5);
-    border-bottom-right-radius: 6px;
-  }
-
-  .msg.osprey .body {
-    border-bottom-left-radius: 6px;
+    border-color: rgba(245, 184, 0, 0.35);
   }
 
   .save-btn {
-    display: inline-block;
-    margin-top: 0.6rem;
+    align-self: flex-start;
+    margin-top: 0.4rem;
     font-family: inherit;
     font-size: 0.75rem;
     color: var(--muted);
@@ -768,37 +810,44 @@ import Layout from '../layouts/Layout.astro';
   /* ---- thinking + cursor ---- */
   .thinking {
     display: inline-flex;
-    gap: 5px;
-    align-items: center;
+    align-items: baseline;
+    gap: 0.45rem;
+    font-weight: 600;
+    font-size: 0.98rem;
+    letter-spacing: 0.01em;
+    /* site yellow with a silver/white chrome sheen passing through */
+    background-image: linear-gradient(
+      100deg,
+      var(--accent) 0%,
+      var(--accent) 28%,
+      #f4f6f8 40%,
+      #ffffff 50%,
+      #f4f6f8 60%,
+      var(--accent) 72%,
+      var(--accent) 100%
+    );
+    background-size: 260% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: chrome-shimmer 4.2s linear infinite;
   }
 
-  .thinking .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--accent);
-    opacity: 0.3;
-    animation: think 1.3s infinite ease-in-out;
+  .thinking-time {
+    font-size: 0.85em;
+    font-variant-numeric: tabular-nums;
   }
 
-  .thinking .dot:nth-child(2) {
-    animation-delay: 0.18s;
-  }
-
-  .thinking .dot:nth-child(3) {
-    animation-delay: 0.36s;
-  }
-
-  @keyframes think {
-    0%,
-    70%,
-    100% {
-      opacity: 0.25;
-      transform: translateY(0);
+  @keyframes chrome-shimmer {
+    to {
+      background-position: 200% center;
     }
-    35% {
-      opacity: 1;
-      transform: translateY(-4px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .thinking {
+      animation: none;
     }
   }
 
