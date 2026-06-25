@@ -256,9 +256,20 @@ import Layout from '../layouts/Layout.astro';
     return wrap;
   }
 
-  // The save control sits below the bubble, as a sibling of .body (not inside it).
+  // Actions (Save, Regenerate) sit in a row below the bubble, outside .body.
+  function actionsRow(wrap: HTMLElement): HTMLElement {
+    let row = wrap.querySelector(':scope > .msg-actions') as HTMLElement | null;
+    if (!row) {
+      row = document.createElement('div');
+      row.className = 'msg-actions';
+      wrap.appendChild(row);
+    }
+    return row;
+  }
+
   function attachSave(wrap: HTMLElement, textEl: HTMLElement) {
-    if (wrap.querySelector(':scope > .save-btn')) return;
+    const row = actionsRow(wrap);
+    if (row.querySelector('.save-btn:not(.regen-btn)')) return;
     const raw = () => textEl.dataset.md ?? textEl.textContent ?? '';
     const save = document.createElement('button');
     save.className = 'save-btn';
@@ -266,7 +277,7 @@ import Layout from '../layouts/Layout.astro';
     if (existing) markSaved(save, existing.id);
     else markUnsaved(save);
     save.addEventListener('click', () => toggleSave(save, raw()));
-    wrap.appendChild(save);
+    row.appendChild(save);
   }
 
   function markSaved(btn: HTMLElement, id: string) {
@@ -321,6 +332,7 @@ import Layout from '../layouts/Layout.astro';
     for (const m of chat.messages) {
       thread.appendChild(messageEl(m.role, m.content));
     }
+    refreshRegenerate();
     thread.scrollTop = thread.scrollHeight;
   }
 
@@ -450,37 +462,13 @@ import Layout from '../layouts/Layout.astro';
     }
   });
 
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (busy) return;
-    const question = input.value.trim();
-    if (!question) return;
-
-    // start a new chat if needed
-    let chat = currentChat();
-    const isFirst = !chat;
-    if (!chat) {
-      chat = {
-        id: crypto.randomUUID(),
-        title: question.slice(0, 40),
-        messages: [],
-        createdAt: Date.now(),
-      };
-      chats.push(chat);
-      currentId = chat.id;
-    }
-
-    showThread();
-    chat.messages.push({ role: 'user', content: question });
-    thread.appendChild(messageEl('user', question));
-
-    input.value = '';
-    autoGrow();
+  // Stream one assistant reply for the current state of `chat`. Shared by the
+  // composer and by Regenerate.
+  async function runReply(chat: Chat, isFirst: boolean, seed: string) {
     busy = true;
     controller = new AbortController();
     setSendMode(true);
-    persist();
-    renderSidebar();
+    refreshRegenerate();
 
     // Always show the thinking indicator for a beat before the answer appears,
     // so a fast model still reads as deliberate rather than blurting an answer.
@@ -512,7 +500,7 @@ import Layout from '../layouts/Layout.astro';
         attachSave(pending, pendingBody);
         chat.messages.push({ role: 'assistant', content: text });
         persist();
-        if (isFirst) generateTitle(chat, question);
+        if (isFirst) generateTitle(chat, seed);
       } else {
         pendingBody.textContent = aborted ? 'Stopped.' : 'Osprey is silent. Try again.';
       }
@@ -624,10 +612,69 @@ import Layout from '../layouts/Layout.astro';
       controller = null;
       busy = false;
       setSendMode(false);
+      refreshRegenerate();
       thread.scrollTop = thread.scrollHeight;
       input.focus();
     }
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (busy) return;
+    const question = input.value.trim();
+    if (!question) return;
+
+    // start a new chat if needed
+    let chat = currentChat();
+    const isFirst = !chat;
+    if (!chat) {
+      chat = {
+        id: crypto.randomUUID(),
+        title: question.slice(0, 40),
+        messages: [],
+        createdAt: Date.now(),
+      };
+      chats.push(chat);
+      currentId = chat.id;
+    }
+
+    showThread();
+    chat.messages.push({ role: 'user', content: question });
+    thread.appendChild(messageEl('user', question));
+
+    input.value = '';
+    autoGrow();
+    persist();
+    renderSidebar();
+    await runReply(chat, isFirst, question);
   });
+
+  // Drop the last assistant reply and ask again from the same point.
+  function regenerate() {
+    if (busy) return;
+    const chat = currentChat();
+    if (!chat || chat.messages.length === 0) return;
+    if (chat.messages[chat.messages.length - 1].role === 'assistant') chat.messages.pop();
+    if (chat.messages.length === 0) return;
+    const seed = chat.messages.find((m) => m.role === 'user')?.content ?? '';
+    persist();
+    renderThread();
+    runReply(chat, false, seed);
+  }
+
+  // Keep a single Regenerate control on the latest finished assistant message.
+  function refreshRegenerate() {
+    thread.querySelectorAll('.regen-btn').forEach((b) => b.remove());
+    if (busy) return;
+    const msgs = thread.querySelectorAll('.msg.osprey');
+    const last = msgs[msgs.length - 1] as HTMLElement | undefined;
+    if (!last || !last.querySelector('.save-btn')) return;
+    const regen = document.createElement('button');
+    regen.className = 'save-btn regen-btn';
+    regen.textContent = 'Regenerate';
+    regen.addEventListener('click', regenerate);
+    (last.querySelector(':scope > .msg-actions') ?? last).appendChild(regen);
+  }
 
   document.getElementById('new-chat')!.addEventListener('click', newChat);
   document.getElementById('saved-btn')!.addEventListener('click', openSaved);
@@ -1044,6 +1091,17 @@ import Layout from '../layouts/Layout.astro';
   .md-copy:hover {
     color: var(--accent-strong);
     border-color: var(--accent);
+  }
+
+  .msg-actions {
+    display: flex;
+    gap: 0.4rem;
+    align-self: flex-start;
+    margin-top: 0.4rem;
+  }
+
+  .msg-actions .save-btn {
+    margin-top: 0;
   }
 
   .save-btn {
