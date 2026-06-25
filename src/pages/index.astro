@@ -112,6 +112,125 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
+  // ---------- markdown (escape-first, so model output can never inject HTML) ----------
+  function escapeHtml(s: string): string {
+    return s.replace(
+      /[&<>"]/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string
+    );
+  }
+
+  function inlineMd(text: string): string {
+    let t = escapeHtml(text);
+    // inline code (contents already escaped)
+    t = t.replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`);
+    // bold then italic
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    t = t.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+    t = t.replace(/(^|[^*])\*(?!\s)([^*]+?)\*/g, '$1<em>$2</em>');
+    t = t.replace(/(^|[^_])_(?!\s)([^_]+?)_/g, '$1<em>$2</em>');
+    // links — only http(s), so no javascript: vectors
+    t = t.replace(
+      /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+    );
+    return t.replace(/\n/g, '<br>');
+  }
+
+  function renderMarkdown(src: string): string {
+    const lines = src.replace(/\r\n/g, '\n').split('\n');
+    let html = '';
+    let list: 'ul' | 'ol' | null = null;
+    const closeList = () => {
+      if (list) {
+        html += `</${list}>`;
+        list = null;
+      }
+    };
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i];
+      const fence = line.match(/^```(\w*)\s*$/);
+      if (fence) {
+        closeList();
+        const code: string[] = [];
+        i++;
+        while (i < lines.length && !/^```\s*$/.test(lines[i])) code.push(lines[i++]);
+        i++;
+        html += `<pre class="md-pre"><button class="md-copy" type="button">Copy</button><code>${escapeHtml(code.join('\n'))}</code></pre>`;
+        continue;
+      }
+      const h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h) {
+        closeList();
+        const lvl = h[1].length;
+        html += `<h${lvl}>${inlineMd(h[2])}</h${lvl}>`;
+        i++;
+        continue;
+      }
+      if (/^\s*(---|\*\*\*|___)\s*$/.test(line)) {
+        closeList();
+        html += '<hr>';
+        i++;
+        continue;
+      }
+      if (/^>\s?/.test(line)) {
+        closeList();
+        const quote: string[] = [];
+        while (i < lines.length && /^>\s?/.test(lines[i])) quote.push(lines[i++].replace(/^>\s?/, ''));
+        html += `<blockquote>${renderMarkdown(quote.join('\n'))}</blockquote>`;
+        continue;
+      }
+      const ul = line.match(/^\s*[-*+]\s+(.*)$/);
+      if (ul) {
+        if (list !== 'ul') {
+          closeList();
+          html += '<ul>';
+          list = 'ul';
+        }
+        html += `<li>${inlineMd(ul[1])}</li>`;
+        i++;
+        continue;
+      }
+      const ol = line.match(/^\s*\d+\.\s+(.*)$/);
+      if (ol) {
+        if (list !== 'ol') {
+          closeList();
+          html += '<ol>';
+          list = 'ol';
+        }
+        html += `<li>${inlineMd(ol[1])}</li>`;
+        i++;
+        continue;
+      }
+      if (/^\s*$/.test(line)) {
+        closeList();
+        i++;
+        continue;
+      }
+      closeList();
+      const para: string[] = [line];
+      i++;
+      while (
+        i < lines.length &&
+        !/^\s*$/.test(lines[i]) &&
+        !/^(#{1,6}\s|```|>\s?|\s*[-*+]\s|\s*\d+\.\s)/.test(lines[i]) &&
+        !/^\s*(---|\*\*\*|___)\s*$/.test(lines[i])
+      ) {
+        para.push(lines[i++]);
+      }
+      html += `<p>${inlineMd(para.join('\n'))}</p>`;
+    }
+    closeList();
+    return html;
+  }
+
+  // Render assistant text as markdown; keep the raw source on a data attr for save.
+  function setAnswer(el: HTMLElement, md: string) {
+    el.dataset.md = md;
+    el.innerHTML = renderMarkdown(md);
+  }
+
   function messageEl(role: 'user' | 'assistant', text: string, withSave = true): HTMLElement {
     const wrap = document.createElement('div');
     wrap.className = `msg ${role === 'user' ? 'user' : 'osprey'}`;
@@ -120,12 +239,13 @@ import Layout from '../layouts/Layout.astro';
     who.className = 'who';
     who.textContent = role === 'user' ? 'You' : 'Osprey';
 
-    const body = document.createElement('p');
+    const body = document.createElement('div');
     body.className = 'body';
 
-    const textEl = document.createElement('span');
+    const textEl = document.createElement('div');
     textEl.className = 'body-text';
-    textEl.textContent = text;
+    if (role === 'assistant') setAnswer(textEl, text);
+    else textEl.textContent = text;
     body.appendChild(textEl);
 
     wrap.append(who, body);
@@ -138,12 +258,13 @@ import Layout from '../layouts/Layout.astro';
   // The save control sits below the bubble, as a sibling of .body (not inside it).
   function attachSave(wrap: HTMLElement, textEl: HTMLElement) {
     if (wrap.querySelector(':scope > .save-btn')) return;
+    const raw = () => textEl.dataset.md ?? textEl.textContent ?? '';
     const save = document.createElement('button');
     save.className = 'save-btn';
-    const existing = saved.find((s) => s.content === (textEl.textContent ?? ''));
+    const existing = saved.find((s) => s.content === raw());
     if (existing) markSaved(save, existing.id);
     else markUnsaved(save);
-    save.addEventListener('click', () => toggleSave(save, textEl.textContent ?? ''));
+    save.addEventListener('click', () => toggleSave(save, raw()));
     wrap.appendChild(save);
   }
 
@@ -260,12 +381,12 @@ import Layout from '../layouts/Layout.astro';
       const wrap = document.createElement('div');
       wrap.className = 'saved-item';
 
-      const body = document.createElement('p');
+      const body = document.createElement('div');
       body.className = 'body';
 
-      const textEl = document.createElement('span');
+      const textEl = document.createElement('div');
       textEl.className = 'body-text';
-      textEl.textContent = item.content;
+      setAnswer(textEl, item.content);
       body.appendChild(textEl);
 
       const remove = document.createElement('button');
@@ -356,7 +477,6 @@ import Layout from '../layouts/Layout.astro';
     // chrome-yellow "Thinking 0.0s" indicator until the answer is revealed
     const pending = messageEl('assistant', '', false);
     const pendingBody = pending.querySelector('.body-text') as HTMLElement;
-    const pendingP = pending.querySelector('.body') as HTMLElement;
     const think = thinkingEl(thinkStart);
     pendingBody.appendChild(think.el);
     thread.appendChild(pending);
@@ -393,14 +513,25 @@ import Layout from '../layouts/Layout.astro';
       let answer = '';
       let started = false;
 
-      // Swap the thinking dots for the answer + cursor. Held back until the
-      // minimum think time has passed, so tokens buffer behind the dots first.
+      // Park the blinking cursor at the end of the last rendered block.
+      const placeCursor = () => {
+        (pendingBody.lastElementChild ?? pendingBody).appendChild(cursor);
+      };
+      const paint = () => {
+        setAnswer(pendingBody, answer);
+        placeCursor();
+        const nearBottom =
+          thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
+        if (nearBottom) thread.scrollTop = thread.scrollHeight;
+      };
+
+      // Swap the thinking indicator for the answer. Held back until the minimum
+      // think time has passed, so tokens buffer behind the indicator first.
       const reveal = () => {
         if (started) return;
         started = true;
         think.stop();
-        pendingBody.textContent = answer;
-        pendingP.appendChild(cursor);
+        paint();
         thread.scrollTop = thread.scrollHeight;
       };
       const pushToken = (token: string) => {
@@ -414,11 +545,9 @@ import Layout from '../layouts/Layout.astro';
             return;
           }
           reveal();
+          return;
         }
-        pendingBody.textContent = answer;
-        const nearBottom =
-          thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
-        if (nearBottom) thread.scrollTop = thread.scrollHeight;
+        paint();
       };
 
       while (true) {
@@ -451,7 +580,7 @@ import Layout from '../layouts/Layout.astro';
       answer = answer.trim();
 
       if (answer) {
-        pendingBody.textContent = answer;
+        setAnswer(pendingBody, answer);
         attachSave(pending, pendingBody);
         chat.messages.push({ role: 'assistant', content: answer });
         persist();
@@ -476,6 +605,17 @@ import Layout from '../layouts/Layout.astro';
 
   document.getElementById('new-chat')!.addEventListener('click', newChat);
   document.getElementById('saved-btn')!.addEventListener('click', openSaved);
+
+  // copy buttons on code blocks (event-delegated)
+  thread.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.md-copy') as HTMLElement | null;
+    if (!btn) return;
+    const code = btn.parentElement?.querySelector('code');
+    if (!code) return;
+    navigator.clipboard?.writeText(code.textContent ?? '');
+    btn.textContent = 'Copied';
+    setTimeout(() => (btn.textContent = 'Copy'), 1500);
+  });
 
   // ---------- init ----------
   renderSidebar();
@@ -749,19 +889,120 @@ import Layout from '../layouts/Layout.astro';
     padding: 0.7rem 1rem;
     border-radius: 12px;
     line-height: 1.6;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+    overflow-wrap: anywhere;
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(18px) saturate(1.4);
     backdrop-filter: blur(18px) saturate(1.4);
     border: 1px solid var(--glass-border);
-    box-shadow: 0 1px 2px rgba(20, 22, 26, 0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 
   .msg.user .body {
     background: var(--accent);
     color: var(--accent-ink);
     border-color: rgba(245, 184, 0, 0.35);
+  }
+
+  .msg.user .body-text {
+    white-space: pre-wrap;
+  }
+
+  /* ---- markdown ---- */
+  .body-text > :first-child {
+    margin-top: 0;
+  }
+  .body-text > :last-child {
+    margin-bottom: 0;
+  }
+  .body-text p {
+    margin: 0 0 0.7rem;
+  }
+  .body-text h1,
+  .body-text h2,
+  .body-text h3,
+  .body-text h4 {
+    margin: 1rem 0 0.5rem;
+    line-height: 1.3;
+    font-weight: 700;
+  }
+  .body-text h1 {
+    font-size: 1.3rem;
+  }
+  .body-text h2 {
+    font-size: 1.15rem;
+  }
+  .body-text h3 {
+    font-size: 1.03rem;
+  }
+  .body-text ul,
+  .body-text ol {
+    margin: 0 0 0.7rem;
+    padding-left: 1.35rem;
+  }
+  .body-text li {
+    margin: 0.15rem 0;
+  }
+  .body-text code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.88em;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.1em 0.35em;
+    border-radius: 5px;
+  }
+  .body-text a {
+    color: var(--accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .body-text blockquote {
+    margin: 0 0 0.7rem;
+    padding: 0.2rem 0 0.2rem 0.85rem;
+    border-left: 3px solid var(--glass-border);
+    color: var(--muted);
+  }
+  .body-text hr {
+    border: none;
+    border-top: 1px solid var(--glass-border);
+    margin: 0.9rem 0;
+  }
+  .md-pre {
+    position: relative;
+    margin: 0 0 0.7rem;
+    padding: 0.8rem 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    overflow-x: auto;
+  }
+  .md-pre code {
+    display: block;
+    background: none;
+    padding: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    white-space: pre;
+  }
+  .md-copy {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    font-family: inherit;
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--field-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease;
+  }
+  .md-pre:hover .md-copy {
+    opacity: 1;
+  }
+  .md-copy:hover {
+    color: var(--accent-strong);
+    border-color: var(--accent);
   }
 
   .save-btn {
