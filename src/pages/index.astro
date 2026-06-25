@@ -998,10 +998,22 @@ import Layout from '../layouts/Layout.astro';
 
   /* ---- messages ---- */
   .msg {
-    max-width: min(680px, 92%);
+    max-width: min(820px, 94%);
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
+    animation: msg-in 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+
+  @keyframes msg-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.99);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .msg.user {
@@ -1022,20 +1034,33 @@ import Layout from '../layouts/Layout.astro';
     padding: 0 0.4rem;
   }
 
+  /* liquid-glass answer surface */
   .body {
     margin: 0;
-    padding: 0.7rem 1rem;
-    border-radius: 12px;
-    line-height: 1.6;
+    padding: 0.85rem 1.15rem;
+    border-radius: 16px;
+    line-height: 1.65;
     overflow-wrap: anywhere;
-    background: #1c1c1e;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.035));
+    -webkit-backdrop-filter: blur(22px) saturate(1.7);
+    backdrop-filter: blur(22px) saturate(1.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+
+  .msg.osprey .body {
+    transition: box-shadow 0.3s ease;
   }
 
   .msg.user .body {
-    background: var(--accent);
+    background: linear-gradient(180deg, #ffd84d, var(--accent));
     color: var(--accent-ink);
-    border-color: rgba(245, 184, 0, 0.35);
+    border-color: rgba(245, 184, 0, 0.5);
+    box-shadow:
+      0 8px 24px rgba(255, 206, 28, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.45);
   }
 
   .msg.user .body-text {
@@ -1242,7 +1267,8 @@ import Layout from '../layouts/Layout.astro';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .thinking {
+    .thinking,
+    .msg {
       animation: none;
     }
   }
