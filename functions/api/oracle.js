@@ -27,8 +27,23 @@ Voice and conduct:
 const TITLE_PROMPT =
   'Generate a short, plain title of 2 to 5 words summarizing a conversation that starts with the user message below. Reply with ONLY the title. No quotes, no trailing punctuation, no preamble.';
 
-const MAX_HISTORY = 20;
-const MAX_CONTENT = 4000;
+const MAX_HISTORY = 40; // hard ceiling on turns kept
+const MAX_CONTENT = 6000; // per-message cap
+const CONTEXT_CHAR_BUDGET = 24000; // ~6k tokens of recent history
+
+// Keep the most recent turns that fit within a character budget, so a few long
+// messages don't crowd out context the way a fixed message count would. The
+// latest message is always kept.
+function fitBudget(msgs, budget) {
+  const kept = [];
+  let total = 0;
+  for (let i = msgs.length - 1; i >= 0; i--) {
+    total += msgs[i].content.length + 8;
+    if (total > budget && kept.length > 0) break;
+    kept.unshift(msgs[i]);
+  }
+  return kept;
+}
 
 // Strongest first; falls through to the proven model if a primary is
 // unavailable so the endpoint can never hard-fail on a model id.
@@ -86,7 +101,7 @@ export async function onRequestPost({ request, env }) {
   let messages;
   try {
     if (Array.isArray(body?.messages)) {
-      messages = body.messages
+      const cleaned = body.messages
         .filter(
           (m) =>
             m &&
@@ -99,6 +114,7 @@ export async function onRequestPost({ request, env }) {
           role: m.role,
           content: m.content.toString().trim().slice(0, MAX_CONTENT),
         }));
+      messages = fitBudget(cleaned, CONTEXT_CHAR_BUDGET);
     } else if (body?.question) {
       // backward-compatible single-turn form
       messages = [{ role: 'user', content: body.question.toString().trim().slice(0, MAX_CONTENT) }];
