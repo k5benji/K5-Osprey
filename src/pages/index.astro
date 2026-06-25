@@ -72,6 +72,7 @@ import Layout from '../layouts/Layout.astro';
   let saved: Saved[] = load<Saved[]>(SAVED_KEY, []);
   let currentId: string | null = null;
   let busy = false;
+  let controller: AbortController | null = null;
 
   const chatMain = document.getElementById('chat-main')!;
   const thread = document.getElementById('thread')!;
@@ -436,6 +437,19 @@ import Layout from '../layouts/Layout.astro';
     }
   });
 
+  // While generating, Send becomes a Stop button that aborts the stream.
+  function setSendMode(generating: boolean) {
+    sendBtn.textContent = generating ? 'Stop' : 'Send';
+    sendBtn.classList.toggle('stop', generating);
+  }
+
+  sendBtn.addEventListener('click', (e) => {
+    if (busy) {
+      e.preventDefault();
+      controller?.abort();
+    }
+  });
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (busy) return;
@@ -463,7 +477,8 @@ import Layout from '../layouts/Layout.astro';
     input.value = '';
     autoGrow();
     busy = true;
-    sendBtn.disabled = true;
+    controller = new AbortController();
+    setSendMode(true);
     persist();
     renderSidebar();
 
@@ -486,11 +501,29 @@ import Layout from '../layouts/Layout.astro';
     const cursor = document.createElement('span');
     cursor.className = 'cursor';
 
+    let answer = '';
+    // Commit whatever has been produced — used on normal completion and on Stop.
+    const finalizeAnswer = (aborted = false) => {
+      think.stop();
+      cursor.remove();
+      const text = answer.trim();
+      if (text) {
+        setAnswer(pendingBody, text);
+        attachSave(pending, pendingBody);
+        chat.messages.push({ role: 'assistant', content: text });
+        persist();
+        if (isFirst) generateTitle(chat, question);
+      } else {
+        pendingBody.textContent = aborted ? 'Stopped.' : 'Osprey is silent. Try again.';
+      }
+    };
+
     try {
       const res = await fetch('/api/oracle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: chat.messages }),
+        signal: controller.signal,
       });
 
       if (!res.ok || !res.body) {
@@ -510,7 +543,6 @@ import Layout from '../layouts/Layout.astro';
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
-      let answer = '';
       let started = false;
 
       // Park the blinking cursor at the end of the last rendered block.
@@ -575,29 +607,23 @@ import Layout from '../layouts/Layout.astro';
       clearTimeout(revealTimer);
       await wait(MIN_THINK - (Date.now() - thinkStart));
       reveal();
-
-      cursor.remove();
-      answer = answer.trim();
-
-      if (answer) {
-        setAnswer(pendingBody, answer);
-        attachSave(pending, pendingBody);
-        chat.messages.push({ role: 'assistant', content: answer });
-        persist();
-        if (isFirst) generateTitle(chat, question);
+      finalizeAnswer();
+    } catch (err) {
+      clearTimeout(revealTimer);
+      if (err && (err as Error).name === 'AbortError') {
+        // user pressed Stop — keep whatever was streamed so far
+        finalizeAnswer(true);
       } else {
+        think.stop();
+        cursor.remove();
         pendingBody.textContent = 'Osprey is silent. Try again.';
       }
-    } catch {
-      clearTimeout(revealTimer);
-      think.stop();
-      cursor.remove();
-      pendingBody.textContent = 'Osprey is silent. Try again.';
     } finally {
       clearTimeout(revealTimer);
       think.stop();
+      controller = null;
       busy = false;
-      sendBtn.disabled = false;
+      setSendMode(false);
       thread.scrollTop = thread.scrollHeight;
       input.focus();
     }
@@ -856,6 +882,21 @@ import Layout from '../layouts/Layout.astro';
     cursor: default;
     transform: none;
     filter: none;
+  }
+
+  /* Stop button (shown while the AI is generating) */
+  #chat-send.stop {
+    background: var(--field-bg);
+    color: var(--text);
+    border: 1px solid var(--glass-border);
+    box-shadow: none;
+  }
+
+  #chat-send.stop:hover {
+    filter: none;
+    transform: translateY(-1px);
+    border-color: var(--accent);
+    color: var(--accent-strong);
   }
 
   /* ---- messages ---- */
