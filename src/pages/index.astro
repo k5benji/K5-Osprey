@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout>
   <div class="app">
-    <aside class="sidebar glass" id="sidebar">
+    <aside class="sidebar" id="sidebar">
       <button class="side-btn new-chat btn-accent" id="new-chat">+ New chat</button>
       <button class="side-btn saved-btn" id="saved-btn">Saved texts</button>
 
@@ -12,7 +12,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="chat-list" id="chat-list"></div>
     </aside>
 
-    <main class="chat-main empty glass" id="chat-main">
+    <main class="chat-main empty" id="chat-main">
       <div class="thread" id="thread"></div>
 
       <div class="composer" id="composer">
@@ -20,7 +20,7 @@ import Layout from '../layouts/Layout.astro';
           <h1 class="empty-title" id="empty-title">Chat with Osprey</h1>
           <p class="empty-sub" id="empty-sub">Powered by Kastle Five Systems</p>
         </div>
-        <form id="chat-form" class="chat-form glass">
+        <form id="chat-form" class="chat-form">
           <span class="prompt" aria-hidden="true">&gt;</span>
           <textarea
             id="chat-input"
@@ -28,9 +28,8 @@ import Layout from '../layouts/Layout.astro';
             maxlength="2000"
             placeholder="Ask Osprey something."
             autocomplete="off"></textarea>
-          <button type="button" id="search-toggle" class="search-toggle" aria-pressed="false" title="Search the web">
+          <button type="button" id="search-toggle" class="search-toggle" aria-pressed="false" aria-label="Search the web" title="Search the web">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 0c2.5 2.5 2.5 15.5 0 18m0-18c-2.5 2.5-2.5 15.5 0 18M3.5 9h17M3.5 15h17"/></svg>
-            <span>Search</span>
           </button>
           <button type="submit" id="chat-send" class="btn-accent">Send</button>
         </form>
@@ -724,6 +723,8 @@ import Layout from '../layouts/Layout.astro';
     width: 250px;
     flex-shrink: 0;
     border-radius: var(--radius);
+    border: 1px solid var(--glass-border);
+    background: transparent;
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -835,6 +836,8 @@ import Layout from '../layouts/Layout.astro';
     flex: 1;
     min-width: 0;
     border-radius: var(--radius);
+    border: 1px solid var(--glass-border);
+    background: transparent;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -900,6 +903,8 @@ import Layout from '../layouts/Layout.astro';
     gap: 0.6rem;
     width: 100%;
     border-radius: 26px;
+    border: 1px solid var(--glass-border);
+    background: var(--field-bg);
     padding: 0.4rem 0.4rem 0.4rem 1rem;
   }
 
@@ -959,26 +964,25 @@ import Layout from '../layouts/Layout.astro';
     color: var(--accent-strong);
   }
 
+  /* secondary, icon-only button matching the Send button's height */
   .search-toggle {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    justify-content: center;
     flex-shrink: 0;
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
     color: var(--muted);
-    background: transparent;
+    background: var(--field-bg);
     border: 1px solid var(--glass-border);
     border-radius: 999px;
-    padding: 0.45rem 0.7rem;
+    padding: 0.6rem;
     cursor: pointer;
     transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
   }
 
   .search-toggle svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
+    display: block;
   }
 
   .search-toggle:hover {
@@ -1024,11 +1028,8 @@ import Layout from '../layouts/Layout.astro';
     border-radius: 12px;
     line-height: 1.6;
     overflow-wrap: anywhere;
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(18px) saturate(1.4);
-    backdrop-filter: blur(18px) saturate(1.4);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    background: #1c1c1e;
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .msg.user .body {

@@ -35,7 +35,7 @@ const isHome = path === '/';
 			</defs>
 		</svg>
 
-		<header class="topbar glass">
+		<header class="topbar">
 			<a class="brand" href="/" aria-label="Osprey home">
 				<span class="brand-mark" aria-hidden="true"></span>
 				<span class="brand-word">Osprey</span>
@@ -92,8 +92,8 @@ const isHome = path === '/';
 				--glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
 				--field-bg: rgba(255, 255, 255, 0.05);
 				--blob-a: rgba(255, 206, 28, 0.1);
-				--blob-b: rgba(120, 170, 255, 0.07);
-				--blob-c: rgba(255, 150, 200, 0.06);
+				--blob-b: rgba(255, 206, 28, 0.1);
+				--blob-c: rgba(255, 206, 28, 0.05);
 			}
 
 			* {
@@ -166,10 +166,8 @@ const isHome = path === '/';
 				align-items: center;
 				justify-content: space-between;
 				padding: 0 1.1rem;
-				border-radius: 0;
-				border-left: none;
-				border-right: none;
-				border-top: none;
+				background: transparent;
+				border-bottom: 1px solid var(--glass-border);
 			}
 
 			.brand {
