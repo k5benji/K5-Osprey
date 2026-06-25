@@ -45,6 +45,42 @@ function fitBudget(msgs, budget) {
   return kept;
 }
 
+// Web search via Tavily. Returns a context block (string) for the model, or
+// null if search is unavailable or fails (the model then answers without it).
+async function webSearch(env, query) {
+  if (!env.TAVILY_API_KEY) return null;
+  try {
+    const res = await fetch('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: env.TAVILY_API_KEY,
+        query: query.toString().slice(0, 400),
+        max_results: 5,
+        include_answer: true,
+        search_depth: 'basic',
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const results = Array.isArray(data.results) ? data.results.slice(0, 5) : [];
+    if (!data.answer && results.length === 0) return null;
+
+    const today = new Date().toISOString().slice(0, 10);
+    const parts = [`Web search results (retrieved ${today}) for: "${query.toString().slice(0, 200)}"`];
+    if (data.answer) parts.push(`\nSummary: ${data.answer}`);
+    results.forEach((r, i) => {
+      parts.push(`\n[${i + 1}] ${r.title}\n${r.url}\n${(r.content || '').slice(0, 600)}`);
+    });
+    parts.push(
+      '\nUse these results to answer. Prefer them over prior knowledge for anything time-sensitive, and cite sources inline as Markdown links. If they do not cover the question, say so.'
+    );
+    return parts.join('\n');
+  } catch {
+    return null;
+  }
+}
+
 // Strongest first; falls through to the proven model if a primary is
 // unavailable so the endpoint can never hard-fail on a model id.
 const CHAT_MODELS = [
@@ -127,12 +163,24 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'Ask something.' }, 400);
   }
 
+  // Optional web search: when the client asks for it, retrieve fresh results
+  // for the latest user message and feed them to the model as context.
+  let searchContext = null;
+  if (body?.search) {
+    const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+    if (lastUser) searchContext = await webSearch(env, lastUser.content);
+  }
+
+  const prompt = [{ role: 'system', content: systemPrompt() }];
+  if (searchContext) prompt.push({ role: 'system', content: searchContext });
+  prompt.push(...messages);
+
   try {
-    const stream = await runChatStream(
-      env,
-      [{ role: 'system', content: systemPrompt() }, ...messages],
-      { max_tokens: 2048, temperature: 0.6, top_p: 0.9 }
-    );
+    const stream = await runChatStream(env, prompt, {
+      max_tokens: 2048,
+      temperature: 0.6,
+      top_p: 0.9,
+    });
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream',

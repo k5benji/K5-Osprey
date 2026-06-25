@@ -28,6 +28,10 @@ import Layout from '../layouts/Layout.astro';
             maxlength="2000"
             placeholder="Ask Osprey something."
             autocomplete="off"></textarea>
+          <button type="button" id="search-toggle" class="search-toggle" aria-pressed="false" title="Search the web">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 0c2.5 2.5 2.5 15.5 0 18m0-18c-2.5 2.5-2.5 15.5 0 18M3.5 9h17M3.5 15h17"/></svg>
+            <span>Search</span>
+          </button>
           <button type="submit" id="chat-send" class="btn-accent">Send</button>
         </form>
       </div>
@@ -73,6 +77,7 @@ import Layout from '../layouts/Layout.astro';
   let currentId: string | null = null;
   let busy = false;
   let controller: AbortController | null = null;
+  let searchOn = false;
 
   const chatMain = document.getElementById('chat-main')!;
   const thread = document.getElementById('thread')!;
@@ -510,7 +515,7 @@ import Layout from '../layouts/Layout.astro';
       const res = await fetch('/api/oracle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chat.messages }),
+        body: JSON.stringify({ messages: chat.messages, search: searchOn }),
         signal: controller.signal,
       });
 
@@ -678,6 +683,14 @@ import Layout from '../layouts/Layout.astro';
 
   document.getElementById('new-chat')!.addEventListener('click', newChat);
   document.getElementById('saved-btn')!.addEventListener('click', openSaved);
+
+  // web-search toggle (sticky until turned off)
+  const searchToggle = document.getElementById('search-toggle')!;
+  searchToggle.addEventListener('click', () => {
+    searchOn = !searchOn;
+    searchToggle.classList.toggle('active', searchOn);
+    searchToggle.setAttribute('aria-pressed', String(searchOn));
+  });
 
   // copy buttons on code blocks (event-delegated)
   thread.addEventListener('click', (e) => {
@@ -944,6 +957,39 @@ import Layout from '../layouts/Layout.astro';
     transform: translateY(-1px);
     border-color: var(--accent);
     color: var(--accent-strong);
+  }
+
+  .search-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    padding: 0.45rem 0.7rem;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .search-toggle svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .search-toggle:hover {
+    color: var(--text);
+    border-color: var(--text);
+  }
+
+  .search-toggle.active {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: var(--accent);
   }
 
   /* ---- messages ---- */
