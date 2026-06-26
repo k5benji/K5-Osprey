@@ -41,7 +41,6 @@ const isHome = path === '/';
 
 		<header class="topbar">
 			<a class="brand" href="/" aria-label="Osprey home">
-				<span class="brand-mark" aria-hidden="true"></span>
 				<span class="brand-word">Osprey</span>
 			</a>
 			<div class="topbar-right">
@@ -170,7 +169,7 @@ const isHome = path === '/';
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				padding: 0 1.1rem;
+				padding: 0 1.1rem 0 2rem;
 				background: transparent;
 				border-bottom: 1px solid var(--glass-border);
 			}
@@ -183,14 +182,6 @@ const isHome = path === '/';
 				font-weight: 800;
 				font-size: 1.25rem;
 				letter-spacing: -0.02em;
-			}
-
-			.brand-mark {
-				width: 18px;
-				height: 18px;
-				border-radius: 6px;
-				background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-				box-shadow: 0 2px 10px rgba(255, 206, 28, 0.5);
 			}
 
 			.brand-word {

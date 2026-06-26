@@ -26,7 +26,7 @@ import Layout from '../layouts/Layout.astro';
             id="chat-input"
             rows="1"
             maxlength="2000"
-            placeholder="Ask Osprey something."
+            placeholder="Cast a question…"
             autocomplete="off"></textarea>
           <button type="button" id="search-toggle" class="search-toggle" aria-pressed="false" aria-label="Search the web" title="Search the web">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 0c2.5 2.5 2.5 15.5 0 18m0-18c-2.5 2.5-2.5 15.5 0 18M3.5 9h17M3.5 15h17"/></svg>
@@ -389,7 +389,7 @@ import Layout from '../layouts/Layout.astro';
     if (saved.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'saved-empty';
-      empty.textContent = 'Nothing saved yet. Press save text after receiving an Osprey answer.';
+      empty.textContent = 'Your catch is empty. Save an answer to keep it here.';
       thread.appendChild(empty);
       return;
     }
@@ -506,7 +506,7 @@ import Layout from '../layouts/Layout.astro';
         persist();
         if (isFirst) generateTitle(chat, seed);
       } else {
-        pendingBody.textContent = aborted ? 'Stopped.' : 'Osprey is silent. Try again.';
+        pendingBody.textContent = aborted ? 'Stopped.' : 'The line went slack. Cast again.';
       }
     };
 
@@ -519,7 +519,7 @@ import Layout from '../layouts/Layout.astro';
       });
 
       if (!res.ok || !res.body) {
-        let msg = 'Osprey is silent. Try again.';
+        let msg = 'The line went slack. Cast again.';
         try {
           const data = await res.json();
           if (data.error) msg = data.error;
@@ -608,7 +608,7 @@ import Layout from '../layouts/Layout.astro';
       } else {
         think.stop();
         cursor.remove();
-        pendingBody.textContent = 'Osprey is silent. Try again.';
+        pendingBody.textContent = 'The line went slack. Cast again.';
       }
     } finally {
       clearTimeout(revealTimer);
@@ -1060,12 +1060,13 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .msg.user .body {
-    background: linear-gradient(180deg, #ffd84d, var(--accent));
+    background: var(--accent);
     color: var(--accent-ink);
-    border-color: rgba(245, 184, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow:
-      0 8px 24px rgba(255, 206, 28, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      0 8px 24px rgba(255, 206, 28, 0.22),
+      inset 0 1.5px 1px rgba(255, 255, 255, 0.65),
+      inset 0 -3px 8px rgba(170, 120, 0, 0.22);
   }
 
   .msg.user .body-text {
