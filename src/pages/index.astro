@@ -236,7 +236,12 @@ import Layout from '../layouts/Layout.astro';
     el.innerHTML = renderMarkdown(md);
   }
 
-  function messageEl(role: 'user' | 'assistant', text: string, withSave = true): HTMLElement {
+  function messageEl(
+    role: 'user' | 'assistant',
+    text: string,
+    withSave = true,
+    sources: any[] | null = null
+  ): HTMLElement {
     const wrap = document.createElement('div');
     wrap.className = `msg ${role === 'user' ? 'user' : 'osprey'}`;
 
@@ -255,9 +260,43 @@ import Layout from '../layouts/Layout.astro';
 
     wrap.append(who, body);
 
+    if (role === 'assistant' && sources && sources.length) renderSources(wrap, sources);
     if (role === 'assistant' && withSave) attachSave(wrap, textEl);
 
     return wrap;
+  }
+
+  // "The catch" — the web sources used for an answer, shown below the bubble.
+  function renderSources(wrap: HTMLElement, sources: any[]) {
+    if (wrap.querySelector(':scope > .sources')) return;
+    const box = document.createElement('div');
+    box.className = 'sources';
+    const head = document.createElement('div');
+    head.className = 'sources-head';
+    head.textContent = `The catch · ${sources.length} source${sources.length > 1 ? 's' : ''}`;
+    const list = document.createElement('ol');
+    list.className = 'sources-list';
+    for (const s of sources) {
+      let host = s.url;
+      try {
+        host = new URL(s.url).hostname.replace(/^www\./, '');
+      } catch {}
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = s.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = s.title || host;
+      const dom = document.createElement('span');
+      dom.className = 'sources-domain';
+      dom.textContent = host;
+      li.append(a, dom);
+      list.appendChild(li);
+    }
+    box.append(head, list);
+    const actions = wrap.querySelector(':scope > .msg-actions');
+    if (actions) wrap.insertBefore(box, actions);
+    else wrap.appendChild(box);
   }
 
   // Actions (Save, Regenerate) sit in a row below the bubble, outside .body.
@@ -334,7 +373,7 @@ import Layout from '../layouts/Layout.astro';
     const chat = currentChat();
     if (!chat) return;
     for (const m of chat.messages) {
-      thread.appendChild(messageEl(m.role, m.content));
+      thread.appendChild(messageEl(m.role, m.content, true, (m as any).sources ?? null));
     }
     refreshRegenerate();
     thread.scrollTop = thread.scrollHeight;
@@ -494,6 +533,7 @@ import Layout from '../layouts/Layout.astro';
     cursor.className = 'cursor';
 
     let answer = '';
+    let sources: any[] | null = null;
     // Commit whatever has been produced — used on normal completion and on Stop.
     const finalizeAnswer = (aborted = false) => {
       think.stop();
@@ -501,8 +541,9 @@ import Layout from '../layouts/Layout.astro';
       const text = answer.trim();
       if (text) {
         setAnswer(pendingBody, text);
+        if (sources && sources.length) renderSources(pending, sources);
         attachSave(pending, pendingBody);
-        chat.messages.push({ role: 'assistant', content: text });
+        chat.messages.push({ role: 'assistant', content: text, ...(sources ? { sources } : {}) } as any);
         persist();
         if (isFirst) generateTitle(chat, seed);
       } else {
@@ -587,6 +628,7 @@ import Layout from '../layouts/Layout.astro';
           if (!payload || payload === '[DONE]') continue;
           try {
             const obj = JSON.parse(payload);
+            if (obj.sources) sources = obj.sources;
             if (obj.response) pushToken(obj.response);
           } catch {
             /* skip malformed chunk */
@@ -858,9 +900,44 @@ import Layout from '../layouts/Layout.astro';
     display: none;
   }
 
-  /* composer pinned at the bottom while chatting */
+  /* a single faint waterline shimmering at the bottom of the chat */
+  .chat-main::after {
+    content: '';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: 12px;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.22) 48%,
+      rgba(255, 255, 255, 0.34) 50%,
+      rgba(255, 255, 255, 0.22) 52%,
+      transparent
+    );
+    background-size: 220% 100%;
+    box-shadow: 0 0 14px rgba(255, 255, 255, 0.08);
+    opacity: 0.5;
+    animation: waterline 9s linear infinite;
+  }
+
+  @keyframes waterline {
+    to {
+      background-position: -220% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-main::after {
+      animation: none;
+    }
+  }
+
+  /* composer floats near the bottom while chatting */
   .composer {
-    padding: 1rem clamp(1rem, 5vw, 3rem) 1.4rem;
+    padding: 1rem clamp(1rem, 5vw, 3rem) 2rem;
   }
 
   .empty-hero {
@@ -901,16 +978,36 @@ import Layout from '../layouts/Layout.astro';
     letter-spacing: 0.02em;
   }
 
-  /* ---- composer form ---- */
+  /* ---- composer form: floating 3D liquid glass ---- */
   .chat-form {
     display: flex;
     align-items: center;
     gap: 0.6rem;
     width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
     border-radius: 26px;
-    border: 1px solid var(--glass-border);
-    background: var(--field-bg);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    -webkit-backdrop-filter: blur(26px) saturate(1.9);
+    backdrop-filter: blur(26px) saturate(1.9);
     padding: 0.4rem 0.4rem 0.4rem 1rem;
+    box-shadow:
+      0 24px 50px -12px rgba(0, 0, 0, 0.7),
+      0 8px 20px -8px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.35);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+
+  .chat-form:focus-within {
+    transform: translateY(-1px);
+    box-shadow:
+      0 30px 60px -12px rgba(0, 0, 0, 0.78),
+      0 10px 24px -8px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.36),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(255, 206, 28, 0.25);
   }
 
   .chat-main.empty .chat-form {
@@ -1180,6 +1277,54 @@ import Layout from '../layouts/Layout.astro';
 
   .msg-actions .save-btn {
     margin-top: 0;
+  }
+
+  /* "the catch" — web sources used for an answer */
+  .sources {
+    align-self: stretch;
+    margin-top: 0.5rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+  }
+
+  .sources-head {
+    color: var(--accent-strong);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.45rem;
+  }
+
+  .sources-list {
+    margin: 0;
+    padding-left: 1.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.82rem;
+  }
+
+  .sources-list li {
+    color: var(--muted);
+  }
+
+  .sources-list a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .sources-list a:hover {
+    color: var(--accent-strong);
+    text-decoration: underline;
+  }
+
+  .sources-domain {
+    color: var(--muted);
+    margin-left: 0.45rem;
+    font-size: 0.72rem;
   }
 
   .save-btn {

@@ -47,6 +47,8 @@ function fitBudget(msgs, budget) {
 
 // Web search via Tavily. Returns a context block (string) for the model, or
 // null if search is unavailable or fails (the model then answers without it).
+// Returns { context, sources } or null. `sources` is sent to the client so it
+// can show a "catch" panel of exactly what was used.
 async function webSearch(env, query) {
   if (!env.TAVILY_API_KEY) return null;
   try {
@@ -73,9 +75,10 @@ async function webSearch(env, query) {
       parts.push(`\n[${i + 1}] ${r.title}\n${r.url}\n${(r.content || '').slice(0, 600)}`);
     });
     parts.push(
-      '\nUse these results to answer. Prefer them over prior knowledge for anything time-sensitive, and cite sources inline as Markdown links. If they do not cover the question, say so.'
+      '\nUse these results to answer. Prefer them over prior knowledge for anything time-sensitive. Cite the sources you use inline as numbered Markdown links like [1](url) that match the list above. If they do not cover the question, say so.'
     );
-    return parts.join('\n');
+    const sources = results.map((r, i) => ({ n: i + 1, title: r.title || r.url, url: r.url }));
+    return { context: parts.join('\n'), sources };
   } catch {
     return null;
   }
@@ -165,14 +168,14 @@ export async function onRequestPost({ request, env }) {
 
   // Optional web search: when the client asks for it, retrieve fresh results
   // for the latest user message and feed them to the model as context.
-  let searchContext = null;
+  let search = null;
   if (body?.search) {
     const lastUser = [...messages].reverse().find((m) => m.role === 'user');
-    if (lastUser) searchContext = await webSearch(env, lastUser.content);
+    if (lastUser) search = await webSearch(env, lastUser.content);
   }
 
   const prompt = [{ role: 'system', content: systemPrompt() }];
-  if (searchContext) prompt.push({ role: 'system', content: searchContext });
+  if (search) prompt.push({ role: 'system', content: search.context });
   prompt.push(...messages);
 
   try {
@@ -181,7 +184,9 @@ export async function onRequestPost({ request, env }) {
       temperature: 0.6,
       top_p: 0.9,
     });
-    return new Response(stream, {
+    // Prepend the sources (the "catch") so the client can show what was used.
+    const out = withSources(stream, search?.sources);
+    return new Response(out, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-store',
@@ -191,6 +196,27 @@ export async function onRequestPost({ request, env }) {
     console.error('Osprey error:', error);
     return json({ error: 'Osprey is silent. Try again.' }, 500);
   }
+}
+
+// Emit a one-off `sources` SSE event, then pipe the model's token stream.
+function withSources(stream, sources) {
+  if (!sources || sources.length === 0) return stream;
+  const enc = new TextEncoder();
+  return new ReadableStream({
+    async start(controller) {
+      controller.enqueue(enc.encode('data: ' + JSON.stringify({ sources }) + '\n\n'));
+      const reader = stream.getReader();
+      try {
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          controller.enqueue(value);
+        }
+      } finally {
+        controller.close();
+      }
+    },
+  });
 }
 
 function json(data, status = 200) {
