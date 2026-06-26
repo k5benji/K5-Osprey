@@ -11,6 +11,10 @@ const isHome = path === '/';
 		<meta name="generator" content={Astro.generator} />
 		<link rel="icon" href="data:," />
 		<title>Osprey</title>
+		<!-- Eurostile Extended is licensed; Michroma is the free web fallback. -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" />
 	</head>
 	<body>
 		<!-- Hidden gradient defs for verification / engineer badges. -->
@@ -83,6 +87,7 @@ const isHome = path === '/';
 				--radius-sm: 12px;
 				--topbar-h: 60px;
 				--font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+				--font-display: 'Eurostile Extended', 'Eurostile', 'Michroma', sans-serif;
 				--bg: #000000;
 				--text: #f2f4f7;
 				--muted: #9aa1ab;
@@ -190,6 +195,11 @@ const isHome = path === '/';
 
 			.brand-word {
 				color: var(--text);
+				font-family: var(--font-display);
+				font-weight: 700;
+				text-transform: uppercase;
+				font-size: 1rem;
+				letter-spacing: 0.02em;
 			}
 
 			.topbar-right {

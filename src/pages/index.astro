@@ -885,15 +885,20 @@ import Layout from '../layouts/Layout.astro';
 
   .empty-title {
     margin: 0;
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(1.4rem, 3.2vw, 2.1rem);
+    letter-spacing: 0.04em;
   }
 
   .empty-sub {
-    margin: 0.5rem 0 0;
+    margin: 0.7rem 0 0;
+    font-family: var(--font-display);
+    text-transform: lowercase;
     color: var(--accent-strong);
-    font-size: 0.92rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
   }
 
   /* ---- composer form ---- */
