@@ -1,9 +1,11 @@
 # Osprey
 
-An AI-native OS interface with privacy built in. Osprey is a conversational
-front end that watches over your system — helping you understand and contain
-data-breach exposure, active risks, viruses, and other malware, and guiding you
-through healing the problems it finds. Built with
+AI-based software for defense-grade security. Osprey is a conversational AI OS
+interface built for the military and other high-assurance environments — it
+helps teams handle data breaches, maintain extreme privacy, and advance the
+safety and operational-security developments that mission-critical work
+depends on. It surfaces exposure, guides containment of active risks, viruses,
+and other malware, and walks operators through remediation. Built with
 [Astro](https://astro.build) and deployed on Cloudflare Pages, with the API
 running as Cloudflare Pages Functions backed by a D1 (SQLite) database.
 
@@ -11,20 +13,24 @@ Built by Kastle Five Systems.
 
 ## What it does
 
-- **Conversational OS interface** — talk to Osprey in plain language instead of
-  hunting through menus and settings.
-- **Privacy tools** — surface what is exposed, what is leaking, and what to lock
-  down, with concrete, step-by-step guidance.
-- **Breach & threat response** — help assess data-breach exposure and walk
-  through containing current risks, viruses, and other malware.
-- **Heal, don't just alert** — the goal is remediation: clear next actions that
-  resolve the issue, not another dashboard of warnings.
+- **Conversational AI OS interface** — operate and query the system in plain
+  language instead of hunting through menus and settings.
+- **Extreme privacy** — built for environments where data minimization,
+  compartmentalization, and operational security are non-negotiable.
+- **Data-breach handling** — assess exposure, contain the blast radius, and work
+  through a clear response rather than a wall of alerts.
+- **Threat response** — guide containment of active risks, viruses, and other
+  malware, with the highest-impact actions first.
+- **Safety & OPSEC developments** — support the ongoing safety and
+  security-hardening work that mission-critical operations require.
 - **Web-aware answers** — an optional search mode pulls in live sources and
   cites them alongside each answer.
 
-> Note: Osprey is an interface and assistant layer. It does not replace a
-> dedicated endpoint-protection engine; it helps you understand, prioritize, and
-> act on risks.
+> Note: Osprey is an AI interface and advisory layer. It does not replace a
+> dedicated endpoint-protection engine, accredited defense systems, or formal
+> incident response; it helps operators understand, prioritize, and act on
+> risks. Deployment in classified or regulated environments is the operator's
+> responsibility and subject to the applicable authorization and accreditation.
 
 ## Stack
 
