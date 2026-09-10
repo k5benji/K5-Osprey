@@ -1,4 +1,19 @@
 ---
+/*
+ * Copyright 2026 Kastle Five Systems
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import Layout from '../layouts/Layout.astro';
 ---
 
@@ -17,8 +32,8 @@ import Layout from '../layouts/Layout.astro';
 
       <div class="composer" id="composer">
         <div class="empty-hero">
-          <h1 class="empty-title" id="empty-title">Chat with Osprey</h1>
-          <p class="empty-sub" id="empty-sub">Powered by Kastle Five Systems</p>
+          <h1 class="empty-title" id="empty-title">Osprey</h1>
+          <p class="empty-sub" id="empty-sub">Your private AI OS — guarding against breaches, malware &amp; data risk</p>
         </div>
         <form id="chat-form" class="chat-form">
           <span class="prompt" aria-hidden="true">&gt;</span>
@@ -26,7 +41,7 @@ import Layout from '../layouts/Layout.astro';
             id="chat-input"
             rows="1"
             maxlength="2000"
-            placeholder="Cast a question…"
+            placeholder="Ask about your privacy, threats, or system…"
             autocomplete="off"></textarea>
           <button type="button" id="search-toggle" class="search-toggle" aria-pressed="false" aria-label="Search the web" title="Search the web">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 0c2.5 2.5 2.5 15.5 0 18m0-18c-2.5 2.5-2.5 15.5 0 18M3.5 9h17M3.5 15h17"/></svg>
@@ -266,14 +281,14 @@ import Layout from '../layouts/Layout.astro';
     return wrap;
   }
 
-  // "The catch" — the web sources used for an answer, shown below the bubble.
+  // Sources — the web sources used for an answer, shown below the bubble.
   function renderSources(wrap: HTMLElement, sources: any[]) {
     if (wrap.querySelector(':scope > .sources')) return;
     const box = document.createElement('div');
     box.className = 'sources';
     const head = document.createElement('div');
     head.className = 'sources-head';
-    head.textContent = `The catch · ${sources.length} source${sources.length > 1 ? 's' : ''}`;
+    head.textContent = `Sources · ${sources.length} source${sources.length > 1 ? 's' : ''}`;
     const list = document.createElement('ol');
     list.className = 'sources-list';
     for (const s of sources) {
@@ -428,7 +443,7 @@ import Layout from '../layouts/Layout.astro';
     if (saved.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'saved-empty';
-      empty.textContent = 'Your catch is empty. Save an answer to keep it here.';
+      empty.textContent = 'Nothing saved yet. Save an answer to keep it here.';
       thread.appendChild(empty);
       return;
     }
@@ -547,7 +562,7 @@ import Layout from '../layouts/Layout.astro';
         persist();
         if (isFirst) generateTitle(chat, seed);
       } else {
-        pendingBody.textContent = aborted ? 'Stopped.' : 'The line went slack. Cast again.';
+        pendingBody.textContent = aborted ? 'Stopped.' : 'Connection dropped. Try again.';
       }
     };
 
@@ -560,7 +575,7 @@ import Layout from '../layouts/Layout.astro';
       });
 
       if (!res.ok || !res.body) {
-        let msg = 'The line went slack. Cast again.';
+        let msg = 'Connection dropped. Try again.';
         try {
           const data = await res.json();
           if (data.error) msg = data.error;
@@ -650,7 +665,7 @@ import Layout from '../layouts/Layout.astro';
       } else {
         think.stop();
         cursor.remove();
-        pendingBody.textContent = 'The line went slack. Cast again.';
+        pendingBody.textContent = 'Connection dropped. Try again.';
       }
     } finally {
       clearTimeout(revealTimer);
@@ -1279,7 +1294,7 @@ import Layout from '../layouts/Layout.astro';
     margin-top: 0;
   }
 
-  /* "the catch" — web sources used for an answer */
+  /* sources — web sources used for an answer */
   .sources {
     align-self: stretch;
     margin-top: 0.5rem;
