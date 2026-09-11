@@ -1,3 +1,0 @@
-# written work is now posts — send old URLs to the matching post
-/writtenwork/* /post/work-:splat 301
-/blog/* /post/work-:splat 301

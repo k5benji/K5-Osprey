@@ -1,7 +1,0 @@
-name = "osprey-thread-kastle5"
-compatibility_date = "2024-09-23"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "notebook"
-database_id = "af8780f9-80ad-42dd-8762-a68f63fedca3"
